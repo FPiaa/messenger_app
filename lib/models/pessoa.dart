@@ -1,9 +1,10 @@
 class Pessoa {
   static int numeroConta = 1;
-  String username;
-  String email;
-  DateTime dataNascimento;
+  final String username;
+  final String email;
+  final DateTime dataNascimento;
   String? photo;
+  String? descricao;
   late int uuid;
 
   Pessoa({
@@ -11,6 +12,7 @@ class Pessoa {
     required this.email,
     required this.dataNascimento,
     this.photo,
+    this.descricao,
   }) {
     uuid = numeroConta;
     numeroConta += 1;

@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:messenger_app/repository/pessoa_repository.dart';
+import 'package:messenger_app/models/conversa.dart';
+import 'package:messenger_app/pages/conversa_page.dart';
+import 'package:messenger_app/repository/conversas_repository.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final pessoas = PessoaRepository.pessoas;
+    final _conversas = ConversaRepository();
+    _conversas.init();
+    final conversas = _conversas.conversas;
 
     return Scaffold(
       appBar: AppBar(
@@ -18,23 +22,32 @@ class HomePage extends StatelessWidget {
         child: const Icon(Icons.person_add_alt_sharp),
       ),
       body: ListView.separated(
-          itemBuilder: (BuildContext context, int pessoa) {
+          itemBuilder: (BuildContext context, int conversa) {
             return ListTile(
 // TODO: Create a widget for chat Icon
-              leading: pessoas[pessoa].photo != null
+              leading: conversas[conversa].imageUrl != null
                   ? Image.asset(
-                      pessoas[pessoa].photo!,
+                      conversas[conversa].imageUrl!,
                     )
                   : const Icon(Icons.person),
               title: Text(
-                pessoas[pessoa].username,
+                conversas[conversa].nome,
               ),
-              trailing: const Text("Blah"),
+              trailing: conversas[conversa].mensagens.isNotEmpty
+                  ? Text(
+                      "${conversas[conversa].mensagens.last.dataEnvio.second}")
+                  : const Text(" "),
+              onTap: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (BuildContext context) {
+                  return ConversaPage(conversa: conversas[conversa]);
+                }));
+              },
             );
           },
           padding: const EdgeInsets.all(16.0),
-          separatorBuilder: (_, __) => Divider(),
-          itemCount: pessoas.length),
+          separatorBuilder: (_, __) => const Divider(),
+          itemCount: conversas.length),
     );
   }
 }
