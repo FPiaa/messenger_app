@@ -2,8 +2,20 @@ import 'package:messenger_app/models/pessoa.dart';
 
 class PessoaRepository {
   static List<Pessoa> pessoas = [
-    Pessoa(name: "Jão"),
-    Pessoa(name: "Igor", username: "piaa"),
-    Pessoa(name: "Foo", username: 'bar', photo: "images/capivara.jpg"),
+    Pessoa(
+      username: "Jão",
+      dataNascimento: DateTime.parse("1990-04-29"),
+      email: "email@teste.com",
+    ),
+    Pessoa(
+        username: "piaa",
+        dataNascimento: DateTime.parse("2000-01-09"),
+        email: "fidler@alunos.utfpr.edu.br",
+        photo: "images/capivara.jpg"),
+    Pessoa(
+      username: "Foo",
+      dataNascimento: DateTime.parse("2002-05-18"),
+      email: "email_esas@teste.com",
+    ),
   ];
 }

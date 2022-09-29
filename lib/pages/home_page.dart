@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:messenger_app/repository/pessoa_repository.dart';
 
 class HomePage extends StatelessWidget {
@@ -29,7 +27,7 @@ class HomePage extends StatelessWidget {
                     )
                   : const Icon(Icons.person),
               title: Text(
-                pessoas[pessoa].name,
+                pessoas[pessoa].username,
               ),
               trailing: const Text("Blah"),
             );
