@@ -1,28 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:messenger_app/provider/conversas_selecionadas_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:provider/single_child_widget.dart';
 
-import '../models/conversa.dart';
-import '../pages/conversa_page.dart';
+import '../../models/conversa.dart';
+import '../../pages/conversa_page.dart';
 
 //TODO: por algum motivo esquecido por deus toda hora que uma conversa
 //nova é criada ela possui um hashCode diferente, mesmo sendo
 //exatamente o mesmo objeto, descubra como arrumar
-class ConversaTile extends StatefulWidget {
-  Conversa conversa;
-  ConversaTile({super.key, required this.conversa});
 
-  @override
-  State<ConversaTile> createState() => _ConversaTileState();
-}
-
-class _ConversaTileState extends State<ConversaTile> {
-  late ConversasSelecionadasProvider selecionadas;
+class MyWidget extends StatelessWidget {
+  const MyWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
-    selecionadas = Provider.of<ConversasSelecionadasProvider>(context);
+    return Container();
+  }
+}
 
+class ConversaTile extends StatelessWidget {
+  final ConversasSelecionadasProvider selecionadas;
+  final Conversa conversa;
+  const ConversaTile({
+    super.key,
+    required this.conversa,
+    required this.selecionadas,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return ListTile(
       leading: _buildLeading(),
       title: _buildTitle(),
@@ -30,18 +37,19 @@ class _ConversaTileState extends State<ConversaTile> {
       subtitle: _buildSubTitle(),
       tileColor: Colors.grey[200],
       selectedTileColor: Colors.blue[50],
-      selected: selecionadas.conversas.contains(widget.conversa),
+      selected: selecionadas.conversas.contains(conversa),
       onTap: () {
         Navigator.push(context,
             MaterialPageRoute(builder: (BuildContext context) {
-          return ConversaPage(conversa: widget.conversa);
+          return ConversaPage(conversa: conversa);
         }));
       },
-      onLongPress: () => setState(() {
-        selecionadas.conversas.contains(widget.conversa)
-            ? selecionadas.remove(widget.conversa)
-            : selecionadas.save(widget.conversa);
-      }),
+      onLongPress: () => {
+        print(conversa.hashCode),
+        selecionadas.conversas.contains(conversa)
+            ? selecionadas.remove(conversa)
+            : selecionadas.save(conversa)
+      },
     );
   }
 
@@ -58,8 +66,8 @@ class _ConversaTileState extends State<ConversaTile> {
           height: imageSize,
           child: ClipOval(
             clipBehavior: Clip.antiAliasWithSaveLayer,
-            child: widget.conversa.imageUrl != null
-                ? Image.asset(widget.conversa.imageUrl!)
+            child: conversa.imageUrl != null
+                ? Image.asset(conversa.imageUrl!)
                 : const Icon(
                     Icons.person,
                     size: imageSize,
@@ -73,18 +81,18 @@ class _ConversaTileState extends State<ConversaTile> {
 
   Widget _buildTitle() {
     return Text(
-      widget.conversa.nome,
+      conversa.nome,
       style: const TextStyle(fontSize: 18, overflow: TextOverflow.clip),
       overflow: TextOverflow.ellipsis,
     );
   }
 
   Widget _buildSubTitle() {
-    if (widget.conversa.mensagens.isEmpty) {
+    if (conversa.mensagens.isEmpty) {
       return Container();
     } else {
       return Text(
-        widget.conversa.mensagens.last.content,
+        conversa.mensagens.last.content,
         style: const TextStyle(fontSize: 14),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
@@ -93,11 +101,11 @@ class _ConversaTileState extends State<ConversaTile> {
   }
 
   Widget _buildTrailing() {
-    if (widget.conversa.mensagens.isEmpty) {
+    if (conversa.mensagens.isEmpty) {
       return const Text(" ");
     } else {
       // TODO: Adicionar formatação bonita para as hora
-      return Text("${widget.conversa.mensagens.last.dataEnvio.second}");
+      return Text("${conversa.mensagens.last.dataEnvio.second}");
     }
   }
 }

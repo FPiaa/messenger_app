@@ -5,6 +5,7 @@ class Pessoa {
   final DateTime dataNascimento;
   String? photo;
   String? descricao;
+  // TODO: Adicionar suporte a uuid de verdade
   late int uuid;
 
   Pessoa({

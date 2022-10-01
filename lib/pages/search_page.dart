@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:messenger_app/provider/conversas_pesquisadas_provider.dart';
-import 'package:messenger_app/widget/conversa_tile.dart';
+import 'package:messenger_app/widget/conversa_list/conversa_list.dart';
 import 'package:provider/provider.dart';
 
 import '../models/conversa.dart';
@@ -34,13 +34,7 @@ class SearchPage extends SearchDelegate {
     List<Conversa> conversasFiltradas = pesquisa.filter((Conversa conversa) =>
         conversa.nome.toLowerCase().contains(query.toLowerCase()));
 
-    return ListView.builder(
-      itemCount: conversasFiltradas.length,
-      itemBuilder: (context, index) {
-        Conversa conversa = conversasFiltradas[index];
-        return ConversaTile(conversa: conversa);
-      },
-    );
+    return ConversaListView(conversas: conversasFiltradas);
   }
 
   @override
@@ -49,13 +43,7 @@ class SearchPage extends SearchDelegate {
     List<Conversa> conversasFiltradas = pesquisa.filter((Conversa conversa) =>
         conversa.nome.toLowerCase().contains(query.toLowerCase()));
 
-    return ListView.builder(
-      itemCount: conversasFiltradas.length,
-      itemBuilder: (context, index) {
-        Conversa conversa = conversasFiltradas[index];
-        return ConversaTile(conversa: conversa);
-      },
-    );
+    return ConversaListView(conversas: conversasFiltradas);
   }
 
   @override
