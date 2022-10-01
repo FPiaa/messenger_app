@@ -1,51 +1,55 @@
 import 'package:flutter/material.dart';
-import 'package:messenger_app/models/conversa.dart';
-import 'package:messenger_app/pages/conversa_page.dart';
 import 'package:messenger_app/repository/conversas_repository.dart';
+import 'package:messenger_app/repository/conversas_selecionadas_repository.dart';
+import 'package:messenger_app/widget/conversa_tile.dart';
+import 'package:provider/provider.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  late ConversasSelecionadasRepository selecionadas;
+
+//TODO: remover o repositório do build
+  @override
   Widget build(BuildContext context) {
+    selecionadas = Provider.of<ConversasSelecionadasRepository>(context);
     final _conversas = ConversaRepository();
     _conversas.init();
     final conversas = _conversas.conversas;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Anti-Zuk"),
-        centerTitle: true,
+        title: selecionadas.conversas.isEmpty
+            ? const Text("Anti-Zuk")
+            : Text("${selecionadas.conversas.length} conversas"),
+        centerTitle: false,
+        actions: [
+          IconButton(
+            onPressed: () => print("search pressed"),
+            icon: const Icon(Icons.search),
+          ),
+          //TODO: trocar para popMenuButtom
+          IconButton(
+            icon: const Icon(Icons.more_vert),
+            onPressed: (() => print("foo")),
+            tooltip: "opções",
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: (() => {}),
         child: const Icon(Icons.person_add_alt_sharp),
       ),
       body: ListView.separated(
-          itemBuilder: (BuildContext context, int conversa) {
-            return ListTile(
-// TODO: Create a widget for chat Icon
-              leading: conversas[conversa].imageUrl != null
-                  ? Image.asset(
-                      conversas[conversa].imageUrl!,
-                    )
-                  : const Icon(Icons.person),
-              title: Text(
-                conversas[conversa].nome,
+          itemBuilder: (BuildContext context, int conversa) => ConversaTile(
+                conversa: conversas[conversa],
               ),
-              trailing: conversas[conversa].mensagens.isNotEmpty
-                  ? Text(
-                      "${conversas[conversa].mensagens.last.dataEnvio.second}")
-                  : const Text(" "),
-              onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (BuildContext context) {
-                  return ConversaPage(conversa: conversas[conversa]);
-                }));
-              },
-            );
-          },
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.only(top: 16.0),
           separatorBuilder: (_, __) => const Divider(),
           itemCount: conversas.length),
     );

@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:messenger_app/pages/home_page.dart';
+import 'package:messenger_app/repository/conversas_selecionadas_repository.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(const Chat());
+  // debugPaintPointersEnabled = true;
+  runApp(ChangeNotifierProvider(
+    create: (context) => ConversasSelecionadasRepository(),
+    child: const Chat(),
+  ));
 }
 
 class Chat extends StatelessWidget {
@@ -16,7 +22,7 @@ class Chat extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.amber,
       ),
-      home: HomePage(),
+      home: const HomePage(),
     );
   }
 }

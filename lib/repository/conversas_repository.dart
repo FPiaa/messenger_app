@@ -35,7 +35,8 @@ class ConversaRepository {
     ));
     conversas[0].addMessage(Mensagem(
       remetente: pessoas[0],
-      content: "resposta a mensagem genérica",
+      content:
+          "resposta a mensagem genérica com uma mensagem extremamente longa",
     ));
     conversas[1].addMessage(Mensagem(remetente: pessoas[2], content: "Foo"));
     conversas[1].addMessage(Mensagem(remetente: pessoas[1], content: "BAr"));
