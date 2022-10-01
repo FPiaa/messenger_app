@@ -20,7 +20,7 @@ class ConversaRepository {
     conversas.add(Conversa(participantes: pessoas, nome: "Grupo sem nada"));
   }
 
-  init() {
+  List<Conversa> init() {
     conversas[0].addMessage(Mensagem(
       remetente: pessoas[1],
       content: "primeira mensagem",
@@ -44,5 +44,6 @@ class ConversaRepository {
     conversas[1]
         .addMessage(Mensagem(remetente: pessoas[2], content: "Generico"));
     conversas[1].addMessage(Mensagem(remetente: pessoas[0], content: "Bla"));
+    return conversas;
   }
 }

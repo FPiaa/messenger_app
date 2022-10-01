@@ -4,6 +4,8 @@ import 'package:messenger_app/repository/conversas_selecionadas_repository.dart'
 import 'package:messenger_app/widget/conversa_tile.dart';
 import 'package:provider/provider.dart';
 
+import '../models/conversa.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -13,14 +15,12 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late ConversasSelecionadasRepository selecionadas;
+  static List<Conversa> conversas = ConversaRepository().init();
 
 //TODO: remover o repositório do build
   @override
   Widget build(BuildContext context) {
     selecionadas = Provider.of<ConversasSelecionadasRepository>(context);
-    final _conversas = ConversaRepository();
-    _conversas.init();
-    final conversas = _conversas.conversas;
 
     return Scaffold(
       appBar: AppBar(
