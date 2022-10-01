@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:messenger_app/models/mensagem.dart';
 
 import '../models/conversa.dart';
 
 class ConversaPage extends StatefulWidget {
-  Conversa conversa;
+  final Conversa conversa;
 
-  ConversaPage({super.key, required this.conversa});
+  const ConversaPage({super.key, required this.conversa});
 
   @override
   State<ConversaPage> createState() => _ConversaPageState();

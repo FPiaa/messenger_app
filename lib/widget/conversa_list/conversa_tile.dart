@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:messenger_app/provider/conversas_selecionadas_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
@@ -45,7 +46,6 @@ class ConversaTile extends StatelessWidget {
         }));
       },
       onLongPress: () => {
-        print(conversa.hashCode),
         selecionadas.conversas.contains(conversa)
             ? selecionadas.remove(conversa)
             : selecionadas.save(conversa)
@@ -104,8 +104,8 @@ class ConversaTile extends StatelessWidget {
     if (conversa.mensagens.isEmpty) {
       return const Text(" ");
     } else {
-      // TODO: Adicionar formatação bonita para as hora
-      return Text("${conversa.mensagens.last.dataEnvio.second}");
+      // TODO: Formatar de acordo com a preferência do usuário
+      return Text(DateFormat.jm().format(conversa.mensagens.last.dataEnvio));
     }
   }
 }
