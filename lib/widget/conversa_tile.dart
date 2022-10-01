@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:messenger_app/repository/conversas_selecionadas_repository.dart';
+import 'package:messenger_app/provider/conversas_selecionadas_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../models/conversa.dart';
@@ -17,11 +17,11 @@ class ConversaTile extends StatefulWidget {
 }
 
 class _ConversaTileState extends State<ConversaTile> {
-  late ConversasSelecionadasRepository selecionadas;
+  late ConversasSelecionadasProvider selecionadas;
 
   @override
   Widget build(BuildContext context) {
-    selecionadas = Provider.of<ConversasSelecionadasRepository>(context);
+    selecionadas = Provider.of<ConversasSelecionadasProvider>(context);
 
     return ListTile(
       leading: _buildLeading(),

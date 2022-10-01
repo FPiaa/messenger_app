@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:messenger_app/pages/search_page.dart';
+import 'package:messenger_app/provider/conversas_pesquisadas_provider.dart';
 import 'package:messenger_app/repository/conversas_repository.dart';
-import 'package:messenger_app/repository/conversas_selecionadas_repository.dart';
 import 'package:messenger_app/widget/conversa_tile.dart';
+import 'package:messenger_app/provider/conversas_selecionadas_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../models/conversa.dart';
@@ -14,13 +16,14 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late ConversasSelecionadasRepository selecionadas;
+  late ConversasSelecionadasProvider selecionadas;
+  late ConversasPesquisadasProvider pesquisadas;
   static List<Conversa> conversas = ConversaRepository().init();
 
-//TODO: remover o repositório do build
   @override
   Widget build(BuildContext context) {
-    selecionadas = Provider.of<ConversasSelecionadasRepository>(context);
+    selecionadas = Provider.of<ConversasSelecionadasProvider>(context);
+    pesquisadas = Provider.of<ConversasPesquisadasProvider>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -30,7 +33,10 @@ class _HomePageState extends State<HomePage> {
         centerTitle: false,
         actions: [
           IconButton(
-            onPressed: () => print("search pressed"),
+            onPressed: () {
+              pesquisadas.init(conversas);
+              showSearch(context: context, delegate: SearchPage());
+            },
             icon: const Icon(Icons.search),
           ),
           //TODO: trocar para popMenuButtom

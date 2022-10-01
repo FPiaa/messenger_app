@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:messenger_app/pages/home_page.dart';
-import 'package:messenger_app/repository/conversas_selecionadas_repository.dart';
+import 'package:messenger_app/provider/conversas_pesquisadas_provider.dart';
+import 'package:messenger_app/provider/conversas_selecionadas_provider.dart';
 import 'package:provider/provider.dart';
 
 void main() {
   // debugPaintPointersEnabled = true;
-  runApp(ChangeNotifierProvider(
-    create: (context) => ConversasSelecionadasRepository(),
+  runApp(MultiProvider(
+    providers: [
+      ChangeNotifierProvider<ConversasSelecionadasProvider>(
+          create: (context) => ConversasSelecionadasProvider()),
+      ChangeNotifierProvider<ConversasPesquisadasProvider>(
+          create: (context) => ConversasPesquisadasProvider()),
+    ],
     child: const Chat(),
   ));
 }
