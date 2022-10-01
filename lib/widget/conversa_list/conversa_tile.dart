@@ -1,25 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:messenger_app/provider/conversas_selecionadas_provider.dart';
-import 'package:provider/provider.dart';
-import 'package:provider/single_child_widget.dart';
 
 import '../../models/conversa.dart';
 import '../../pages/conversa_page.dart';
 import '../icon_leading.dart';
-
-//TODO: por algum motivo esquecido por deus toda hora que uma conversa
-//nova é criada ela possui um hashCode diferente, mesmo sendo
-//exatamente o mesmo objeto, descubra como arrumar
-
-class MyWidget extends StatelessWidget {
-  const MyWidget({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container();
-  }
-}
 
 class ConversaTile extends StatelessWidget {
   final ConversasSelecionadasProvider selecionadas;
