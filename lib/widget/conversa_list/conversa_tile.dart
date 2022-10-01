@@ -6,6 +6,7 @@ import 'package:provider/single_child_widget.dart';
 
 import '../../models/conversa.dart';
 import '../../pages/conversa_page.dart';
+import '../icon_leading.dart';
 
 //TODO: por algum motivo esquecido por deus toda hora que uma conversa
 //nova é criada ela possui um hashCode diferente, mesmo sendo
@@ -32,7 +33,11 @@ class ConversaTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: _buildLeading(),
+      leading: IconLeading(
+        conversa: conversa,
+        radius: 30,
+        onTap: () => print('Imagem pressionada'),
+      ),
       title: _buildTitle(),
       trailing: _buildTrailing(),
       subtitle: _buildSubTitle(),
@@ -50,32 +55,6 @@ class ConversaTile extends StatelessWidget {
             ? selecionadas.remove(conversa)
             : selecionadas.save(conversa)
       },
-    );
-  }
-
-  Widget _buildLeading() {
-    const double imageSize = 55.0;
-    return GestureDetector(
-      onTap: () => print("Imagem Pressionada"),
-      child: CircleAvatar(
-        radius: 30.0,
-        backgroundColor: Colors.transparent,
-        // foregroundImage: NetworkImage('https://via.placeholder.com/150'),
-        child: SizedBox(
-          width: imageSize,
-          height: imageSize,
-          child: ClipOval(
-            clipBehavior: Clip.antiAliasWithSaveLayer,
-            child: conversa.imageUrl != null
-                ? Image.asset(conversa.imageUrl!)
-                : const Icon(
-                    Icons.person,
-                    size: imageSize,
-                    color: Colors.grey,
-                  ),
-          ),
-        ),
-      ),
     );
   }
 
