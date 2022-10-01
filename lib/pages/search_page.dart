@@ -8,12 +8,18 @@ import '../models/conversa.dart';
 class SearchPage extends SearchDelegate {
   late ConversasPesquisadasProvider pesquisa;
 
+  // TODO: pensar se é necessário os dois botões
   @override
   List<Widget>? buildActions(BuildContext context) {
     return [
       IconButton(
           onPressed: () {
             query = "";
+          },
+          icon: const Icon(Icons.delete)),
+      IconButton(
+          onPressed: () {
+            close(context, null);
           },
           icon: const Icon(Icons.clear))
     ];
