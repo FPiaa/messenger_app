@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:messenger_app/pages/cadastro_page.dart';
 import 'package:messenger_app/pages/home_page.dart';
 import 'package:messenger_app/provider/conversas_pesquisadas_provider.dart';
 import 'package:messenger_app/provider/conversas_selecionadas_provider.dart';
@@ -28,7 +29,7 @@ class Chat extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.amber,
       ),
-      home: const HomePage(),
+      home: const CadastroPage(),
     );
   }
 }
