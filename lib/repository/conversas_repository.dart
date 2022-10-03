@@ -1,9 +1,10 @@
 import 'package:messenger_app/models/conversa.dart';
 import 'package:messenger_app/models/mensagem.dart';
 import 'package:messenger_app/models/pessoa.dart';
+import 'package:messenger_app/repository/i_repository.dart';
 import 'package:messenger_app/repository/pessoa_repository.dart';
 
-class ConversaRepository {
+class ConversaRepository implements IRepository<Conversa> {
   static List<Pessoa> pessoas = PessoaRepository.pessoas;
   late List<Conversa> conversas = [];
 
@@ -45,5 +46,52 @@ class ConversaRepository {
         .addMessage(Mensagem(remetente: pessoas[2], content: "Generico"));
     conversas[1].addMessage(Mensagem(remetente: pessoas[0], content: "Bla"));
     return conversas;
+  }
+
+  @override
+  void save(Conversa component) {
+    if (conversas.any((element) => component == element)) {
+      return;
+    }
+    conversas.add(component);
+  }
+
+  @override
+  Conversa? delete(Conversa component) {
+    try {
+      return conversas.firstWhere((element) => element == component);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  @override
+  Conversa? find(Conversa component) {
+    try {
+      return conversas.firstWhere((element) => element == component);
+    } catch (E) {
+      return null;
+    }
+  }
+
+  @override
+  Conversa? findWhere(bool Function(Conversa p1) predicate) {
+    try {
+      return conversas.firstWhere(predicate);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  @override
+  Conversa? update(Conversa component) {
+    try {
+      Conversa conversa =
+          conversas.firstWhere((element) => element == component);
+      conversa = component;
+      return component;
+    } catch (e) {
+      return null;
+    }
   }
 }
