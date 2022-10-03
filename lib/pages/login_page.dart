@@ -2,7 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:messenger_app/controllers/pessoa_controller.dart';
+import 'package:messenger_app/models/pessoa.dart';
 import 'package:messenger_app/pages/cadastro_page.dart';
+import 'package:messenger_app/pages/conversa_page.dart';
+import 'package:messenger_app/pages/home_page.dart';
+import 'package:messenger_app/provider/conversas_pesquisadas_provider.dart';
+import 'package:messenger_app/provider/conversas_selecionadas_provider.dart';
+import 'package:messenger_app/provider/usuario_provider.dart';
+import 'package:messenger_app/repository/pessoa_repository.dart';
+import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -12,8 +21,36 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final _formKey = GlobalKey<FormState>();
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
+  final PessoaController pessoaController =
+      PessoaController(pessoaRepository: PessoaRepository());
+  late UsuarioAtivoProvider user;
+  onLogin() {
+    if (_formKey.currentState!.validate()) {
+      Pessoa? pessoa = pessoaController
+          .findWhere((Pessoa p) => p.username == usernameController.text);
+      if (pessoa == null) {
+        print("Algo deu errado");
+      }
+
+      Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+        return MultiProvider(
+          providers: [
+            ChangeNotifierProvider<ConversasSelecionadasProvider>(
+                create: (context) => ConversasSelecionadasProvider()),
+            ChangeNotifierProvider<ConversasPesquisadasProvider>(
+                create: (context) => ConversasPesquisadasProvider()),
+            ChangeNotifierProvider<UsuarioAtivoProvider>(
+                create: (context) => UsuarioAtivoProvider(pessoa!))
+          ],
+          child: HomePage(),
+        );
+      }));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,6 +80,7 @@ class _LoginPageState extends State<LoginPage> {
                 padding:
                     const EdgeInsets.symmetric(vertical: 8.0, horizontal: 36),
                 child: Form(
+                  key: _formKey,
                   child: Column(
                     children: [
                       FractionallySizedBox(
@@ -78,7 +116,7 @@ class _LoginPageState extends State<LoginPage> {
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20)),
                         child: ElevatedButton(
-                          onPressed: () => print("login"),
+                          onPressed: onLogin,
                           child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: const [
