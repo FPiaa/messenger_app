@@ -19,6 +19,10 @@ class PessoaController {
     return pessoaRepository.find(pessoa);
   }
 
+  Pessoa? findWhere(bool Function(Pessoa p) predicate) {
+    return pessoaRepository.findWhere(predicate);
+  }
+
   Pessoa? delete(Pessoa pessoa) {
     return pessoaRepository.delete(pessoa);
   }

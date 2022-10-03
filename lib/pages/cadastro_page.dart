@@ -1,6 +1,9 @@
 import 'package:date_field/date_field.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
+import 'package:messenger_app/controllers/pessoa_controller.dart';
+import 'package:messenger_app/models/pessoa.dart';
+import 'package:messenger_app/repository/pessoa_repository.dart';
 
 class CadastroPage extends StatefulWidget {
   const CadastroPage({super.key});
@@ -10,8 +13,11 @@ class CadastroPage extends StatefulWidget {
 }
 
 class _CadastroPageState extends State<CadastroPage> {
+  final PessoaController pessoaController =
+      PessoaController(pessoaRepository: PessoaRepository());
   final _formKey = GlobalKey<FormState>();
   final pwController = TextEditingController();
+  final pwValidationController = TextEditingController();
   final emailController = TextEditingController();
   final usernameController = TextEditingController();
   DateTime? selectedDate;
@@ -19,18 +25,26 @@ class _CadastroPageState extends State<CadastroPage> {
   onCadastrar() {
     // Validate returns true if the form is valid, or false otherwise.
     if (_formKey.currentState!.validate()) {
-      // If the form is valid, display a snackbar. In the real world,
-      // you'd often call a server or save the information in a database.
+      Pessoa pessoa = Pessoa(
+          username: usernameController.text,
+          password: pwController.text,
+          email: emailController.text,
+          dataNascimento: selectedDate!);
+
+      pessoaController.save(pessoa);
+      Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Processing Data')),
+        const SnackBar(content: Text('Conta criada com sucesso')),
       );
     }
   }
 
   onLimpar() {
     pwController.clear();
+    pwValidationController.clear();
     emailController.clear();
     usernameController.clear();
+    selectedDate = null;
   }
 
   @override
@@ -63,6 +77,12 @@ class _CadastroPageState extends State<CadastroPage> {
                       if (value!.length < 4) {
                         return "O nome de usuário deve conter pelo menos 4 letras.";
                       }
+
+                      if (pessoaController
+                              .findWhere((Pessoa p) => p.username == value) !=
+                          null) {
+                        return "O nome de usuário já está em uso";
+                      }
                       return null;
                     },
                   ),
@@ -83,6 +103,12 @@ class _CadastroPageState extends State<CadastroPage> {
                       //TODO: Validar que o email não existe no repositório
                       if (!EmailValidator.validate(value!)) {
                         return "Insira um endereço de email válido.";
+                      }
+
+                      if (pessoaController
+                              .findWhere((Pessoa p) => p.email == value) !=
+                          null) {
+                        return "Este email já existe";
                       }
                       return null;
                     },
@@ -140,6 +166,7 @@ class _CadastroPageState extends State<CadastroPage> {
                   child: TextFormField(
                     obscureText: true,
                     keyboardType: TextInputType.visiblePassword,
+                    controller: pwValidationController,
                     decoration: InputDecoration(
                       border: UnderlineInputBorder(
                           borderRadius: BorderRadius.circular(10)),
