@@ -57,7 +57,6 @@ class _CadastroPageState extends State<CadastroPage> {
       body: SingleChildScrollView(
         child: Form(
             key: _formKey,
-            autovalidateMode: AutovalidateMode.onUserInteraction,
             child: Column(
               children: [
                 Container(
@@ -65,6 +64,7 @@ class _CadastroPageState extends State<CadastroPage> {
                       const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                   child: TextFormField(
                     controller: usernameController,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
                     keyboardType: TextInputType.name,
                     decoration: InputDecoration(
                       border: UnderlineInputBorder(
@@ -92,6 +92,7 @@ class _CadastroPageState extends State<CadastroPage> {
                       const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                   child: TextFormField(
                     controller: emailController,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
                     keyboardType: TextInputType.emailAddress,
                     decoration: InputDecoration(
                       border: UnderlineInputBorder(
@@ -119,6 +120,7 @@ class _CadastroPageState extends State<CadastroPage> {
                       const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                   child: DateTimeFormField(
                     mode: DateTimeFieldPickerMode.date,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
                     decoration: InputDecoration(
                       border: UnderlineInputBorder(
                           borderRadius: BorderRadius.circular(10)),
@@ -147,6 +149,7 @@ class _CadastroPageState extends State<CadastroPage> {
                       const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                   child: TextFormField(
                     obscureText: true,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
                     controller: pwController,
                     keyboardType: TextInputType.visiblePassword,
                     decoration: InputDecoration(
@@ -165,6 +168,7 @@ class _CadastroPageState extends State<CadastroPage> {
                       const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                   child: TextFormField(
                     obscureText: true,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
                     keyboardType: TextInputType.visiblePassword,
                     controller: pwValidationController,
                     decoration: InputDecoration(
