@@ -3,6 +3,7 @@ class Pessoa {
   final String username;
   final String email;
   final DateTime dataNascimento;
+  String password;
   String? photo;
   String? descricao;
   // TODO: Adicionar suporte a uuid de verdade
@@ -12,6 +13,7 @@ class Pessoa {
     required this.username,
     required this.email,
     required this.dataNascimento,
+    required this.password,
     this.photo,
     this.descricao,
   }) {
