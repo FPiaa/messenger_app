@@ -55,19 +55,25 @@ class _HomePageState extends State<HomePage> {
             : Text("${selecionadas.conversas.length} conversas"),
         centerTitle: false,
         actions: [
-          IconButton(
-            onPressed: () {
-              pesquisadas.init(conversas);
-              showSearch(context: context, delegate: SearchPage());
-            },
-            icon: const Icon(Icons.search),
-          ),
+          selecionadas.conversas.isEmpty
+              ? IconButton(
+                  onPressed: () {
+                    pesquisadas.init(conversas);
+                    showSearch(context: context, delegate: SearchPage());
+                  },
+                  icon: const Icon(Icons.search),
+                )
+              : IconButton(
+                  onPressed: () {
+                    for (Conversa conversa in selecionadas.conversas) {
+                      conversaController.delete(conversa);
+                    }
+                    selecionadas.clear();
+                    setState(() {});
+                  },
+                  icon: const Icon(Icons.delete),
+                )
           //TODO: trocar para popMenuButtom
-          IconButton(
-            icon: const Icon(Icons.more_vert),
-            onPressed: (() => print("foo")),
-            tooltip: "opções",
-          ),
         ],
       ),
       floatingActionButton: FloatingActionButton(

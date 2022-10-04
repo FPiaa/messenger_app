@@ -60,7 +60,9 @@ class ConversaRepository implements IRepository<Conversa> {
   @override
   Conversa? delete(Conversa component) {
     try {
-      return conversas.firstWhere((element) => element == component);
+      Conversa conversa =
+          conversas.firstWhere((element) => element == component);
+      conversas.remove(conversa);
     } catch (e) {
       return null;
     }
