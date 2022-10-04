@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:messenger_app/controllers/conversa_controller.dart';
+import 'package:messenger_app/controllers/pessoa_controller.dart';
+import 'package:messenger_app/models/pessoa.dart';
 import 'package:messenger_app/pages/search_page.dart';
 import 'package:messenger_app/provider/conversas_pesquisadas_provider.dart';
+import 'package:messenger_app/provider/usuario_provider.dart';
 import 'package:messenger_app/repository/conversas_repository.dart';
 import 'package:messenger_app/provider/conversas_selecionadas_provider.dart';
+import 'package:messenger_app/repository/i_repository.dart';
+import 'package:messenger_app/repository/pessoa_repository.dart';
 import 'package:messenger_app/widget/conversa_list/conversa_list.dart';
 import 'package:provider/provider.dart';
 
@@ -18,12 +24,29 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   late ConversasSelecionadasProvider selecionadas;
   late ConversasPesquisadasProvider pesquisadas;
-  static List<Conversa> conversas = ConversaRepository().init();
+  final IRepository<Conversa> conversaRepository = ConversaRepository();
+  late UsuarioAtivoProvider usuarioAtivoProvider;
+
+  PessoaController pessoaController =
+      PessoaController(pessoaRepository: PessoaRepository());
+  ConversaController conversaController =
+      ConversaController(conversaRepository: ConversaRepository());
+
+  List<Conversa> query(Pessoa pessoa) {
+    List<Conversa> a = conversaController
+        .findAll((Conversa c) => c.participantes.contains(pessoa))
+        .toList();
+
+    return a;
+  }
 
   @override
   Widget build(BuildContext context) {
     selecionadas = Provider.of<ConversasSelecionadasProvider>(context);
     pesquisadas = Provider.of<ConversasPesquisadasProvider>(context);
+    usuarioAtivoProvider = Provider.of<UsuarioAtivoProvider>(context);
+
+    List<Conversa> conversas = query(usuarioAtivoProvider.pessoa);
 
     return Scaffold(
       appBar: AppBar(

@@ -14,14 +14,16 @@ class ConversaRepository implements IRepository<Conversa> {
         nome: pessoas[1].username,
         imageUrl: pessoas[1].photo));
     conversas.add(Conversa(
-        participantes: pessoas,
+        participantes: [pessoas[0], pessoas[1], pessoas[2]],
         administradores: [pessoas[1], pessoas[2]],
         nome: "Grupo dos amigo",
         imageUrl: "images/bezos_chapeu.jpg"));
-    conversas.add(Conversa(participantes: pessoas, nome: "Grupo sem nada"));
-  }
-
-  List<Conversa> init() {
+    conversas.add(
+      Conversa(
+          participantes: [pessoas[0], pessoas[1], pessoas[2]],
+          administradores: [pessoas[0]],
+          nome: "Grupo sem nada"),
+    );
     conversas[0].addMessage(Mensagem(
       remetente: pessoas[1],
       content: "primeira mensagem",
@@ -45,7 +47,6 @@ class ConversaRepository implements IRepository<Conversa> {
     conversas[1]
         .addMessage(Mensagem(remetente: pessoas[2], content: "Generico"));
     conversas[1].addMessage(Mensagem(remetente: pessoas[0], content: "Bla"));
-    return conversas;
   }
 
   @override
@@ -72,6 +73,11 @@ class ConversaRepository implements IRepository<Conversa> {
     } catch (E) {
       return null;
     }
+  }
+
+  @override
+  Iterable<Conversa> findAll(bool Function(Conversa) predicate) {
+    return conversas.where(predicate);
   }
 
   @override

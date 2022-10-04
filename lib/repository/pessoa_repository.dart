@@ -22,6 +22,11 @@ class PessoaRepository implements IRepository<Pessoa> {
       email: "email_esas@teste.com",
       password: "12345678",
     ),
+    Pessoa(
+        username: "barr",
+        dataNascimento: DateTime.now(),
+        email: "email@teste1.com",
+        password: "12345678"),
   ];
   @override
   void save(Pessoa component) {
@@ -56,6 +61,11 @@ class PessoaRepository implements IRepository<Pessoa> {
     } catch (e) {
       return null;
     }
+  }
+
+  @override
+  Iterable<Pessoa> findAll(bool Function(Pessoa) predicate) {
+    return pessoas.where(predicate);
   }
 
   @override
