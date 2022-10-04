@@ -18,27 +18,49 @@ class Profile extends StatelessWidget {
         alignment: Alignment.center,
         child: Column(
           children: [
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 24),
-              child: CircleAvatar(
-                radius: radius / 2,
-                backgroundColor: Colors.transparent,
-                // foregroundImage: NetworkImage('https://via.placeholder.com/150'),
-                child: SizedBox(
-                  width: radius,
-                  height: radius,
-                  child: ClipOval(
-                    clipBehavior: Clip.antiAliasWithSaveLayer,
-                    child: pessoa.photo != null
-                        ? Image.asset(pessoa.photo!)
-                        : const Icon(
-                            Icons.person,
-                            size: 100,
-                            color: Colors.grey,
-                          ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(vertical: 24),
+                  child: CircleAvatar(
+                    radius: radius / 2,
+                    backgroundColor: Colors.transparent,
+                    // foregroundImage: NetworkImage('https://via.placeholder.com/150'),
+                    child: SizedBox(
+                      width: radius,
+                      height: radius,
+                      child: ClipOval(
+                        clipBehavior: Clip.antiAliasWithSaveLayer,
+                        child: pessoa.photo != null
+                            ? Image.asset(pessoa.photo!)
+                            : const Icon(
+                                Icons.person,
+                                size: 100,
+                                color: Colors.grey,
+                              ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
+                isCurrentUser
+                    ? Ink(
+                        width: 50,
+                        height: 50,
+                        child: InkWell(
+                          splashColor: Colors.amber[100],
+                          splashFactory: InkRipple.splashFactory,
+                          customBorder: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(40)),
+                          onTap: () {},
+                          child: const Icon(
+                            Icons.add_photo_alternate,
+                            size: 40,
+                          ),
+                        ),
+                      )
+                    : const SizedBox.shrink(),
+              ],
             ),
             Container(
               padding: const EdgeInsets.symmetric(vertical: 4),
