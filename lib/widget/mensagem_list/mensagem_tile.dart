@@ -1,29 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:messenger_app/provider/usuario_provider.dart';
+import 'package:provider/provider.dart';
 
 import '../../models/mensagem.dart';
 import '../../repository/pessoa_repository.dart';
 
 class ListTileMensagem extends StatelessWidget {
-  const ListTileMensagem({
+  ListTileMensagem({
     Key? key,
     required this.mensagem,
   }) : super(key: key);
 
   final Mensagem mensagem;
-
+  late UsuarioAtivoProvider usuarioAtivoProvider;
   @override
   Widget build(BuildContext context) {
+    usuarioAtivoProvider = Provider.of<UsuarioAtivoProvider>(context);
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Align(
-        alignment: mensagem.remetente == PessoaRepository.pessoas[0]
+        alignment: mensagem.remetente == usuarioAtivoProvider.pessoa
             ? Alignment.topRight
             : Alignment.topLeft,
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            color: (mensagem.remetente == PessoaRepository.pessoas[0]
+            color: (mensagem.remetente == usuarioAtivoProvider.pessoa
                 ? Colors.blue[200]
                 : Colors.grey[200]),
           ),

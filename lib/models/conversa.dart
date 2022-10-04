@@ -5,7 +5,7 @@ import 'package:messenger_app/models/pessoa.dart';
 // e para conversa ponto a ponto
 class Conversa {
   List<Pessoa> participantes;
-  late List<Mensagem> mensagens;
+  List<Mensagem> mensagens;
   //Adm só é necessário para grupos
   List<Pessoa>? administradores;
   String nome;
@@ -16,9 +16,8 @@ class Conversa {
     this.administradores,
     required this.nome,
     this.imageUrl,
-  }) {
-    mensagens = [];
-  }
+    required this.mensagens,
+  });
 
   //TODO: Error handling
   addMessage(Mensagem message) {

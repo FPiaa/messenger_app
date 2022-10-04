@@ -1,23 +1,44 @@
 import 'package:flutter/material.dart';
+import 'package:messenger_app/controllers/conversa_controller.dart';
+import 'package:messenger_app/models/conversa.dart';
+import 'package:messenger_app/models/mensagem.dart';
+import 'package:messenger_app/models/pessoa.dart';
+import 'package:messenger_app/provider/usuario_provider.dart';
+import 'package:messenger_app/repository/conversas_repository.dart';
+import 'package:provider/provider.dart';
 
 class Input extends StatefulWidget {
   const Input({
     Key? key,
     required this.formKey,
     required this.conteudo,
+    required this.conversa,
+    required this.pessoa,
+    required this.callback,
   }) : super(key: key);
 
   final GlobalKey<FormState> formKey;
   final TextEditingController conteudo;
+  final Conversa conversa;
+  final Pessoa pessoa;
+  final Function() callback;
 
   @override
   State<Input> createState() => _InputState();
 }
 
 class _InputState extends State<Input> {
+  ConversaController conversaController =
+      ConversaController(conversaRepository: ConversaRepository());
   onSendMessage() {
     print(widget.conteudo.text);
+    conversaController.sendMessage(
+      widget.conversa,
+      Mensagem(remetente: widget.pessoa, content: widget.conteudo.text),
+    );
     widget.conteudo.clear();
+    setState(() {});
+    widget.callback();
   }
 
   @override
@@ -34,7 +55,7 @@ class _InputState extends State<Input> {
                 icon: const Icon(Icons.image),
                 onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text("Ainda não tem acesso a camêra e arquivos"),
+                    content: Text("Ainda não tem acesso a câmera e arquivos"),
                   ),
                 ),
               ),

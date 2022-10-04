@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:messenger_app/provider/conversas_selecionadas_provider.dart';
+import 'package:messenger_app/provider/usuario_provider.dart';
+import 'package:provider/provider.dart';
 
 import '../../models/conversa.dart';
 import '../../pages/conversa_page.dart';
@@ -17,6 +19,9 @@ class ConversaTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    UsuarioAtivoProvider usuarioAtivoProvider =
+        Provider.of<UsuarioAtivoProvider>(context);
+
     return ListTile(
       leading: IconLeading(
         conversa: conversa,
@@ -32,7 +37,12 @@ class ConversaTile extends StatelessWidget {
       onTap: () {
         Navigator.push(context,
             MaterialPageRoute(builder: (BuildContext context) {
-          return ConversaPage(conversa: conversa);
+          return MultiProvider(providers: [
+            ChangeNotifierProvider<UsuarioAtivoProvider>(
+              create: (context) =>
+                  UsuarioAtivoProvider(usuarioAtivoProvider.pessoa),
+            )
+          ], child: ConversaPage(conversa: conversa));
         }));
       },
       onLongPress: () => {

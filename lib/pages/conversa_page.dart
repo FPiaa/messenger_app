@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:messenger_app/models/mensagem.dart';
+import 'package:messenger_app/provider/usuario_provider.dart';
 import 'package:messenger_app/repository/pessoa_repository.dart';
 import 'package:messenger_app/widget/icon_leading.dart';
 import 'package:messenger_app/widget/mensagem_list/mensagem_list.dart';
 import 'package:messenger_app/widget/mensagem_list/mensagem_tile.dart';
+import 'package:provider/provider.dart';
 
 import '../models/conversa.dart';
 import '../widget/input_message.dart';
@@ -24,9 +26,12 @@ class ConversaPage extends StatefulWidget {
 class _ConversaPageState extends State<ConversaPage> {
   final formKey = GlobalKey<FormState>();
   final conteudo = TextEditingController();
+  late UsuarioAtivoProvider usuarioAtivoProvider;
 
   @override
   Widget build(BuildContext context) {
+    usuarioAtivoProvider = Provider.of<UsuarioAtivoProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         leading: GestureDetector(
@@ -54,7 +59,7 @@ class _ConversaPageState extends State<ConversaPage> {
                 onPressed: () => {
                       setState(() {
                         widget.conversa.mensagens.add(Mensagem(
-                            remetente: widget.conversa.participantes[0],
+                            remetente: usuarioAtivoProvider.pessoa,
                             content: "Mensagem extra"));
                       })
                     },
@@ -66,7 +71,15 @@ class _ConversaPageState extends State<ConversaPage> {
         ListViewMensagem(
           conversa: widget.conversa,
         ),
-        Input(formKey: formKey, conteudo: conteudo)
+        Input(
+          formKey: formKey,
+          conteudo: conteudo,
+          conversa: widget.conversa,
+          pessoa: usuarioAtivoProvider.pessoa,
+          callback: () {
+            setState(() {});
+          },
+        )
       ]),
     );
   }
