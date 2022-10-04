@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:messenger_app/models/mensagem.dart';
+import 'package:messenger_app/pages/perfil_page.dart';
 import 'package:messenger_app/provider/usuario_provider.dart';
 import 'package:messenger_app/repository/pessoa_repository.dart';
 import 'package:messenger_app/widget/icon_leading.dart';
@@ -52,9 +53,28 @@ class _ConversaPageState extends State<ConversaPage> {
           ),
         ),
         leadingWidth: 88,
-        title: Text(widget.conversa.participantes
-            .firstWhere((element) => element != usuarioAtivoProvider.pessoa)
-            .username),
+        title: Row(
+          children: [
+            Expanded(
+              child: InkWell(
+                splashColor: Colors.amber[100],
+                splashFactory: InkRipple.splashFactory,
+                onTap: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => Profile(
+                          pessoa: widget.conversa.participantes.firstWhere(
+                              (element) =>
+                                  element != usuarioAtivoProvider.pessoa),
+                          isCurrentUser: false)));
+                },
+                child: Text(widget.conversa.participantes
+                    .firstWhere(
+                        (element) => element != usuarioAtivoProvider.pessoa)
+                    .username),
+              ),
+            ),
+          ],
+        ),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 8.0),
@@ -71,8 +91,10 @@ class _ConversaPageState extends State<ConversaPage> {
         ],
       ),
       body: Stack(children: [
-        ListViewMensagem(
-          conversa: widget.conversa,
+        SingleChildScrollView(
+          child: ListViewMensagem(
+            conversa: widget.conversa,
+          ),
         ),
         Input(
           formKey: formKey,
