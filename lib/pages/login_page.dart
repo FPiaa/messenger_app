@@ -65,9 +65,7 @@ class _LoginPageState extends State<LoginPage> {
                 child: Center(
                   child: Text(
                     "Meu aplicativo",
-                    style: TextStyle(
-                      fontSize: 32,
-                    ),
+                    style: TextStyle(fontSize: 32, color: Colors.amber),
                   ),
                 ),
               ),
@@ -90,7 +88,9 @@ class _LoginPageState extends State<LoginPage> {
                           controller: usernameController,
                           keyboardType: TextInputType.name,
                           decoration: const InputDecoration(
-                            label: Text("Nome de Usuário"),
+                            label: Text(
+                              "Nome de Usuário",
+                            ),
                             border: UnderlineInputBorder(),
                             icon: Icon(Icons.person),
                           ),
@@ -98,40 +98,61 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       FractionallySizedBox(
                         widthFactor: 0.9,
-                        child: TextFormField(
-                            keyboardType: TextInputType.visiblePassword,
-                            controller: passwordController,
-                            obscureText: obscureText,
-                            decoration: InputDecoration(
-                              label: const Text("Senha"),
-                              border: const UnderlineInputBorder(),
-                              icon: const Icon(Icons.password),
-                              suffixIcon: InkWell(
-                                onTap: () => setState(() {
-                                  obscureText = !obscureText;
-                                }),
-                                child: obscureText
-                                    ? const Icon(Icons.light_mode)
-                                    : const Icon(Icons.dark_mode),
-                              ),
-                            )),
+                        child: Ink(
+                          child: TextFormField(
+                              keyboardType: TextInputType.visiblePassword,
+                              controller: passwordController,
+                              obscureText: obscureText,
+                              decoration: InputDecoration(
+                                label: const Text("Senha"),
+                                border: const UnderlineInputBorder(),
+                                icon: const Icon(Icons.password),
+                                suffixIcon: InkWell(
+                                  customBorder: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(40)),
+                                  splashColor: Colors.amber[100],
+                                  splashFactory: InkRipple.splashFactory,
+                                  onTap: () => setState(() {
+                                    obscureText = !obscureText;
+                                  }),
+                                  child: obscureText
+                                      ? const Icon(Icons.light_mode)
+                                      : const Icon(Icons.dark_mode),
+                                ),
+                              )),
+                        ),
                       ),
-                      Container(
-                        margin: const EdgeInsets.only(top: 36, bottom: 24),
-                        height: 50,
-                        width: 200,
-                        // TODO fazer ficar arredondado
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20)),
-                        child: ElevatedButton(
-                          onPressed: onLogin,
-                          child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
-                                Icon(Icons.check),
-                                SizedBox(width: 8),
-                                Text("Login")
-                              ]),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 36.0),
+                        child: Ink(
+                          height: 50,
+                          width: 200,
+                          // TODO fazer ficar arredondado
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(40),
+                              border:
+                                  Border.all(color: Colors.amber, width: 1)),
+                          child: InkWell(
+                            splashColor: Colors.amber[100],
+                            splashFactory: InkRipple.splashFactory,
+                            customBorder: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(40)),
+                            onTap: onLogin,
+                            child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: const [
+                                  Icon(
+                                    Icons.check,
+                                    color: Colors.amber,
+                                  ),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    "Login",
+                                    style: TextStyle(
+                                        fontSize: 18, color: Colors.amber),
+                                  )
+                                ]),
+                          ),
                         ),
                       ),
                     ],
@@ -139,10 +160,30 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               const SizedBox(height: 32),
-              OutlinedButton(
-                  onPressed: () => Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => CadastroPage())),
-                  child: const Text("Criar conta")),
+              Ink(
+                  decoration: BoxDecoration(
+                      border: Border.all(color: Colors.blueAccent, width: 1),
+                      borderRadius: BorderRadius.circular(40)),
+                  width: 200,
+                  height: 50,
+                  child: InkWell(
+                    customBorder: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(40)),
+                    splashFactory: InkRipple.splashFactory,
+                    splashColor: Colors.amber[100],
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const CadastroPage())),
+                    child: Container(
+                      alignment: Alignment.center,
+                      child: const Text(
+                        "Criar conta",
+                        style:
+                            TextStyle(fontSize: 16, color: Colors.blueAccent),
+                      ),
+                    ),
+                  )),
             ],
           ),
         ),

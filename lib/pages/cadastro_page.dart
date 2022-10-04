@@ -172,8 +172,8 @@ class _CadastroPageState extends State<CadastroPage> {
                   ),
                 ),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                  padding: const EdgeInsets.only(
+                      left: 24, right: 24, top: 8, bottom: 36),
                   child: TextFormField(
                     obscureText: obscureText,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -204,30 +204,66 @@ class _CadastroPageState extends State<CadastroPage> {
                   padding: const EdgeInsets.symmetric(
                       horizontal: 24.0, vertical: 8.0),
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: onLimpar,
+                      Ink(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.redAccent, width: 0),
+                          borderRadius: BorderRadius.circular(40),
+                        ),
+                        height: 50,
+                        width: 150,
+                        child: InkWell(
+                          customBorder: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(40),
+                              side: const BorderSide(
+                                  color: Colors.redAccent, width: 0)),
+                          onTap: onLimpar,
+                          splashColor: Colors.red[100],
+                          splashFactory: InkRipple.splashFactory,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: const [
-                              Icon(Icons.delete),
-                              Text("Apagar")
+                              Icon(
+                                Icons.delete,
+                                color: Colors.redAccent,
+                              ),
+                              Text(
+                                "Apagar",
+                                style: TextStyle(
+                                    fontSize: 16, color: Colors.redAccent),
+                              )
                             ],
                           ),
                         ),
                       ),
-                      const SizedBox(width: 20),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: onCadastrar,
+                      const SizedBox(width: 40),
+                      Ink(
+                        decoration: BoxDecoration(
+                            border: Border.all(color: Colors.amber, width: 0),
+                            borderRadius: BorderRadius.circular(40)),
+                        height: 50,
+                        width: 150,
+                        child: InkWell(
+                          customBorder: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(40)),
+                          onTap: onCadastrar,
+                          splashColor: Colors.amber[100],
+                          splashFactory: InkRipple.splashFactory,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: const [
-                              Icon(Icons.check),
-                              Text("Cadastrar")
+                              Icon(
+                                Icons.check,
+                                color: Colors.amber,
+                              ),
+                              Text(
+                                "Cadastrar",
+                                style: TextStyle(
+                                    fontSize: 16, color: Colors.amber),
+                              )
                             ],
                           ),
                         ),
