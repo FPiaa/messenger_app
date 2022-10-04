@@ -9,18 +9,17 @@ class Profile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double radius = 200;
+    double radius = pessoa.photo != null ? 200 : 100;
     return Scaffold(
       appBar: AppBar(
-        title: Text(pessoa.username),
-        centerTitle: true,
+        title: const Text("Perfil"),
       ),
       body: Container(
         alignment: Alignment.center,
         child: Column(
           children: [
             Container(
-              padding: const EdgeInsets.symmetric(vertical: 56),
+              padding: const EdgeInsets.symmetric(vertical: 24),
               child: CircleAvatar(
                 radius: radius / 2,
                 backgroundColor: Colors.transparent,
@@ -42,12 +41,19 @@ class Profile extends StatelessWidget {
               ),
             ),
             Container(
-                padding: EdgeInsets.symmetric(vertical: 12),
-                child: Text(
-                    "${AgeCalculator.age(pessoa.dataNascimento).years} Anos")),
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: SelectableText(pessoa.username,
+                  style: TextStyle(fontSize: 20)),
+            ),
             Container(
-                padding: EdgeInsets.symmetric(vertical: 12),
-                child: Text(pessoa.email)),
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: SelectableText(
+                    "${AgeCalculator.age(pessoa.dataNascimento).years} Anos",
+                    style: TextStyle(fontSize: 20))),
+            Container(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: SelectableText(pessoa.email,
+                    style: TextStyle(fontSize: 20))),
             pessoa.descricao != null
                 ? Container(
                     padding: const EdgeInsets.only(top: 12),
