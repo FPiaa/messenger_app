@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:messenger_app/controllers/conversa_controller.dart';
 import 'package:messenger_app/controllers/pessoa_controller.dart';
 import 'package:messenger_app/models/pessoa.dart';
+import 'package:messenger_app/pages/perfil_page.dart';
 import 'package:messenger_app/pages/search_page.dart';
 import 'package:messenger_app/provider/conversas_pesquisadas_provider.dart';
 import 'package:messenger_app/provider/usuario_provider.dart';
@@ -55,17 +56,8 @@ class _HomePageState extends State<HomePage> {
             : Text("${selecionadas.conversas.length} conversas"),
         centerTitle: false,
         actions: [
-          selecionadas.conversas.isEmpty
+          selecionadas.conversas.isNotEmpty
               ? IconButton(
-                  onPressed: () {
-                    pesquisadas.init(conversas);
-                    showSearch(
-                        context: context,
-                        delegate: SearchPage(usuarioAtivoProvider.pessoa));
-                  },
-                  icon: const Icon(Icons.search),
-                )
-              : IconButton(
                   onPressed: () {
                     for (Conversa conversa in selecionadas.conversas) {
                       conversaController.delete(conversa);
@@ -75,7 +67,23 @@ class _HomePageState extends State<HomePage> {
                   },
                   icon: const Icon(Icons.delete),
                 )
-          //TODO: trocar para popMenuButtom
+              : IconButton(
+                  onPressed: () {
+                    pesquisadas.init(conversas);
+                    showSearch(
+                        context: context,
+                        delegate: SearchPage(usuarioAtivoProvider.pessoa));
+                  },
+                  icon: const Icon(Icons.search),
+                ),
+          IconButton(
+              onPressed: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => Profile(
+                        pessoa: usuarioAtivoProvider.pessoa,
+                        isCurrentUser: true)));
+              },
+              icon: const Icon(Icons.person))
         ],
       ),
       floatingActionButton: FloatingActionButton(

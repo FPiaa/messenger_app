@@ -39,7 +39,7 @@ class ConversaTile extends StatelessWidget {
       title: _buildTitle(destinatario),
       trailing: _buildTrailing(),
       subtitle: _buildSubTitle(),
-      tileColor: Colors.grey[200],
+      tileColor: Colors.grey[100],
       selectedTileColor: Colors.blue[50],
       selected: selecionadas.conversas.contains(conversa),
       onTap: () {
@@ -64,7 +64,7 @@ class ConversaTile extends StatelessWidget {
   Widget _buildTitle(Pessoa destinatario) {
     return Text(
       destinatario.username,
-      style: const TextStyle(fontSize: 18, overflow: TextOverflow.clip),
+      style: const TextStyle(fontSize: 20, overflow: TextOverflow.clip),
       overflow: TextOverflow.ellipsis,
     );
   }
