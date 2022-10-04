@@ -27,6 +27,7 @@ class _LoginPageState extends State<LoginPage> {
   final PessoaController pessoaController =
       PessoaController(pessoaRepository: PessoaRepository());
   late UsuarioAtivoProvider user;
+  bool obscureText = true;
   onLogin() {
     if (_formKey.currentState!.validate()) {
       Pessoa? pessoa = pessoaController
@@ -98,15 +99,22 @@ class _LoginPageState extends State<LoginPage> {
                       FractionallySizedBox(
                         widthFactor: 0.9,
                         child: TextFormField(
-                          keyboardType: TextInputType.visiblePassword,
-                          controller: passwordController,
-                          obscureText: true,
-                          decoration: const InputDecoration(
-                            label: Text("Senha"),
-                            border: UnderlineInputBorder(),
-                            icon: Icon(Icons.password),
-                          ),
-                        ),
+                            keyboardType: TextInputType.visiblePassword,
+                            controller: passwordController,
+                            obscureText: obscureText,
+                            decoration: InputDecoration(
+                              label: const Text("Senha"),
+                              border: const UnderlineInputBorder(),
+                              icon: const Icon(Icons.password),
+                              suffixIcon: InkWell(
+                                onTap: () => setState(() {
+                                  obscureText = !obscureText;
+                                }),
+                                child: obscureText
+                                    ? const Icon(Icons.light_mode)
+                                    : const Icon(Icons.dark_mode),
+                              ),
+                            )),
                       ),
                       Container(
                         margin: const EdgeInsets.only(top: 36, bottom: 24),

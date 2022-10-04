@@ -21,6 +21,7 @@ class _CadastroPageState extends State<CadastroPage> {
   final emailController = TextEditingController();
   final usernameController = TextEditingController();
   DateTime? selectedDate;
+  bool obscureText = true;
 
   onCadastrar() {
     // Validate returns true if the form is valid, or false otherwise.
@@ -148,16 +149,23 @@ class _CadastroPageState extends State<CadastroPage> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                   child: TextFormField(
-                    obscureText: true,
+                    obscureText: obscureText,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     controller: pwController,
                     keyboardType: TextInputType.visiblePassword,
                     decoration: InputDecoration(
-                      border: UnderlineInputBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                      labelText: "Senha",
-                      prefixIcon: const Icon(Icons.password),
-                    ),
+                        border: UnderlineInputBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        labelText: "Senha",
+                        prefixIcon: const Icon(Icons.password),
+                        suffixIcon: InkWell(
+                          onTap: () => setState(() {
+                            obscureText = !obscureText;
+                          }),
+                          child: obscureText
+                              ? const Icon(Icons.light_mode)
+                              : const Icon(Icons.dark_mode),
+                        )),
                     validator: (value) => value!.length < 8
                         ? "A senha deve ter pelo penos 8 caracteres."
                         : null,
@@ -167,16 +175,23 @@ class _CadastroPageState extends State<CadastroPage> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                   child: TextFormField(
-                    obscureText: true,
+                    obscureText: obscureText,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     keyboardType: TextInputType.visiblePassword,
                     controller: pwValidationController,
                     decoration: InputDecoration(
-                      border: UnderlineInputBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                      labelText: "Confirme a Senha",
-                      prefixIcon: const Icon(Icons.password),
-                    ),
+                        border: UnderlineInputBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        labelText: "Confirme a Senha",
+                        prefixIcon: const Icon(Icons.password),
+                        suffixIcon: InkWell(
+                          onTap: () => setState(() {
+                            obscureText = !obscureText;
+                          }),
+                          child: obscureText
+                              ? const Icon(Icons.light_mode)
+                              : const Icon(Icons.dark_mode),
+                        )),
                     validator: (value) {
                       if (value! != pwController.value.text) {
                         return "As duas senhas devem ser iguais.";
