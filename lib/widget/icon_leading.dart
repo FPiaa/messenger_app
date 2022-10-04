@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
-
-import '../models/conversa.dart';
+import 'package:messenger_app/models/pessoa.dart';
 
 class IconLeading extends StatelessWidget {
   const IconLeading({
     Key? key,
-    required this.conversa,
+    required this.pessoa,
     this.radius,
     required this.onTap,
   }) : super(key: key);
 
-  final Conversa conversa;
+  final Pessoa pessoa;
   final double? radius;
   final Function onTap;
 
@@ -29,8 +28,8 @@ class IconLeading extends StatelessWidget {
           height: imageSize,
           child: ClipOval(
             clipBehavior: Clip.antiAliasWithSaveLayer,
-            child: conversa.imageUrl != null
-                ? Image.asset(conversa.imageUrl!)
+            child: pessoa.photo != null
+                ? Image.asset(pessoa.photo!)
                 : Icon(
                     Icons.person,
                     size: imageSize,

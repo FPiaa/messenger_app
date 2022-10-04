@@ -7,46 +7,38 @@ import 'package:messenger_app/repository/pessoa_repository.dart';
 class ConversaRepository implements IRepository<Conversa> {
   static final List<Pessoa> _pessoas = PessoaRepository.pessoas;
   late List<Conversa> conversas = [
-    Conversa(
-        participantes: [_pessoas[0], _pessoas[1]],
-        nome: _pessoas[1].username,
-        imageUrl: _pessoas[1].photo,
-        mensagens: [
-          Mensagem(
-            remetente: _pessoas[1],
-            content: "primeira mensagem",
-          ),
-          Mensagem(
-            remetente: _pessoas[0],
-            content: "primeira mensagem",
-          ),
-          Mensagem(
-            remetente: _pessoas[1],
-            content: "mensagem mensagem genérica",
-          ),
-          Mensagem(
-            remetente: _pessoas[0],
-            content:
-                "resposta a mensagem genérica com uma mensagem extremamente longa",
-          )
-        ]),
-    Conversa(
-        participantes: [_pessoas[0], _pessoas[1], _pessoas[2]],
-        administradores: [_pessoas[1], _pessoas[2]],
-        nome: "Grupo dos amigo",
-        imageUrl: "images/bezos_chapeu.jpg",
-        mensagens: [
-          Mensagem(remetente: _pessoas[2], content: "Foo"),
-          Mensagem(remetente: _pessoas[1], content: "BAr"),
-          Mensagem(remetente: _pessoas[2], content: "BAz"),
-          Mensagem(remetente: _pessoas[2], content: "Generico"),
-          Mensagem(remetente: _pessoas[0], content: "Bla"),
-        ]),
-    Conversa(
-        participantes: [_pessoas[0], _pessoas[1], _pessoas[2]],
-        administradores: [_pessoas[0]],
-        nome: "Grupo sem nada",
-        mensagens: [])
+    Conversa(participantes: [
+      _pessoas[0],
+      _pessoas[1]
+    ], mensagens: [
+      Mensagem(
+        remetente: _pessoas[1],
+        content: "primeira mensagem",
+      ),
+      Mensagem(
+        remetente: _pessoas[0],
+        content: "primeira mensagem",
+      ),
+      Mensagem(
+        remetente: _pessoas[1],
+        content: "mensagem mensagem genérica",
+      ),
+      Mensagem(
+        remetente: _pessoas[0],
+        content:
+            "resposta a mensagem genérica com uma mensagem extremamente longa",
+      )
+    ]),
+    Conversa(participantes: [
+      _pessoas[1],
+      _pessoas[2]
+    ], mensagens: [
+      Mensagem(remetente: _pessoas[2], content: "Foo"),
+      Mensagem(remetente: _pessoas[1], content: "BAr"),
+      Mensagem(remetente: _pessoas[2], content: "BAz"),
+      Mensagem(remetente: _pessoas[2], content: "Generico"),
+    ]),
+    Conversa(participantes: [_pessoas[1], _pessoas[3]], mensagens: [])
   ];
 
   @override

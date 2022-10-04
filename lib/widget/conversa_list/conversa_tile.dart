@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:messenger_app/models/pessoa.dart';
+import 'package:messenger_app/pages/perfil_page.dart';
 import 'package:messenger_app/provider/conversas_selecionadas_provider.dart';
 import 'package:messenger_app/provider/usuario_provider.dart';
 import 'package:provider/provider.dart';
@@ -22,13 +24,19 @@ class ConversaTile extends StatelessWidget {
     UsuarioAtivoProvider usuarioAtivoProvider =
         Provider.of<UsuarioAtivoProvider>(context);
 
+    Pessoa destinatario = conversa.participantes
+        .firstWhere((element) => element != usuarioAtivoProvider.pessoa);
+
     return ListTile(
       leading: IconLeading(
-        conversa: conversa,
+        pessoa: destinatario,
         radius: 30,
-        onTap: () => print('Imagem pressionada'),
+        onTap: () =>
+            Navigator.push(context, MaterialPageRoute(builder: (context) {
+          return Profile(pessoa: destinatario, isCurrentUser: false);
+        })),
       ),
-      title: _buildTitle(),
+      title: _buildTitle(destinatario),
       trailing: _buildTrailing(),
       subtitle: _buildSubTitle(),
       tileColor: Colors.grey[200],
@@ -53,9 +61,9 @@ class ConversaTile extends StatelessWidget {
     );
   }
 
-  Widget _buildTitle() {
+  Widget _buildTitle(Pessoa destinatario) {
     return Text(
-      conversa.nome,
+      destinatario.username,
       style: const TextStyle(fontSize: 18, overflow: TextOverflow.clip),
       overflow: TextOverflow.ellipsis,
     );

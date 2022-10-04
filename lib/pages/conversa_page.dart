@@ -43,7 +43,8 @@ class _ConversaPageState extends State<ConversaPage> {
                 const Icon(Icons.arrow_back),
                 const SizedBox(width: 8),
                 IconLeading(
-                  conversa: widget.conversa,
+                  pessoa: widget.conversa.participantes.firstWhere(
+                      (element) => element != usuarioAtivoProvider.pessoa),
                   onTap: () => Navigator.pop(context),
                 ),
               ],
@@ -51,7 +52,9 @@ class _ConversaPageState extends State<ConversaPage> {
           ),
         ),
         leadingWidth: 88,
-        title: Text(widget.conversa.nome),
+        title: Text(widget.conversa.participantes
+            .firstWhere((element) => element != usuarioAtivoProvider.pessoa)
+            .username),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 8.0),

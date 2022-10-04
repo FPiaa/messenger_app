@@ -7,15 +7,9 @@ class Conversa {
   List<Pessoa> participantes;
   List<Mensagem> mensagens;
   //Adm só é necessário para grupos
-  List<Pessoa>? administradores;
-  String nome;
-  String? imageUrl;
 
   Conversa({
     required this.participantes,
-    this.administradores,
-    required this.nome,
-    this.imageUrl,
     required this.mensagens,
   });
 
