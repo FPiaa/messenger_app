@@ -17,4 +17,8 @@ class Conversa {
   addMessage(Mensagem message) {
     mensagens.add(message);
   }
+
+  String getName(Pessoa remetente) {
+    return participantes.firstWhere((element) => element != remetente).username;
+  }
 }

@@ -28,6 +28,8 @@ class _HomePageState extends State<HomePage> {
   final IRepository<Conversa> conversaRepository = ConversaRepository();
   late UsuarioAtivoProvider usuarioAtivoProvider;
 
+  final textField = TextEditingController();
+
   PessoaController pessoaController =
       PessoaController(pessoaRepository: PessoaRepository());
   ConversaController conversaController =
@@ -41,44 +43,84 @@ class _HomePageState extends State<HomePage> {
     return a;
   }
 
+  List<Conversa> filtradas = [];
+  bool filtrar = false;
   @override
   Widget build(BuildContext context) {
     selecionadas = Provider.of<ConversasSelecionadasProvider>(context);
-    pesquisadas = Provider.of<ConversasPesquisadasProvider>(context);
     usuarioAtivoProvider = Provider.of<UsuarioAtivoProvider>(context);
-
     List<Conversa> conversas = query(usuarioAtivoProvider.pessoa);
 
     return Scaffold(
-      appBar: AppBar(
-        title: selecionadas.conversas.isEmpty
-            ? const Text("Anti-Zuk")
+      appBar: buildAppBar(conversas),
+      floatingActionButton: FloatingActionButton(
+        onPressed: (() => {}),
+        child: const Icon(Icons.person_add_alt_sharp),
+      ),
+      body: ConversaListView(
+          conversas: filtradas.isEmpty ? conversas : filtradas),
+    );
+  }
+
+  AppBar buildAppBar(List<Conversa> conversas) {
+    if (filtrar) {
+      return AppBar(
+        title: TextFormField(
+            autofocus: true,
+            controller: textField,
+            decoration: const InputDecoration(
+                border: UnderlineInputBorder(),
+                label: Text("Pesquisar..."),
+                labelStyle: TextStyle(color: Colors.grey),
+                fillColor: Colors.grey),
+            onChanged: (value) {
+              setState(() {
+                filtradas = conversas
+                    .where((element) => element
+                        .getName(usuarioAtivoProvider.pessoa)
+                        .toLowerCase()
+                        .contains(value.toLowerCase()))
+                    .toList();
+              });
+            }),
+        centerTitle: false,
+        actions: [
+          IconButton(
+            onPressed: () {
+              textField.clear();
+              setState(() {});
+            },
+            icon: const Icon(Icons.delete),
+          ),
+          IconButton(
+              onPressed: () {
+                filtradas.clear();
+                textField.clear();
+                setState(() {
+                  filtrar = false;
+                });
+              },
+              icon: const Icon(Icons.cancel))
+        ],
+      );
+    }
+    if (selecionadas.conversas.isNotEmpty) {
+      return AppBar(
+        title: selecionadas.conversas.length == 1
+            ? const Text("1 conversa")
             : Text("${selecionadas.conversas.length} conversas"),
         centerTitle: false,
         actions: [
-          selecionadas.conversas.isNotEmpty
-              ? IconButton(
-                  onPressed: () {
-                    for (Conversa conversa in selecionadas.conversas) {
-                      conversaController.delete(conversa);
-                    }
-                    selecionadas.clear();
-                    setState(() {});
-                  },
-                  icon: const Icon(Icons.delete),
-                )
-              : IconButton(
-                  onPressed: () {
-                    pesquisadas.init(conversas);
-                    // TODO: arrumar o provider aqui
-                    showSearch(
-                        context: context,
-                        delegate: SearchPage(
-                            pesquisa: conversas,
-                            usuarioAtual: usuarioAtivoProvider.pessoa));
-                  },
-                  icon: const Icon(Icons.search),
-                ),
+          IconButton(
+            onPressed: () {
+              for (Conversa conversa in selecionadas.conversas) {
+                conversaController.delete(conversa);
+              }
+              selecionadas.clear();
+              setState(() {});
+            },
+            icon: const Icon(Icons.delete),
+          ),
           IconButton(
               onPressed: () {
                 Navigator.of(context).push(MaterialPageRoute(
@@ -88,12 +130,29 @@ class _HomePageState extends State<HomePage> {
               },
               icon: const Icon(Icons.person))
         ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: (() => {}),
-        child: const Icon(Icons.person_add_alt_sharp),
-      ),
-      body: ConversaListView(conversas: conversas),
+      );
+    }
+    return AppBar(
+      title: const Text("Meu Aplicativo"),
+      centerTitle: false,
+      actions: [
+        IconButton(
+          onPressed: () {
+            setState(() {
+              filtrar = true;
+            });
+          },
+          icon: const Icon(Icons.search),
+        ),
+        IconButton(
+            onPressed: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => Profile(
+                      pessoa: usuarioAtivoProvider.pessoa,
+                      isCurrentUser: true)));
+            },
+            icon: const Icon(Icons.person))
+      ],
     );
   }
 }
