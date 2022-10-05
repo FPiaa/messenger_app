@@ -33,6 +33,11 @@ class _CadastroPageState extends State<CadastroPage> {
           dataNascimento: selectedDate!);
 
       pessoaController.save(pessoa);
+      pwController.clear();
+      pwValidationController.clear();
+      emailController.clear();
+      usernameController.clear();
+      selectedDate = null;
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Conta criada com sucesso')),

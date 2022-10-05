@@ -35,6 +35,8 @@ class _LoginPageState extends State<LoginPage> {
         ));
         return;
       }
+      passwordController.clear();
+      usernameController.clear();
 
       Navigator.of(context).push(MaterialPageRoute(builder: (context) {
         return MultiProvider(
