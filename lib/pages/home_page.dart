@@ -3,8 +3,7 @@ import 'package:messenger_app/controllers/conversa_controller.dart';
 import 'package:messenger_app/controllers/pessoa_controller.dart';
 import 'package:messenger_app/models/pessoa.dart';
 import 'package:messenger_app/pages/perfil_page.dart';
-import 'package:messenger_app/pages/search_page.dart';
-import 'package:messenger_app/provider/conversas_pesquisadas_provider.dart';
+import 'package:messenger_app/provider/conversas_provider.dart';
 import 'package:messenger_app/provider/usuario_provider.dart';
 import 'package:messenger_app/repository/conversas_repository.dart';
 import 'package:messenger_app/provider/conversas_selecionadas_provider.dart';
@@ -24,7 +23,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late ConversasSelecionadasProvider selecionadas;
-  late ConversasPesquisadasProvider pesquisadas;
+  late ConversasProvider pesquisadas;
   final IRepository<Conversa> conversaRepository = ConversaRepository();
   late UsuarioAtivoProvider usuarioAtivoProvider;
 
@@ -36,29 +35,51 @@ class _HomePageState extends State<HomePage> {
       ConversaController(conversaRepository: ConversaRepository());
 
   List<Conversa> query(Pessoa pessoa) {
-    List<Conversa> a = conversaController
-        .findAll((Conversa c) => c.participantes.contains(pessoa))
-        .toList();
+    if (contatos) {
+      return conversas;
+    } else {
+      List<Conversa> a = conversaController
+          .findAll((Conversa c) => c.participantes.contains(pessoa))
+          .toList();
 
-    return a;
+      return a;
+    }
   }
 
+  onPressed() {
+    setState(() {
+      if (!contatos) {
+        contatos = true;
+        conversas = conversaController
+            .getContacts(usuarioAtivoProvider.pessoa)
+            .toList();
+      } else {
+        contatos = false;
+        conversas = query(usuarioAtivoProvider.pessoa);
+      }
+    });
+  }
+
+  late List<Conversa> conversas;
   List<Conversa> filtradas = [];
   bool filtrar = false;
+  bool contatos = false;
   @override
   Widget build(BuildContext context) {
     selecionadas = Provider.of<ConversasSelecionadasProvider>(context);
     usuarioAtivoProvider = Provider.of<UsuarioAtivoProvider>(context);
-    List<Conversa> conversas = query(usuarioAtivoProvider.pessoa);
+    //TODO: remover essa conversa do build
+    conversas = query(usuarioAtivoProvider.pessoa);
 
     return Scaffold(
       appBar: buildAppBar(conversas),
       floatingActionButton: FloatingActionButton(
-        onPressed: (() => {}),
+        onPressed: onPressed,
         child: const Icon(Icons.person_add_alt_sharp),
       ),
       body: ConversaListView(
-          conversas: filtradas.isEmpty ? conversas : filtradas),
+        conversas: filtrar && filtradas.isNotEmpty ? filtradas : conversas,
+      ),
     );
   }
 
@@ -66,21 +87,29 @@ class _HomePageState extends State<HomePage> {
     if (filtrar) {
       return AppBar(
         title: TextFormField(
+            cursorColor: Colors.black87,
+            cursorWidth: 1,
             autofocus: true,
             controller: textField,
-            decoration: const InputDecoration(
-                border: UnderlineInputBorder(),
-                label: Text("Pesquisar..."),
-                labelStyle: TextStyle(color: Colors.grey),
+            decoration: InputDecoration(
+                border: const UnderlineInputBorder(),
+                label: contatos
+                    ? const Text("Pesquisar contatos...")
+                    : const Text("Pesquisar..."),
+                labelStyle: const TextStyle(color: Colors.grey),
                 fillColor: Colors.grey),
             onChanged: (value) {
               setState(() {
-                filtradas = conversas
-                    .where((element) => element
-                        .getName(usuarioAtivoProvider.pessoa)
-                        .toLowerCase()
-                        .contains(value.toLowerCase()))
-                    .toList();
+                if (value.isEmpty) {
+                  filtradas = [];
+                } else {
+                  filtradas = conversas
+                      .where((element) => element
+                          .getName(usuarioAtivoProvider.pessoa)
+                          .toLowerCase()
+                          .contains(value.toLowerCase()))
+                      .toList();
+                }
               });
             }),
         centerTitle: false,
@@ -133,7 +162,8 @@ class _HomePageState extends State<HomePage> {
       );
     }
     return AppBar(
-      title: const Text("Meu Aplicativo"),
+      title:
+          contatos ? const Text("Meus contatos") : const Text("Meu Aplicativo"),
       centerTitle: false,
       actions: [
         IconButton(

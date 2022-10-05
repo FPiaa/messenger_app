@@ -26,4 +26,8 @@ class PessoaController {
   Pessoa? delete(Pessoa pessoa) {
     return pessoaRepository.delete(pessoa);
   }
+
+  Iterable<Pessoa> findAll(bool Function(Pessoa) predicate) {
+    return pessoaRepository.findAll(predicate);
+  }
 }

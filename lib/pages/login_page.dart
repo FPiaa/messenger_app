@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:messenger_app/controllers/pessoa_controller.dart';
 import 'package:messenger_app/models/pessoa.dart';
 import 'package:messenger_app/pages/cadastro_page.dart';
-import 'package:messenger_app/pages/conversa_page.dart';
 import 'package:messenger_app/pages/home_page.dart';
-import 'package:messenger_app/provider/conversas_pesquisadas_provider.dart';
+import 'package:messenger_app/provider/conversas_provider.dart';
 import 'package:messenger_app/provider/conversas_selecionadas_provider.dart';
 import 'package:messenger_app/provider/usuario_provider.dart';
 import 'package:messenger_app/repository/pessoa_repository.dart';
@@ -45,8 +41,8 @@ class _LoginPageState extends State<LoginPage> {
           providers: [
             ChangeNotifierProvider<ConversasSelecionadasProvider>(
                 create: (context) => ConversasSelecionadasProvider()),
-            ChangeNotifierProvider<ConversasPesquisadasProvider>(
-                create: (context) => ConversasPesquisadasProvider()),
+            ChangeNotifierProvider<ConversasProvider>(
+                create: (context) => ConversasProvider()),
             ChangeNotifierProvider<UsuarioAtivoProvider>(
                 create: (context) => UsuarioAtivoProvider(pessoa))
           ],

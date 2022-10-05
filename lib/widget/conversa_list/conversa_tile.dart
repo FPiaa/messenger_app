@@ -14,10 +14,12 @@ import '../icon_leading.dart';
 class ConversaTile extends StatefulWidget {
   final ConversasSelecionadasProvider selecionadas;
   final Conversa conversa;
+  final Function? callback;
   const ConversaTile({
     super.key,
     required this.conversa,
     required this.selecionadas,
+    this.callback,
   });
 
   @override
@@ -49,6 +51,9 @@ class _ConversaTileState extends State<ConversaTile> {
       selectedTileColor: Colors.blue[50],
       selected: widget.selecionadas.conversas.contains(widget.conversa),
       onTap: () {
+        if (widget.callback != null) {
+          widget.callback!();
+        }
         Navigator.push(context,
             MaterialPageRoute(builder: (BuildContext context) {
           return MultiProvider(providers: [

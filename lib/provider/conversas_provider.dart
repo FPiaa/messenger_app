@@ -3,9 +3,8 @@ import 'dart:collection';
 import 'package:flutter/cupertino.dart';
 import 'package:messenger_app/models/conversa.dart';
 
-class ConversasPesquisadasProvider extends ChangeNotifier {
+class ConversasProvider extends ChangeNotifier {
   List<Conversa> _conversas = [];
-
   UnmodifiableListView get conversas => UnmodifiableListView(_conversas);
 
   init(List<Conversa> conversas) {

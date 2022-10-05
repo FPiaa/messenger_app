@@ -1,7 +1,10 @@
 import 'dart:collection';
 
+import 'package:messenger_app/controllers/pessoa_controller.dart';
 import 'package:messenger_app/models/mensagem.dart';
+import 'package:messenger_app/models/pessoa.dart';
 import 'package:messenger_app/repository/i_repository.dart';
+import 'package:messenger_app/repository/pessoa_repository.dart';
 
 import '../models/conversa.dart';
 
@@ -38,5 +41,22 @@ class ConversaController {
     for (var element in mensagem) {
       deleteMessage(conversa, element);
     }
+  }
+
+  Iterable<Conversa> getContacts(Pessoa pessoa) {
+    List<Conversa> conversas = conversaRepository
+        .findAll(((element) => element.participantes.contains(pessoa)))
+        .toList();
+    PessoaController pessoaController =
+        PessoaController(pessoaRepository: PessoaRepository());
+    Iterable<Pessoa> pessoas = pessoaController.findAll(
+        (p) => !conversas.any((element) => element.participantes.contains(p)));
+
+    List<Conversa> retorno = [];
+    for (var pessoa2 in pessoas) {
+      retorno.add(Conversa(participantes: [pessoa, pessoa2], mensagens: []));
+    }
+
+    return retorno;
   }
 }

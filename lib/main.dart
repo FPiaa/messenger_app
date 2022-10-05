@@ -3,7 +3,7 @@ import 'package:messenger_app/pages/cadastro_page.dart';
 import 'package:messenger_app/pages/conversa_page.dart';
 import 'package:messenger_app/pages/home_page.dart';
 import 'package:messenger_app/pages/login_page.dart';
-import 'package:messenger_app/provider/conversas_pesquisadas_provider.dart';
+import 'package:messenger_app/provider/conversas_provider.dart';
 import 'package:messenger_app/provider/conversas_selecionadas_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -13,8 +13,8 @@ void main() {
     providers: [
       ChangeNotifierProvider<ConversasSelecionadasProvider>(
           create: (context) => ConversasSelecionadasProvider()),
-      ChangeNotifierProvider<ConversasPesquisadasProvider>(
-          create: (context) => ConversasPesquisadasProvider()),
+      ChangeNotifierProvider<ConversasProvider>(
+          create: (context) => ConversasProvider()),
     ],
     child: const Chat(),
   ));
