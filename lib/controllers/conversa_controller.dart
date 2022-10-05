@@ -54,7 +54,9 @@ class ConversaController {
 
     List<Conversa> retorno = [];
     for (var pessoa2 in pessoas) {
-      retorno.add(Conversa(participantes: [pessoa, pessoa2], mensagens: []));
+      if (pessoa != pessoa2) {
+        retorno.add(Conversa(participantes: [pessoa, pessoa2], mensagens: []));
+      }
     }
 
     return retorno;

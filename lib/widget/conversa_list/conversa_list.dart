@@ -8,8 +8,7 @@ import 'conversa_tile.dart';
 
 class ConversaListView extends StatefulWidget {
   final List<Conversa> conversas;
-  final Function? callback;
-  const ConversaListView({super.key, required this.conversas, this.callback});
+  const ConversaListView({super.key, required this.conversas});
 
   @override
   State<ConversaListView> createState() => _ConversaListViewState();
@@ -26,7 +25,6 @@ class _ConversaListViewState extends State<ConversaListView> {
         itemBuilder: (BuildContext context, int conversa) => ConversaTile(
               conversa: widget.conversas[conversa],
               selecionadas: selecionadas,
-              callback: widget.callback,
             ),
         padding: const EdgeInsets.only(top: 16.0),
         separatorBuilder: (_, __) => const Divider(),

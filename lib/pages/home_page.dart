@@ -150,14 +150,6 @@ class _HomePageState extends State<HomePage> {
             },
             icon: const Icon(Icons.delete),
           ),
-          IconButton(
-              onPressed: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => Profile(
-                        pessoa: usuarioAtivoProvider.pessoa,
-                        isCurrentUser: true)));
-              },
-              icon: const Icon(Icons.person))
         ],
       );
     }
