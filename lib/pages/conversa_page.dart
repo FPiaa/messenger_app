@@ -110,7 +110,7 @@ class _ConversaPageState extends State<ConversaPage> {
                       "${mensagensSelecionadas.mensagem.length} mensagem selecionadas"),
               actions: [
                 IconButton(
-                  icon: Icon(Icons.delete),
+                  icon: const Icon(Icons.delete),
                   onPressed: mensagensSelecionadas.mensagem.any((element) =>
                           element.remetente != usuarioAtivoProvider.pessoa)
                       ? null

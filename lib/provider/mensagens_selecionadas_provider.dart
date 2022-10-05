@@ -1,11 +1,10 @@
 import 'dart:collection';
-import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
 import 'package:messenger_app/models/mensagem.dart';
 
 class MensagensSelecionadas extends ChangeNotifier {
-  List<Mensagem> _mensagem = [];
+  final List<Mensagem> _mensagem = [];
   UnmodifiableListView get mensagem => UnmodifiableListView(_mensagem);
 
   save(Mensagem m) {

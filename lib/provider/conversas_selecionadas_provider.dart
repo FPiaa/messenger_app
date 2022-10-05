@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:messenger_app/models/conversa.dart';
 
 class ConversasSelecionadasProvider extends ChangeNotifier {
-  List<Conversa> _conversas = [];
+  final List<Conversa> _conversas = [];
   UnmodifiableListView get conversas => UnmodifiableListView(_conversas);
 
   save(Conversa conversa) {

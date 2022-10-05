@@ -3,9 +3,7 @@ import 'package:messenger_app/controllers/conversa_controller.dart';
 import 'package:messenger_app/models/conversa.dart';
 import 'package:messenger_app/models/mensagem.dart';
 import 'package:messenger_app/models/pessoa.dart';
-import 'package:messenger_app/provider/usuario_provider.dart';
 import 'package:messenger_app/repository/conversas_repository.dart';
-import 'package:provider/provider.dart';
 
 class Input extends StatefulWidget {
   const Input({

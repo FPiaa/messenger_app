@@ -1,16 +1,16 @@
 # messenger_app
+Um aplicativo de mensagens desenvolvido utilizando Flutter.
 
-A new Flutter project.
+![Tela Login](images/login.png)
+![Tela cadastro](images/cadastro.png)
+![Tela home](images/homePage.png)
+![Tela Conversa](images/conversa.png)
 
 ## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Para executar o projeto é necessário que 
+o compilador de `Dart` e `Flutter` já estejam instalados na máquina. 
+```
+git clone https://github.com/FPiaa/messenger_app
+cd messenger_app
+flutter run
+```

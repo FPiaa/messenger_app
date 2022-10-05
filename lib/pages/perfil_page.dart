@@ -65,17 +65,17 @@ class Profile extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(vertical: 4),
               child: SelectableText(pessoa.username,
-                  style: TextStyle(fontSize: 20)),
+                  style: const TextStyle(fontSize: 20)),
             ),
             Container(
                 padding: const EdgeInsets.symmetric(vertical: 4),
                 child: SelectableText(
                     "${AgeCalculator.age(pessoa.dataNascimento).years} Anos",
-                    style: TextStyle(fontSize: 20))),
+                    style: const TextStyle(fontSize: 20))),
             Container(
                 padding: const EdgeInsets.symmetric(vertical: 4),
                 child: SelectableText(pessoa.email,
-                    style: TextStyle(fontSize: 20))),
+                    style: const TextStyle(fontSize: 20))),
             pessoa.descricao != null
                 ? Container(
                     padding: const EdgeInsets.only(top: 12),

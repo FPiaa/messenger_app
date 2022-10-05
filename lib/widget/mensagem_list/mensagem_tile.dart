@@ -5,7 +5,6 @@ import 'package:messenger_app/provider/usuario_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/mensagem.dart';
-import '../../repository/pessoa_repository.dart';
 
 class ListTileMensagem extends StatelessWidget {
   ListTileMensagem({

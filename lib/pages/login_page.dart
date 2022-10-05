@@ -129,7 +129,6 @@ class _LoginPageState extends State<LoginPage> {
                         child: Ink(
                           height: 50,
                           width: 200,
-                          // TODO fazer ficar arredondado
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(40),
                               border:

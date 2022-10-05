@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:messenger_app/pages/cadastro_page.dart';
-import 'package:messenger_app/pages/conversa_page.dart';
-import 'package:messenger_app/pages/home_page.dart';
 import 'package:messenger_app/pages/login_page.dart';
 import 'package:messenger_app/provider/conversas_provider.dart';
 import 'package:messenger_app/provider/conversas_selecionadas_provider.dart';
