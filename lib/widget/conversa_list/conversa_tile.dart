@@ -11,7 +11,7 @@ import '../../models/conversa.dart';
 import '../../pages/conversa_page.dart';
 import '../icon_leading.dart';
 
-class ConversaTile extends StatelessWidget {
+class ConversaTile extends StatefulWidget {
   final ConversasSelecionadasProvider selecionadas;
   final Conversa conversa;
   const ConversaTile({
@@ -21,11 +21,16 @@ class ConversaTile extends StatelessWidget {
   });
 
   @override
+  State<ConversaTile> createState() => _ConversaTileState();
+}
+
+class _ConversaTileState extends State<ConversaTile> {
+  @override
   Widget build(BuildContext context) {
     UsuarioAtivoProvider usuarioAtivoProvider =
         Provider.of<UsuarioAtivoProvider>(context);
 
-    Pessoa destinatario = conversa.participantes
+    Pessoa destinatario = widget.conversa.participantes
         .firstWhere((element) => element != usuarioAtivoProvider.pessoa);
 
     return ListTile(
@@ -42,7 +47,7 @@ class ConversaTile extends StatelessWidget {
       subtitle: _buildSubTitle(),
       tileColor: Colors.grey[100],
       selectedTileColor: Colors.blue[50],
-      selected: selecionadas.conversas.contains(conversa),
+      selected: widget.selecionadas.conversas.contains(widget.conversa),
       onTap: () {
         Navigator.push(context,
             MaterialPageRoute(builder: (BuildContext context) {
@@ -53,13 +58,13 @@ class ConversaTile extends StatelessWidget {
             ),
             ChangeNotifierProvider<MensagensSelecionadas>(
                 create: (context) => MensagensSelecionadas())
-          ], child: ConversaPage(conversa: conversa));
+          ], child: ConversaPage(conversa: widget.conversa));
         }));
       },
       onLongPress: () => {
-        selecionadas.conversas.contains(conversa)
-            ? selecionadas.remove(conversa)
-            : selecionadas.save(conversa)
+        widget.selecionadas.conversas.contains(widget.conversa)
+            ? widget.selecionadas.remove(widget.conversa)
+            : widget.selecionadas.save(widget.conversa)
       },
     );
   }
@@ -73,11 +78,11 @@ class ConversaTile extends StatelessWidget {
   }
 
   Widget _buildSubTitle() {
-    if (conversa.mensagens.isEmpty) {
+    if (widget.conversa.mensagens.isEmpty) {
       return Container();
     } else {
       return Text(
-        conversa.mensagens.last.content,
+        widget.conversa.mensagens.last.content,
         style: const TextStyle(fontSize: 14),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
@@ -86,11 +91,12 @@ class ConversaTile extends StatelessWidget {
   }
 
   Widget _buildTrailing() {
-    if (conversa.mensagens.isEmpty) {
+    if (widget.conversa.mensagens.isEmpty) {
       return const Text(" ");
     } else {
       // TODO: Formatar de acordo com a preferência do usuário
-      return Text(DateFormat.jm().format(conversa.mensagens.last.dataEnvio));
+      return Text(
+          DateFormat.jm().format(widget.conversa.mensagens.last.dataEnvio));
     }
   }
 }
