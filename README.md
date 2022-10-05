@@ -14,3 +14,8 @@ git clone https://github.com/FPiaa/messenger_app
 cd messenger_app
 flutter run
 ```
+
+Após executar os comandos, o aplicativo já estará funcionando.
+
+### Aluno
+Igor Guilherme Fidler
