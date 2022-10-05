@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:messenger_app/models/mensagem.dart';
 import 'package:messenger_app/repository/i_repository.dart';
 
@@ -25,5 +27,16 @@ class ConversaController {
 
   void sendMessage(Conversa conversa, Mensagem mensagem) {
     conversa.addMessage(mensagem);
+  }
+
+  void deleteMessage(Conversa conversa, Mensagem mensagem) {
+    conversa.mensagens.remove(mensagem);
+  }
+
+  void deleteMessages(
+      Conversa conversa, UnmodifiableListView<Mensagem> mensagem) {
+    for (var element in mensagem) {
+      deleteMessage(conversa, element);
+    }
   }
 }

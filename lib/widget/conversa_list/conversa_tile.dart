@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:messenger_app/models/pessoa.dart';
 import 'package:messenger_app/pages/perfil_page.dart';
 import 'package:messenger_app/provider/conversas_selecionadas_provider.dart';
+import 'package:messenger_app/provider/mensagens_selecionadas_provider.dart';
 import 'package:messenger_app/provider/usuario_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -49,7 +50,9 @@ class ConversaTile extends StatelessWidget {
             ChangeNotifierProvider<UsuarioAtivoProvider>(
               create: (context) =>
                   UsuarioAtivoProvider(usuarioAtivoProvider.pessoa),
-            )
+            ),
+            ChangeNotifierProvider<MensagensSelecionadas>(
+                create: (context) => MensagensSelecionadas())
           ], child: ConversaPage(conversa: conversa));
         }));
       },
