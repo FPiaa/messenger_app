@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:messenger_app/models/pessoa.dart';
 import 'package:messenger_app/provider/conversas_pesquisadas_provider.dart';
+import 'package:messenger_app/provider/conversas_selecionadas_provider.dart';
+import 'package:messenger_app/provider/usuario_provider.dart';
 import 'package:messenger_app/widget/conversa_list/conversa_list.dart';
 import 'package:provider/provider.dart';
 
 import '../models/conversa.dart';
 
-class SearchPage extends SearchDelegate {
-  late ConversasPesquisadasProvider pesquisa;
-  late Pessoa usuarioAtual;
-  SearchPage(Pessoa user) {
-    usuarioAtual = user;
-  }
-  // TODO: pensar se é necessário os dois botões
+class SearchPage extends SearchDelegate<Conversa?> {
+  final List<Conversa> pesquisa;
+  final Pessoa usuarioAtual;
+  SearchPage({required this.pesquisa, required this.usuarioAtual});
   @override
   List<Widget>? buildActions(BuildContext context) {
     return [
@@ -40,28 +39,38 @@ class SearchPage extends SearchDelegate {
 
   @override
   Widget buildResults(BuildContext context) {
-    pesquisa = Provider.of<ConversasPesquisadasProvider>(context);
-    List<Conversa> conversasFiltradas = pesquisa.filter((Conversa conversa) =>
-        conversa.participantes
+    List<Conversa> conversasFiltradas = pesquisa
+        .where((Conversa conversa) => conversa.participantes
             .firstWhere((element) => element != usuarioAtual)
             .username
             .toLowerCase()
-            .contains(query.toLowerCase()));
+            .contains(query.toLowerCase()))
+        .toList();
 
-    return ConversaListView(conversas: conversasFiltradas);
+    return MultiProvider(providers: [
+      ChangeNotifierProvider<UsuarioAtivoProvider>(
+          create: (context) => UsuarioAtivoProvider(usuarioAtual)),
+      ChangeNotifierProvider<ConversasSelecionadasProvider>(
+          create: (context) => ConversasSelecionadasProvider())
+    ], child: ConversaListView(conversas: conversasFiltradas));
   }
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    pesquisa = Provider.of<ConversasPesquisadasProvider>(context);
-    List<Conversa> conversasFiltradas = pesquisa.filter((Conversa conversa) =>
-        conversa.participantes
+    List<Conversa> conversasFiltradas = pesquisa
+        .where((Conversa conversa) => conversa.participantes
             .firstWhere((element) => element != usuarioAtual)
             .username
             .toLowerCase()
-            .contains(query.toLowerCase()));
+            .contains(query.toLowerCase()))
+        .toList();
 
-    return ConversaListView(conversas: conversasFiltradas);
+    return MultiProvider(providers: [
+      ChangeNotifierProvider<UsuarioAtivoProvider>(
+          create: (context) => UsuarioAtivoProvider(usuarioAtual)),
+      ChangeNotifierProvider<ConversasSelecionadasProvider>(
+          create: (context) => ConversasSelecionadasProvider())
+    ], child: ConversaListView(conversas: conversasFiltradas));
   }
 
   @override

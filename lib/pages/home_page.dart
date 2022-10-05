@@ -70,9 +70,12 @@ class _HomePageState extends State<HomePage> {
               : IconButton(
                   onPressed: () {
                     pesquisadas.init(conversas);
+                    // TODO: arrumar o provider aqui
                     showSearch(
                         context: context,
-                        delegate: SearchPage(usuarioAtivoProvider.pessoa));
+                        delegate: SearchPage(
+                            pesquisa: conversas,
+                            usuarioAtual: usuarioAtivoProvider.pessoa));
                   },
                   icon: const Icon(Icons.search),
                 ),
