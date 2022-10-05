@@ -32,8 +32,12 @@ class _LoginPageState extends State<LoginPage> {
     if (_formKey.currentState!.validate()) {
       Pessoa? pessoa = pessoaController
           .findWhere((Pessoa p) => p.username == usernameController.text);
-      if (pessoa == null) {
-        print("Algo deu errado");
+      if (pessoa == null || pessoa.password != passwordController.text) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("Usuário ou senha inválidos."),
+          backgroundColor: Colors.red,
+        ));
+        return;
       }
 
       Navigator.of(context).push(MaterialPageRoute(builder: (context) {
@@ -44,9 +48,9 @@ class _LoginPageState extends State<LoginPage> {
             ChangeNotifierProvider<ConversasPesquisadasProvider>(
                 create: (context) => ConversasPesquisadasProvider()),
             ChangeNotifierProvider<UsuarioAtivoProvider>(
-                create: (context) => UsuarioAtivoProvider(pessoa!))
+                create: (context) => UsuarioAtivoProvider(pessoa))
           ],
-          child: HomePage(),
+          child: const HomePage(),
         );
       }));
     }
