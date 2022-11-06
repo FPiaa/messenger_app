@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:messenger_app/controllers/conversa_controller.dart';
 import 'package:messenger_app/controllers/pessoa_controller.dart';
 import 'package:messenger_app/models/pessoa.dart';
 import 'package:messenger_app/pages/perfil_page.dart';
 import 'package:messenger_app/provider/conversas_provider.dart';
+import 'package:messenger_app/provider/mensagens_selecionadas_provider.dart';
 import 'package:messenger_app/provider/usuario_provider.dart';
 import 'package:messenger_app/repository/conversas_repository.dart';
 import 'package:messenger_app/provider/conversas_selecionadas_provider.dart';
 import 'package:messenger_app/repository/i_repository.dart';
 import 'package:messenger_app/repository/pessoa_repository.dart';
-import 'package:messenger_app/widget/conversa_list/conversa_list.dart';
 import 'package:provider/provider.dart';
 
 import '../models/conversa.dart';
+import '../widget/icon_leading.dart';
+import 'conversa_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -77,9 +80,7 @@ class _HomePageState extends State<HomePage> {
         onPressed: onPressed,
         child: const Icon(Icons.person_add_alt_sharp),
       ),
-      body: ConversaListView(
-        conversas: filtrar && filtradas.isNotEmpty ? filtradas : conversas,
-      ),
+      body: buildListView(),
     );
   }
 
@@ -176,5 +177,85 @@ class _HomePageState extends State<HomePage> {
             icon: const Icon(Icons.person))
       ],
     );
+  }
+
+  Widget buildListView() {
+    return ListView.separated(
+        itemBuilder: (BuildContext context, int conversa) => buildConversaItem(
+              conversas[conversa],
+            ),
+        padding: const EdgeInsets.only(top: 16.0),
+        separatorBuilder: (_, __) => const Divider(),
+        itemCount: conversas.length);
+  }
+
+  Widget buildConversaItem(Conversa conversa) {
+    Pessoa destinatario = conversa.participantes
+        .firstWhere((element) => element != usuarioAtivoProvider.pessoa);
+
+    return ListTile(
+      leading: IconLeading(
+        pessoa: destinatario,
+        radius: 30,
+        onTap: () =>
+            Navigator.push(context, MaterialPageRoute(builder: (context) {
+          return Profile(pessoa: destinatario, isCurrentUser: false);
+        })),
+      ),
+      title: _buildTitle(destinatario),
+      trailing: _buildTrailing(conversa),
+      subtitle: _buildSubTitle(conversa),
+      tileColor: Colors.grey[100],
+      selectedTileColor: Colors.blue[50],
+      selected: selecionadas.conversas.contains(conversa),
+      onTap: () {
+        Navigator.push(context,
+            MaterialPageRoute(builder: (BuildContext context) {
+          return MultiProvider(providers: [
+            ChangeNotifierProvider<UsuarioAtivoProvider>(
+              create: (context) =>
+                  UsuarioAtivoProvider(usuarioAtivoProvider.pessoa),
+            ),
+            ChangeNotifierProvider<MensagensSelecionadas>(
+                create: (context) => MensagensSelecionadas())
+          ], child: ConversaPage(conversa: conversa));
+        }));
+      },
+      onLongPress: () => {
+        selecionadas.conversas.contains(conversa)
+            ? selecionadas.remove(conversa)
+            : selecionadas.save(conversa)
+      },
+    );
+  }
+
+  Widget _buildTitle(Pessoa destinatario) {
+    return Text(
+      destinatario.username,
+      style: const TextStyle(fontSize: 20, overflow: TextOverflow.clip),
+      overflow: TextOverflow.ellipsis,
+    );
+  }
+
+  Widget _buildSubTitle(Conversa conversa) {
+    if (conversa.mensagens.isEmpty) {
+      return Container();
+    } else {
+      return Text(
+        conversa.mensagens.last.content,
+        style: const TextStyle(fontSize: 14),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      );
+    }
+  }
+
+  Widget _buildTrailing(Conversa conversa) {
+    if (conversa.mensagens.isEmpty) {
+      return const Text(" ");
+    } else {
+      // TODO: Formatar de acordo com a preferência do usuário
+      return Text(DateFormat.jm().format(conversa.mensagens.last.dataEnvio));
+    }
   }
 }
