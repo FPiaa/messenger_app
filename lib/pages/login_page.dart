@@ -140,19 +140,20 @@ class _LoginPageState extends State<LoginPage> {
                                 borderRadius: BorderRadius.circular(40)),
                             onTap: onLogin,
                             child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: const [
-                                  Icon(
-                                    Icons.check,
-                                    color: Colors.amber,
-                                  ),
-                                  SizedBox(width: 8),
-                                  Text(
-                                    "Login",
-                                    style: TextStyle(
-                                        fontSize: 18, color: Colors.amber),
-                                  )
-                                ]),
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: const [
+                                Icon(
+                                  Icons.check,
+                                  color: Colors.amber,
+                                ),
+                                SizedBox(width: 8),
+                                Text(
+                                  "Login",
+                                  style: TextStyle(
+                                      fontSize: 18, color: Colors.amber),
+                                )
+                              ],
+                            ),
                           ),
                         ),
                       ),

@@ -14,6 +14,7 @@ class PessoaRepository implements IRepository<Pessoa> {
       dataNascimento: DateTime.parse("2000-01-09"),
       email: "fidler@alunos.utfpr.edu.br",
       photo: "images/capivara.jpg",
+      descricao: "uia",
       password: "12345678",
     ),
     Pessoa(
