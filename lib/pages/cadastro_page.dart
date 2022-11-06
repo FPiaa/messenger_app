@@ -32,12 +32,7 @@ class _CadastroPageState extends State<CadastroPage> {
           email: emailController.text,
           dataNascimento: selectedDate!);
 
-      pessoaController.save(pessoa);
-      pwController.clear();
-      pwValidationController.clear();
-      emailController.clear();
-      usernameController.clear();
-      selectedDate = null;
+      clearState();
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Conta criada com sucesso')),
@@ -45,12 +40,14 @@ class _CadastroPageState extends State<CadastroPage> {
     }
   }
 
-  onLimpar() {
-    pwController.clear();
-    pwValidationController.clear();
-    emailController.clear();
-    usernameController.clear();
-    selectedDate = null;
+  clearState() {
+    setState(() {
+      pwController.clear();
+      pwValidationController.clear();
+      emailController.clear();
+      usernameController.clear();
+      selectedDate = null;
+    });
   }
 
   @override
@@ -223,7 +220,7 @@ class _CadastroPageState extends State<CadastroPage> {
                               borderRadius: BorderRadius.circular(40),
                               side: const BorderSide(
                                   color: Colors.redAccent, width: 0)),
-                          onTap: onLimpar,
+                          onTap: clearState,
                           splashColor: Colors.red[100],
                           splashFactory: InkRipple.splashFactory,
                           child: Row(

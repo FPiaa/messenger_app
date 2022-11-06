@@ -52,6 +52,7 @@ class _HomePageState extends State<HomePage> {
   onPressed() {
     setState(() {
       if (!contatos) {
+        clearState();
         contatos = true;
         conversas = conversaController
             .getContacts(usuarioAtivoProvider.pessoa)
@@ -124,8 +125,7 @@ class _HomePageState extends State<HomePage> {
           ),
           IconButton(
               onPressed: () {
-                filtradas.clear();
-                textField.clear();
+                clearState();
                 setState(() {
                   filtrar = false;
                 });
@@ -169,10 +169,11 @@ class _HomePageState extends State<HomePage> {
         ),
         IconButton(
             onPressed: () {
-              Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => Profile(
-                      pessoa: usuarioAtivoProvider.pessoa,
-                      isCurrentUser: true)));
+              clearState();
+              Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+                return Profile(
+                    pessoa: usuarioAtivoProvider.pessoa, isCurrentUser: true);
+              }));
             },
             icon: const Icon(Icons.person))
       ],
@@ -195,37 +196,49 @@ class _HomePageState extends State<HomePage> {
 
     return ListTile(
       leading: IconLeading(
-        pessoa: destinatario,
-        radius: 30,
-        onTap: () =>
+          pessoa: destinatario,
+          radius: 30,
+          onTap: () {
+            clearState();
             Navigator.push(context, MaterialPageRoute(builder: (context) {
-          return Profile(pessoa: destinatario, isCurrentUser: false);
-        })),
-      ),
+              return Profile(pessoa: destinatario, isCurrentUser: false);
+            }));
+          }),
       title: _buildTitle(destinatario),
       trailing: _buildTrailing(conversa),
       subtitle: _buildSubTitle(conversa),
       tileColor: Colors.grey[100],
       selectedTileColor: Colors.blue[50],
       selected: selecionadas.conversas.contains(conversa),
-      onTap: () {
-        Navigator.push(context,
-            MaterialPageRoute(builder: (BuildContext context) {
-          return MultiProvider(providers: [
-            ChangeNotifierProvider<UsuarioAtivoProvider>(
-              create: (context) =>
-                  UsuarioAtivoProvider(usuarioAtivoProvider.pessoa),
-            ),
-            ChangeNotifierProvider<MensagensSelecionadas>(
-                create: (context) => MensagensSelecionadas())
-          ], child: ConversaPage(conversa: conversa));
-        }));
-      },
-      onLongPress: () => {
-        selecionadas.conversas.contains(conversa)
-            ? selecionadas.remove(conversa)
-            : selecionadas.save(conversa)
-      },
+      onTap: selecionadas.conversas.isEmpty
+          ? () {
+              clearState();
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (BuildContext context) {
+                return MultiProvider(providers: [
+                  ChangeNotifierProvider<UsuarioAtivoProvider>(
+                    create: (context) =>
+                        UsuarioAtivoProvider(usuarioAtivoProvider.pessoa),
+                  ),
+                  ChangeNotifierProvider<MensagensSelecionadas>(
+                      create: (context) => MensagensSelecionadas())
+                ], child: ConversaPage(conversa: conversa));
+              }));
+            }
+          : contatos
+              ? null
+              : () => {
+                    selecionadas.conversas.contains(conversa)
+                        ? selecionadas.remove(conversa)
+                        : selecionadas.save(conversa)
+                  },
+      onLongPress: contatos
+          ? null
+          : () => {
+                selecionadas.conversas.contains(conversa)
+                    ? selecionadas.remove(conversa)
+                    : selecionadas.save(conversa)
+              },
     );
   }
 
@@ -257,5 +270,14 @@ class _HomePageState extends State<HomePage> {
       // TODO: Formatar de acordo com a preferência do usuário
       return Text(DateFormat.jm().format(conversa.mensagens.last.dataEnvio));
     }
+  }
+
+  clearState() {
+    setState(() {
+      selecionadas.empty();
+      filtradas.clear();
+      filtrar = false;
+      contatos = false;
+    });
   }
 }

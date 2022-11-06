@@ -35,8 +35,7 @@ class _LoginPageState extends State<LoginPage> {
         ));
         return;
       }
-      passwordController.clear();
-      usernameController.clear();
+      clearState();
 
       Navigator.of(context).push(MaterialPageRoute(builder: (context) {
         return MultiProvider(
@@ -173,10 +172,11 @@ class _LoginPageState extends State<LoginPage> {
                         borderRadius: BorderRadius.circular(40)),
                     splashFactory: InkRipple.splashFactory,
                     splashColor: Colors.amber[100],
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const CadastroPage())),
+                    onTap: () {
+                      clearState();
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => const CadastroPage()));
+                    },
                     child: Container(
                       alignment: Alignment.center,
                       child: const Text(
@@ -191,5 +191,13 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
+  }
+
+  clearState() {
+    setState(() {
+      usernameController.clear();
+      passwordController.clear();
+      obscureText = true;
+    });
   }
 }

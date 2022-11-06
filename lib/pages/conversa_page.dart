@@ -70,6 +70,7 @@ class _ConversaPageState extends State<ConversaPage> {
                       splashColor: Colors.amber[100],
                       splashFactory: InkRipple.splashFactory,
                       onTap: () {
+                        clearState();
                         Navigator.of(context).push(MaterialPageRoute(
                             builder: (context) => Profile(
                                 pessoa: widget.conversa.participantes
@@ -107,7 +108,7 @@ class _ConversaPageState extends State<ConversaPage> {
                 splashColor: Colors.amber[100],
                 splashFactory: InkRipple.splashFactory,
                 onTap: () {
-                  mensagensSelecionadas.clear();
+                  clearState();
                   Navigator.pop(context);
                 },
                 child: const Icon(Icons.arrow_back),
@@ -129,7 +130,10 @@ class _ConversaPageState extends State<ConversaPage> {
                           }
                           mensagensSelecionadas.clear();
                         },
-                )
+                ),
+                IconButton(
+                    onPressed: () => mensagensSelecionadas.clear(),
+                    icon: const Icon(Icons.cancel))
               ],
             ),
       body: SafeArea(
@@ -164,6 +168,11 @@ class _ConversaPageState extends State<ConversaPage> {
   Widget buildMessageTile(
       {required Mensagem mensagem, required bool selecionada}) {
     return GestureDetector(
+      onTap: mensagensSelecionadas.mensagem.isEmpty
+          ? null
+          : () => mensagensSelecionadas.mensagem.contains(mensagem)
+              ? mensagensSelecionadas.remove(mensagem)
+              : mensagensSelecionadas.save(mensagem),
       onLongPress: () => mensagensSelecionadas.mensagem.contains(mensagem)
           ? mensagensSelecionadas.remove(mensagem)
           : mensagensSelecionadas.save(mensagem),
@@ -284,5 +293,12 @@ class _ConversaPageState extends State<ConversaPage> {
         limit += limitIncrement;
       });
     }
+  }
+
+  clearState() {
+    setState(() {
+      mensagensSelecionadas.clear();
+      conteudo.clear();
+    });
   }
 }

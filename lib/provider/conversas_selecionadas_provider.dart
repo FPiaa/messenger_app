@@ -23,4 +23,8 @@ class ConversasSelecionadasProvider extends ChangeNotifier {
     _conversas.clear();
     notifyListeners();
   }
+
+  empty() {
+    _conversas.clear();
+  }
 }
