@@ -11,23 +11,16 @@ class Pessoa {
   String? photo;
   String? descricao;
   @JsonKey(required: true)
-  late String id;
+  final String id;
 
   Pessoa({
     required this.username,
     required this.email,
     required this.dataNascimento,
-    String? id,
+    required this.id,
     this.photo,
     this.descricao,
-  }) {
-    if (id == null) {
-      this.id = Uuid().v4();
-    } else {
-      this.id = id;
-    }
-  }
-
-  factory Pessoa.fromJson(Map<String, dynamic> json) => _$PessoaFromJson(json);
+  });
+  factory Pessoa.fromJson(Map<dynamic, dynamic> json) => _$PessoaFromJson(json);
   Map<String, dynamic> toJson() => _$PessoaToJson(this);
 }

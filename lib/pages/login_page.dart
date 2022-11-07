@@ -1,14 +1,17 @@
+import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
+import 'package:messenger_app/constants/firebase_realtime_constant.dart';
 import 'package:messenger_app/controllers/pessoa_controller.dart';
 import 'package:messenger_app/models/pessoa.dart';
 import 'package:messenger_app/pages/cadastro_page.dart';
 import 'package:messenger_app/pages/home_page.dart';
+import 'package:messenger_app/provider/auth_provider.dart';
 import 'package:messenger_app/provider/conversas_provider.dart';
 import 'package:messenger_app/provider/conversas_selecionadas_provider.dart';
-import 'package:messenger_app/provider/profile_provider.dart';
 import 'package:messenger_app/provider/usuario_provider.dart';
 import 'package:messenger_app/repository/pessoa_repository.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -18,45 +21,41 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  static const String _loginErrorMessage = "Email ou senha incorretos";
   final _formKey = GlobalKey<FormState>();
-  final usernameController = TextEditingController();
+  final emailController = TextEditingController();
   final passwordController = TextEditingController();
-  final PessoaController pessoaController =
-      PessoaController(pessoaRepository: PessoaRepository());
+  // final PessoaController pessoaController =
+  //     PessoaController(pessoaRepository: PessoaRepository());
   late UsuarioAtivoProvider user;
   bool obscureText = true;
-  late ProfileProvider profileProvider;
-  onLogin() {
-    if (_formKey.currentState!.validate()) {
-      Pessoa? pessoa = pessoaController
-          .findWhere((Pessoa p) => p.username == usernameController.text);
-      if (pessoa == null) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text("Usuário ou senha inválidos."),
-          backgroundColor: Colors.red,
-        ));
-        return;
-      }
-      clearState();
+  late AuthProvider authProvider;
 
-      Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-        return MultiProvider(
-          providers: [
-            ChangeNotifierProvider<ConversasSelecionadasProvider>(
-                create: (context) => ConversasSelecionadasProvider()),
-            ChangeNotifierProvider<ConversasProvider>(
-                create: (context) => ConversasProvider()),
-            ChangeNotifierProvider<UsuarioAtivoProvider>(
-                create: (context) => UsuarioAtivoProvider(pessoa))
-          ],
-          child: const HomePage(),
-        );
-      }));
+  onLogin({required String email, required String password}) async {
+    if (_formKey.currentState!.validate()) {
+      bool success =
+          await authProvider.handleSignIn(email: email, password: password);
+
+      if (success) {
+        clearState();
+        SharedPreferences preferences = authProvider.preferences;
+        String id = authProvider.getUserId()!;
+        Pessoa p = Pessoa(
+            id: id,
+            dataNascimento: DateTime.parse(
+                preferences.get(DatabaseConstants.dataNascimento) as String),
+            email: preferences.get(DatabaseConstants.email) as String,
+            username: preferences.get(DatabaseConstants.username) as String,
+            descricao: preferences.get(DatabaseConstants.descricao) as String,
+            photo: preferences.get(DatabaseConstants.photo) as String);
+        navigateHomePage(p);
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    authProvider = Provider.of<AuthProvider>(context);
     return Scaffold(
       body: Container(
         alignment: Alignment.center,
@@ -88,14 +87,28 @@ class _LoginPageState extends State<LoginPage> {
                       FractionallySizedBox(
                         widthFactor: 0.9,
                         child: TextFormField(
-                          controller: usernameController,
+                          controller: emailController,
+                          validator: (value) {
+                            if (authProvider.status ==
+                                Status.authenticateError) {
+                              authProvider.unitialize();
+                              return _loginErrorMessage;
+                            }
+                            if (value == null) {
+                              return "Por favor insira o email";
+                            }
+                            if (!EmailValidator.validate(value)) {
+                              return 'Insira um endereço de email válido';
+                            }
+                            return null;
+                          },
                           keyboardType: TextInputType.name,
                           decoration: const InputDecoration(
                             label: Text(
-                              "Nome de Usuário",
+                              "Email",
                             ),
                             border: UnderlineInputBorder(),
-                            icon: Icon(Icons.person),
+                            icon: Icon(Icons.mail),
                           ),
                         ),
                       ),
@@ -106,6 +119,17 @@ class _LoginPageState extends State<LoginPage> {
                               keyboardType: TextInputType.visiblePassword,
                               controller: passwordController,
                               obscureText: obscureText,
+                              validator: (value) {
+                                if (authProvider.status ==
+                                    Status.authenticateError) {
+                                  authProvider.unitialize();
+                                  return _loginErrorMessage;
+                                }
+                                if (value == null) {
+                                  return "Por favor insira a senha";
+                                }
+                                return null;
+                              },
                               decoration: InputDecoration(
                                 label: const Text("Senha"),
                                 border: const UnderlineInputBorder(),
@@ -139,7 +163,9 @@ class _LoginPageState extends State<LoginPage> {
                             splashFactory: InkRipple.splashFactory,
                             customBorder: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(40)),
-                            onTap: onLogin,
+                            onTap: () => onLogin(
+                                email: emailController.text,
+                                password: passwordController.text),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: const [
@@ -195,11 +221,28 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  navigateHomePage(Pessoa pessoa) {
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+      return MultiProvider(
+        providers: [
+          ChangeNotifierProvider<ConversasSelecionadasProvider>(
+              create: (context) => ConversasSelecionadasProvider()),
+          ChangeNotifierProvider<ConversasProvider>(
+              create: (context) => ConversasProvider()),
+          ChangeNotifierProvider<UsuarioAtivoProvider>(
+              create: (context) => UsuarioAtivoProvider(pessoa))
+        ],
+        child: const HomePage(),
+      );
+    }));
+  }
+
   clearState() {
     setState(() {
-      usernameController.clear();
+      emailController.clear();
       passwordController.clear();
       obscureText = true;
+      authProvider.unitialize();
     });
   }
 }

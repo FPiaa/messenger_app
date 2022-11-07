@@ -6,7 +6,7 @@ part of 'pessoa.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-Pessoa _$PessoaFromJson(Map<String, dynamic> json) {
+Pessoa _$PessoaFromJson(Map<dynamic, dynamic> json) {
   $checkKeys(
     json,
     requiredKeys: const ['id'],

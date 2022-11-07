@@ -31,8 +31,13 @@ class AuthProvider extends ChangeNotifier {
     return preferences.getString(DatabaseConstants.id);
   }
 
-  Future<bool> isLogged() async {
-    User? user = await firebaseAuth.currentUser;
+  void unitialize() {
+    _status = Status.uninitialized;
+    notifyListeners();
+  }
+
+  bool isLogged() {
+    User? user = firebaseAuth.currentUser;
     if (user != null) {
       if (preferences.getString(DatabaseConstants.id)?.isNotEmpty == true) {
         return true;
@@ -79,9 +84,9 @@ class AuthProvider extends ChangeNotifier {
       return false;
     }
 
-    Pessoa p = Pessoa.fromJson(result.value as Map<String, dynamic>);
-    await preferences.setString(DatabaseConstants.id, p.id);
+    Pessoa p = Pessoa.fromJson(result.value as Map<dynamic, dynamic>);
     await preferences.setString(DatabaseConstants.username, p.username);
+    await preferences.setString(DatabaseConstants.email, p.email);
     await preferences.setString(DatabaseConstants.photo, p.photo ?? "");
     await preferences.setString(DatabaseConstants.descricao, p.descricao ?? "");
     await preferences.setString(

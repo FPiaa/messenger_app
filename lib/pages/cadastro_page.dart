@@ -40,9 +40,11 @@ class _CadastroPageState extends State<CadastroPage> {
         print("usuario ja existe");
         return;
       }
-      await profileProvider.firebaseAuth.createUserWithEmailAndPassword(
-          email: emailController.text, password: pwController.text);
+      final UserCredential credential = await profileProvider.firebaseAuth
+          .createUserWithEmailAndPassword(
+              email: emailController.text, password: pwController.text);
       Pessoa pessoa = Pessoa(
+          id: credential.user!.uid,
           username: usernameController.text,
           // password: pwController.text,
           email: emailController.text,
