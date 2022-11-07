@@ -1,9 +1,14 @@
 import 'package:date_field/date_field.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:messenger_app/controllers/pessoa_controller.dart';
 import 'package:messenger_app/models/pessoa.dart';
+import 'package:messenger_app/pages/perfil_page.dart';
+import 'package:messenger_app/provider/auth_provider.dart';
+import 'package:messenger_app/provider/profile_provider.dart';
 import 'package:messenger_app/repository/pessoa_repository.dart';
+import 'package:provider/provider.dart';
 
 class CadastroPage extends StatefulWidget {
   const CadastroPage({super.key});
@@ -22,16 +27,27 @@ class _CadastroPageState extends State<CadastroPage> {
   final usernameController = TextEditingController();
   DateTime? selectedDate;
   bool obscureText = true;
+  late ProfileProvider profileProvider;
+  late AuthProvider authProvider;
 
-  onCadastrar() {
+  onCadastrar() async {
     // Validate returns true if the form is valid, or false otherwise.
     if (_formKey.currentState!.validate()) {
+      final user = await profileProvider.firebaseAuth
+          .fetchSignInMethodsForEmail(emailController.text);
+      if (user.isNotEmpty) {
+        // TODO: mostrar mensagem de email já existe
+        print("usuario ja existe");
+        return;
+      }
+      await profileProvider.firebaseAuth.createUserWithEmailAndPassword(
+          email: emailController.text, password: pwController.text);
       Pessoa pessoa = Pessoa(
           username: usernameController.text,
-          password: pwController.text,
+          // password: pwController.text,
           email: emailController.text,
           dataNascimento: selectedDate!);
-
+      await profileProvider.createProfile(pessoa: pessoa);
       clearState();
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
@@ -52,6 +68,8 @@ class _CadastroPageState extends State<CadastroPage> {
 
   @override
   Widget build(BuildContext context) {
+    profileProvider = Provider.of<ProfileProvider>(context);
+    authProvider = Provider.of<AuthProvider>(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text("Anti-Zuk"),

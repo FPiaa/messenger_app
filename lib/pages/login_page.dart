@@ -5,6 +5,7 @@ import 'package:messenger_app/pages/cadastro_page.dart';
 import 'package:messenger_app/pages/home_page.dart';
 import 'package:messenger_app/provider/conversas_provider.dart';
 import 'package:messenger_app/provider/conversas_selecionadas_provider.dart';
+import 'package:messenger_app/provider/profile_provider.dart';
 import 'package:messenger_app/provider/usuario_provider.dart';
 import 'package:messenger_app/repository/pessoa_repository.dart';
 import 'package:provider/provider.dart';
@@ -24,11 +25,12 @@ class _LoginPageState extends State<LoginPage> {
       PessoaController(pessoaRepository: PessoaRepository());
   late UsuarioAtivoProvider user;
   bool obscureText = true;
+  late ProfileProvider profileProvider;
   onLogin() {
     if (_formKey.currentState!.validate()) {
       Pessoa? pessoa = pessoaController
           .findWhere((Pessoa p) => p.username == usernameController.text);
-      if (pessoa == null || pessoa.password != passwordController.text) {
+      if (pessoa == null) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text("Usuário ou senha inválidos."),
           backgroundColor: Colors.red,

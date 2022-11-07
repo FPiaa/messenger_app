@@ -1,23 +1,33 @@
+import 'package:json_annotation/json_annotation.dart';
+import 'package:uuid/uuid.dart';
+
+part "pessoa.g.dart";
+
+@JsonSerializable()
 class Pessoa {
-  static int numeroConta = 1;
   final String username;
   final String email;
   final DateTime dataNascimento;
-  String password;
   String? photo;
   String? descricao;
-  // TODO: Adicionar suporte a uuid de verdade
-  late int uuid;
+  @JsonKey(required: true)
+  late String id;
 
   Pessoa({
     required this.username,
     required this.email,
     required this.dataNascimento,
-    required this.password,
+    String? id,
     this.photo,
     this.descricao,
   }) {
-    uuid = numeroConta;
-    numeroConta += 1;
+    if (id == null) {
+      this.id = Uuid().v4();
+    } else {
+      this.id = id;
+    }
   }
+
+  factory Pessoa.fromJson(Map<String, dynamic> json) => _$PessoaFromJson(json);
+  Map<String, dynamic> toJson() => _$PessoaToJson(this);
 }
