@@ -85,6 +85,7 @@ class AuthProvider extends ChangeNotifier {
     }
 
     Pessoa p = Pessoa.fromJson(result.value as Map<dynamic, dynamic>);
+    await preferences.setString(DatabaseConstants.id, p.id);
     await preferences.setString(DatabaseConstants.username, p.username);
     await preferences.setString(DatabaseConstants.email, p.email);
     await preferences.setString(DatabaseConstants.photo, p.photo ?? "");
