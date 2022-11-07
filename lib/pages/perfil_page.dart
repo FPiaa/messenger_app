@@ -28,6 +28,9 @@ class _ProfileState extends State<Profile> {
   }
 
   Widget buildProfile(double radius) {
+    radius = (widget.pessoa.photo != null && widget.pessoa.photo!.isNotEmpty)
+        ? radius
+        : radius * 0.8;
     if (widget.isCurrentUser) {
       return SingleChildScrollView(
           child: Form(
@@ -49,7 +52,8 @@ class _ProfileState extends State<Profile> {
                         // foregroundImage: NetworkImage('https://via.placeholder.com/150'),
                         child: ClipOval(
                           clipBehavior: Clip.antiAliasWithSaveLayer,
-                          child: widget.pessoa.photo != null
+                          child: widget.pessoa.photo != null &&
+                                  widget.pessoa.photo!.isNotEmpty
                               ? Image.asset(widget.pessoa.photo!)
                               : const Icon(
                                   Icons.person,
@@ -137,7 +141,8 @@ class _ProfileState extends State<Profile> {
                       height: radius,
                       child: ClipOval(
                         clipBehavior: Clip.antiAliasWithSaveLayer,
-                        child: widget.pessoa.photo != null
+                        child: widget.pessoa.photo != null &&
+                                widget.pessoa.photo!.isNotEmpty
                             ? Image.asset(widget.pessoa.photo!)
                             : const Icon(
                                 Icons.person,
