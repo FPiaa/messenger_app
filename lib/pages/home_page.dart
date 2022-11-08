@@ -193,7 +193,8 @@ class _HomePageState extends State<HomePage> {
               final pessoas = snapshot.data!.children.toList();
               return ListView.separated(
                   itemBuilder: (context, data) {
-                    if (pessoas[data].value != null) {
+                    if (pessoas[data].value != null &&
+                        pessoas[data].children.length == 4) {
                       final pessoa = Pessoa.fromJson(
                           pessoas[data].value as Map<dynamic, dynamic>);
                       return buildProfileItem(context, pessoa);
@@ -218,7 +219,7 @@ class _HomePageState extends State<HomePage> {
               return ListView.separated(
                   itemBuilder: (context, data) {
                     if (conversas[data].value != null &&
-                        conversas[data].children.length != 4) {
+                        conversas[data].children.length <= 3) {
                       final conversa = Conversa.fromJson(
                           conversas[data].value as Map<dynamic, dynamic>);
                       return buildConversaItem(context, conversa);
