@@ -1,24 +1,29 @@
+import 'package:json_annotation/json_annotation.dart';
 import 'package:messenger_app/models/mensagem.dart';
 import 'package:messenger_app/models/pessoa.dart';
 
 //TODO: Fazer conversa virar classes abstrata e ter uma instanciação para grupo
 // e para conversa ponto a ponto
+part "conversa.g.dart";
+
+@JsonSerializable()
 class Conversa {
-  List<Pessoa> participantes;
+  List<String> participantesIds;
   List<Mensagem> mensagens;
+  String id;
   //Adm só é necessário para grupos
 
-  Conversa({
-    required this.participantes,
-    required this.mensagens,
-  });
+  Conversa(
+      {required this.participantesIds,
+      required this.mensagens,
+      required this.id});
 
   //TODO: Error handling
   addMessage(Mensagem message) {
     mensagens.add(message);
   }
 
-  String getName(Pessoa remetente) {
-    return participantes.firstWhere((element) => element != remetente).username;
-  }
+  factory Conversa.fromJson(Map<dynamic, dynamic> json) =>
+      _$ConversaFromJson(json);
+  Map<dynamic, dynamic> toJson() => _$ConversaToJson(this);
 }

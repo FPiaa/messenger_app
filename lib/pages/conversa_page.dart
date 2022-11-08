@@ -52,12 +52,12 @@ class _ConversaPageState extends State<ConversaPage> {
                     children: [
                       const Icon(Icons.arrow_back),
                       const SizedBox(width: 8),
-                      IconLeading(
-                        pessoa: widget.conversa.participantes.firstWhere(
-                            (element) =>
-                                element != usuarioAtivoProvider.pessoa),
-                        onTap: () => Navigator.pop(context),
-                      ),
+                      // IconLeading(
+                      //   pessoa: widget.conversa.participantesIds.firstWhere(
+                      //       (element) =>
+                      //           element != usuarioAtivoProvider.pessoa.id),
+                      //   onTap: () => Navigator.pop(context),
+                      // ),
                     ],
                   ),
                 ),
@@ -72,17 +72,13 @@ class _ConversaPageState extends State<ConversaPage> {
                       onTap: () {
                         clearState();
                         Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => Profile(
-                                  pessoa: widget.conversa.participantes
-                                      .firstWhere((element) =>
-                                          element !=
-                                          usuarioAtivoProvider.pessoa),
-                                )));
+                          builder: (context) =>
+                              Profile(pessoa: usuarioAtivoProvider.pessoa),
+                        ));
                       },
-                      child: Text(widget.conversa.participantes
-                          .firstWhere((element) =>
-                              element != usuarioAtivoProvider.pessoa)
-                          .username),
+                      child: Text(widget.conversa.participantesIds.firstWhere(
+                          (element) =>
+                              element != usuarioAtivoProvider.pessoa.id)),
                     ),
                   ),
                 ],

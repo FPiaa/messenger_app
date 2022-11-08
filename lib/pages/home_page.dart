@@ -5,6 +5,7 @@ import 'package:messenger_app/controllers/conversa_controller.dart';
 import 'package:messenger_app/controllers/pessoa_controller.dart';
 import 'package:messenger_app/models/pessoa.dart';
 import 'package:messenger_app/pages/perfil_page.dart';
+import 'package:messenger_app/provider/conversa_provider.dart';
 import 'package:messenger_app/provider/conversas_provider.dart';
 import 'package:messenger_app/provider/mensagens_selecionadas_provider.dart';
 import 'package:messenger_app/provider/profile_provider.dart';
@@ -32,6 +33,7 @@ class _HomePageState extends State<HomePage> {
   final IRepository<Conversa> conversaRepository = ConversaRepository();
   late UsuarioAtivoProvider usuarioAtivoProvider;
   late ProfileProvider profileProvider;
+  late ConversaProvider conversaProvider;
 
   final textField = TextEditingController();
 
@@ -45,7 +47,7 @@ class _HomePageState extends State<HomePage> {
       return conversas;
     } else {
       List<Conversa> a = conversaController
-          .findAll((Conversa c) => c.participantes.contains(pessoa))
+          .findAll((Conversa c) => c.participantesIds.contains(pessoa.id))
           .toList();
 
       return a;
@@ -76,6 +78,7 @@ class _HomePageState extends State<HomePage> {
     profileProvider = Provider.of<ProfileProvider>(context);
     selecionadas = Provider.of<ConversasSelecionadasProvider>(context);
     usuarioAtivoProvider = Provider.of<UsuarioAtivoProvider>(context);
+    conversaProvider = Provider.of<ConversaProvider>(context);
     //TODO: remover essa conversa do build
     conversas = query(usuarioAtivoProvider.pessoa);
 
@@ -109,12 +112,7 @@ class _HomePageState extends State<HomePage> {
                 if (value.isEmpty) {
                   filtradas = [];
                 } else {
-                  filtradas = conversas
-                      .where((element) => element
-                          .getName(usuarioAtivoProvider.pessoa)
-                          .toLowerCase()
-                          .contains(value.toLowerCase()))
-                      .toList();
+                  filtradas = [];
                 }
               });
             }),
@@ -226,54 +224,40 @@ class _HomePageState extends State<HomePage> {
       }
 
       return ListTile(
-        leading: IconLeading(
-            pessoa: destinatario,
-            radius: 30,
-            onTap: () {
+          leading: IconLeading(
+              pessoa: destinatario,
+              radius: 30,
+              onTap: () {
+                clearState();
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return Provider(
+                      create: (context) =>
+                          UsuarioAtivoProvider(usuarioAtivoProvider.pessoa),
+                      child: Profile(pessoa: destinatario));
+                }));
+              }),
+          title: _buildTitle(destinatario),
+          trailing: _buildTrailing(null),
+          subtitle: _buildSubTitle(null),
+          tileColor: Colors.grey[100],
+          selectedTileColor: Colors.blue[50],
+          onTap: () {
+            createConversa(destinatario).then((conversa) {
               clearState();
-              Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return Provider(
-                    create: (context) =>
-                        UsuarioAtivoProvider(usuarioAtivoProvider.pessoa),
-                    child: Profile(pessoa: destinatario));
-              }));
-            }),
-        title: _buildTitle(destinatario),
-        trailing: _buildTrailing(null),
-        subtitle: _buildSubTitle(null),
-        tileColor: Colors.grey[100],
-        selectedTileColor: Colors.blue[50],
-        // selected: selecionadas.conversas.contains(conversa),
-        // onTap: selecionadas.conversas.isEmpty
-        //     ? () {
-        //         clearState();
-        //         Navigator.push(context,
-        //             MaterialPageRoute(builder: (BuildContext context) {
-        //           return MultiProvider(providers: [
-        //             Provider<UsuarioAtivoProvider>(
-        //               create: (context) =>
-        //                   UsuarioAtivoProvider(usuarioAtivoProvider.pessoa),
-        //             ),
-        //             ChangeNotifierProvider<MensagensSelecionadas>(
-        //                 create: (context) => MensagensSelecionadas())
-        //           ], child: ConversaPage(conversa: conversa));
-        //         }));
-        //       }
-        //     : contatos
-        //         ? null
-        //         : () => {
-        //               selecionadas.conversas.contains(conversa)
-        //                   ? selecionadas.remove(conversa)
-        //                   : selecionadas.save(conversa)
-        //             },
-        // onLongPress: contatos
-        //     ? null
-        //     : () => {
-        //           selecionadas.conversas.contains(conversa)
-        //               ? selecionadas.remove(conversa)
-        //               : selecionadas.save(conversa)
-        //         },
-      );
+              Navigator.push(context, MaterialPageRoute(
+                builder: (BuildContext context) {
+                  return MultiProvider(providers: [
+                    Provider<UsuarioAtivoProvider>(
+                      create: (context) =>
+                          UsuarioAtivoProvider(usuarioAtivoProvider.pessoa),
+                    ),
+                    ChangeNotifierProvider<MensagensSelecionadas>(
+                        create: (context) => MensagensSelecionadas())
+                  ], child: ConversaPage(conversa: conversa));
+                },
+              ));
+            });
+          });
     }
     print("a");
     return CircularProgressIndicator();
@@ -307,6 +291,11 @@ class _HomePageState extends State<HomePage> {
       // TODO: Formatar de acordo com a preferência do usuário
       return Text(DateFormat.jm().format(conversa.mensagens.last.dataEnvio));
     }
+  }
+
+  Future<Conversa> createConversa(Pessoa p) {
+    return conversaProvider.createConversa(
+        [usuarioAtivoProvider.pessoa, p]).then((value) => value);
   }
 
   clearState() {

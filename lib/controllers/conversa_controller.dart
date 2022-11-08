@@ -47,17 +47,18 @@ class ConversaController {
 
   Iterable<Conversa> getContacts(Pessoa pessoa) {
     List<Conversa> conversas = conversaRepository
-        .findAll(((element) => element.participantes.contains(pessoa)))
+        .findAll(((element) => element.participantesIds.contains(pessoa.id)))
         .toList();
     PessoaController pessoaController =
         PessoaController(pessoaRepository: PessoaRepository());
-    Iterable<Pessoa> pessoas = pessoaController.findAll(
-        (p) => !conversas.any((element) => element.participantes.contains(p)));
+    Iterable<Pessoa> pessoas = pessoaController.findAll((p) => !conversas
+        .any((element) => element.participantesIds.contains(pessoa.id)));
 
     List<Conversa> retorno = [];
     for (var pessoa2 in pessoas) {
       if (pessoa != pessoa2) {
-        retorno.add(Conversa(participantes: [pessoa, pessoa2], mensagens: []));
+        retorno.add(Conversa(
+            id: "0", participantesIds: [pessoa.id, pessoa2.id], mensagens: []));
       }
     }
 
