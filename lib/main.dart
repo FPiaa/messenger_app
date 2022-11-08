@@ -53,9 +53,9 @@ class Chat extends StatelessWidget {
               firebaseDatabase: firebaseDatabase,
               preferences: preferences),
         ),
-        Provider<UsuariosProvider>(
+        Provider<ProfileProvider>(
           create: (context) =>
-              UsuariosProvider(firebaseDatabase: firebaseDatabase),
+              ProfileProvider(firebaseDatabase: firebaseDatabase),
         )
       ],
       child: MaterialApp(

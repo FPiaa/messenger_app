@@ -44,4 +44,24 @@ class ProfileProvider {
         .ref("${DatabaseConstants.pathUserCollection}/${pessoa.id}")
         .set(pessoa.toJson());
   }
+
+  Stream<DataSnapshot> getProfiles({required int limit, String? search}) {
+    if (search != null && search.isNotEmpty) {
+      return firebaseDatabase
+          .ref(DatabaseConstants.pathUserCollection)
+          .child(DatabaseConstants.username)
+          .equalTo(search)
+          // .startAt("${DatabaseConstants.email}/$search")
+          // .endAt("${DatabaseConstants.email}/$search~")
+          .limitToLast(limit)
+          .get()
+          .asStream();
+    } else {
+      return firebaseDatabase
+          .ref(DatabaseConstants.pathUserCollection)
+          .limitToFirst(limit)
+          .get()
+          .asStream();
+    }
+  }
 }

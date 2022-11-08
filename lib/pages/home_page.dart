@@ -7,8 +7,8 @@ import 'package:messenger_app/models/pessoa.dart';
 import 'package:messenger_app/pages/perfil_page.dart';
 import 'package:messenger_app/provider/conversas_provider.dart';
 import 'package:messenger_app/provider/mensagens_selecionadas_provider.dart';
+import 'package:messenger_app/provider/profile_provider.dart';
 import 'package:messenger_app/provider/usuario_ativo_provider.dart';
-import 'package:messenger_app/provider/usuarios_provider.dart';
 import 'package:messenger_app/repository/conversas_repository.dart';
 import 'package:messenger_app/provider/conversas_selecionadas_provider.dart';
 import 'package:messenger_app/repository/i_repository.dart';
@@ -31,7 +31,7 @@ class _HomePageState extends State<HomePage> {
   late ConversasProvider pesquisadas;
   final IRepository<Conversa> conversaRepository = ConversaRepository();
   late UsuarioAtivoProvider usuarioAtivoProvider;
-  late UsuariosProvider usuariosProvider;
+  late ProfileProvider profileProvider;
 
   final textField = TextEditingController();
 
@@ -73,7 +73,7 @@ class _HomePageState extends State<HomePage> {
   bool contatos = false;
   @override
   Widget build(BuildContext context) {
-    usuariosProvider = Provider.of<UsuariosProvider>(context);
+    profileProvider = Provider.of<ProfileProvider>(context);
     selecionadas = Provider.of<ConversasSelecionadasProvider>(context);
     usuarioAtivoProvider = Provider.of<UsuarioAtivoProvider>(context);
     //TODO: remover essa conversa do build
@@ -189,7 +189,7 @@ class _HomePageState extends State<HomePage> {
   Widget buildListView() {
     if (contatos) {
       return StreamBuilder<DataSnapshot>(
-          stream: usuariosProvider.getUsers(limit: 1),
+          stream: profileProvider.getProfiles(limit: 10),
           builder: ((context, AsyncSnapshot<DataSnapshot> snapshot) {
             if (snapshot.hasData && snapshot.data != null) {
               final pessoas = snapshot.data!.children.toList();
@@ -220,6 +220,10 @@ class _HomePageState extends State<HomePage> {
     if (data != null) {
       Pessoa destinatario =
           Pessoa.fromJson(data.value as Map<dynamic, dynamic>);
+      print(destinatario.toString());
+      if (destinatario.id == usuarioAtivoProvider.pessoa.id) {
+        return const SizedBox.shrink();
+      }
 
       return ListTile(
         leading: IconLeading(
