@@ -8,14 +8,14 @@ class Mensagem {
   final String content;
   final Pessoa remetente;
   final String? imageUrl;
-  late final DateTime dataEnvio;
+  late final int dataEnvio;
 
   Mensagem({
     required this.remetente,
     required this.content,
     this.imageUrl,
   }) {
-    dataEnvio = DateTime.now();
+    dataEnvio = DateTime.now().millisecondsSinceEpoch;
   }
 
   factory Mensagem.fromJson(Map<dynamic, dynamic> json) =>

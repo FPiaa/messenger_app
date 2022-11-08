@@ -83,20 +83,6 @@ class _ConversaPageState extends State<ConversaPage> {
                   ),
                 ],
               ),
-              actions: [
-                Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: IconButton(
-                      onPressed: () => {
-                            setState(() {
-                              widget.conversa.mensagens.add(Mensagem(
-                                  remetente: usuarioAtivoProvider.pessoa,
-                                  content: "Mensagem extra"));
-                            })
-                          },
-                      icon: const Icon(Icons.plus_one)),
-                )
-              ],
             )
           : AppBar(
               leading: InkWell(
@@ -142,23 +128,25 @@ class _ConversaPageState extends State<ConversaPage> {
   Widget buildMessageList() {
     return Flexible(
       fit: FlexFit.tight,
-      child: ListView.builder(
-        controller: scrollController,
-        reverse: true,
-        itemBuilder: (context, index) {
-          // TODO: Fazer a mensagem mostrar a hora de envio em formato XX:XX
-          // e mostrar o nome de quem enviou em caso de grupo
-          return buildMessageTile(
-            mensagem: widget.conversa.mensagens[index],
-            selecionada: mensagensSelecionadas.mensagem
-                .contains(widget.conversa.mensagens[index]),
-          );
-        },
-        itemCount: widget.conversa.mensagens.length,
-        padding: const EdgeInsets.symmetric(vertical: 12.0),
-        shrinkWrap: true,
-        // reverse: true,
-      ),
+      child: widget.conversa.mensagens == null
+          ? Container()
+          : ListView.builder(
+              controller: scrollController,
+              reverse: true,
+              itemBuilder: (context, index) {
+                // TODO: Fazer a mensagem mostrar a hora de envio em formato XX:XX
+                // e mostrar o nome de quem enviou em caso de grupo
+                return buildMessageTile(
+                  mensagem: widget.conversa.mensagens![index],
+                  selecionada: mensagensSelecionadas.mensagem
+                      .contains(widget.conversa.mensagens![index]),
+                );
+              },
+              itemCount: widget.conversa.mensagens!.length,
+              padding: const EdgeInsets.symmetric(vertical: 12.0),
+              shrinkWrap: true,
+              // reverse: true,
+            ),
     );
   }
 
@@ -199,7 +187,8 @@ class _ConversaPageState extends State<ConversaPage> {
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0, bottom: 4.0),
                   child: Text(
-                    DateFormat.jm().format(mensagem.dataEnvio),
+                    DateFormat.jm().format(DateTime.fromMillisecondsSinceEpoch(
+                        mensagem.dataEnvio)),
                     style: const TextStyle(fontSize: 10),
                     textAlign: TextAlign.end,
                   ),

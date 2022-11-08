@@ -30,12 +30,12 @@ class ConversaController {
 
   void sendMessage(Conversa conversa, Mensagem mensagem) {
     conversa.addMessage(mensagem);
-    conversa.mensagens.sort(
+    conversa.mensagens!.sort(
         (Mensagem m1, Mensagem m2) => m2.dataEnvio.compareTo(m1.dataEnvio));
   }
 
   void deleteMessage(Conversa conversa, Mensagem mensagem) {
-    conversa.mensagens.remove(mensagem);
+    conversa.mensagens!.remove(mensagem);
   }
 
   void deleteMessages(

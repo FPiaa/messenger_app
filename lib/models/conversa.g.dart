@@ -7,15 +7,17 @@ part of 'conversa.dart';
 // **************************************************************************
 
 Conversa _$ConversaFromJson(Map<dynamic, dynamic> json) => Conversa(
-      participantesIds: (json['participantes'] as List<String>),
-      mensagens: (json['mensagens'] as List<dynamic>)
-          .map((e) => Mensagem.fromJson(e as Map<String, dynamic>))
+      participantesIds: (json['participantesIds'] as List<dynamic>)
+          .map((e) => e as String)
+          .toList(),
+      mensagens: (json['mensagens'] as List<dynamic>?)
+          ?.map((e) => Mensagem.fromJson(e as Map<String, dynamic>))
           .toList(),
       id: json['id'] as String,
     );
 
 Map<String, dynamic> _$ConversaToJson(Conversa instance) => <String, dynamic>{
-      'participantes': instance.participantesIds,
+      'participantesIds': instance.participantesIds,
       'mensagens': instance.mensagens,
       'id': instance.id,
     };

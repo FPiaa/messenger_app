@@ -8,11 +8,6 @@ class ConversaProvider {
   final FirebaseDatabase firebaseDatabase;
   ConversaProvider({required this.firebaseDatabase});
 
-  // Stream<DataSnapshot> getConversas(Pessoa p) {
-  //   firebaseDatabase.ref(DatabaseConstants.pathConversaCollection)
-  //   .child(DatabaseConstants)
-  // }
-
   Future<Conversa> createConversa(List<Pessoa> pessoas) async {
     String conversaId = Uuid().v4();
     final ids = pessoas.map((e) => e.id).toList();
@@ -25,10 +20,10 @@ class ConversaProvider {
     return conversa;
   }
 
-  // Future<Conversa> getConversaWith(
-  //     {required Pessoa pessoa, required Pessoa ativo}) async {
-  //   final data = firebaseDatabase
-  //       .collection(DatabaseConstants.pathConversaCollection)
-  //       .where('id')
-  // }
+  Stream<DataSnapshot> getConversasWith({required Pessoa pessoa}) {
+    return firebaseDatabase
+        .ref(DatabaseConstants.pathConversaCollection)
+        .get()
+        .asStream();
+  }
 }

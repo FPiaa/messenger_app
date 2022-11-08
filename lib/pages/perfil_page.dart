@@ -355,7 +355,9 @@ class _ProfileState extends State<Profile> {
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 4),
                     child: SelectableText(
-                      "${widget.pessoa.descricao}",
+                      widget.pessoa.descricao != null
+                          ? "${widget.pessoa.descricao}"
+                          : "",
                       style: const TextStyle(
                           fontWeight: FontWeight.w500, fontSize: 20),
                     ),

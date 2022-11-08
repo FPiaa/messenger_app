@@ -64,4 +64,10 @@ class ProfileProvider {
           .asStream();
     }
   }
+
+  Future<DataSnapshot> getProfile({required String id}) async {
+    return firebaseDatabase
+        .ref("${DatabaseConstants.pathUserCollection}/$id")
+        .get();
+  }
 }

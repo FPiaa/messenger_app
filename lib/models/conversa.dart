@@ -9,18 +9,17 @@ part "conversa.g.dart";
 @JsonSerializable()
 class Conversa {
   List<String> participantesIds;
-  List<Mensagem> mensagens;
+  List<Mensagem>? mensagens;
   String id;
   //Adm só é necessário para grupos
 
-  Conversa(
-      {required this.participantesIds,
-      required this.mensagens,
-      required this.id});
+  Conversa({required this.participantesIds, this.mensagens, required this.id});
 
   //TODO: Error handling
   addMessage(Mensagem message) {
-    mensagens.add(message);
+    if (mensagens != null) {
+      mensagens!.add(message);
+    }
   }
 
   factory Conversa.fromJson(Map<dynamic, dynamic> json) =>

@@ -192,32 +192,55 @@ class _HomePageState extends State<HomePage> {
             if (snapshot.hasData && snapshot.data != null) {
               final pessoas = snapshot.data!.children.toList();
               return ListView.separated(
-                  itemBuilder: (context, data) =>
-                      buildConversaItem(context, pessoas[data]),
-                  separatorBuilder: (_, __) => Divider(),
+                  itemBuilder: (context, data) {
+                    if (pessoas[data].value != null) {
+                      final pessoa = Pessoa.fromJson(
+                          pessoas[data].value as Map<dynamic, dynamic>);
+                      return buildProfileItem(context, pessoa);
+                    }
+                    return const SizedBox.shrink();
+                  },
+                  separatorBuilder: (_, __) => const Divider(),
                   itemCount: pessoas.length);
             } else {
-              return Center(
+              return const Center(
                 child: Text("No user found"),
               );
             }
-            return CircularProgressIndicator();
+          }));
+    } else {
+      return StreamBuilder<DataSnapshot>(
+          stream: conversaProvider.getConversasWith(
+              pessoa: usuarioAtivoProvider.pessoa),
+          builder: ((context, AsyncSnapshot<DataSnapshot> snapshot) {
+            if (snapshot.hasData && snapshot.data != null) {
+              final conversas = snapshot.data!.children.toList();
+              return ListView.separated(
+                  itemBuilder: (context, data) {
+                    if (conversas[data].value != null &&
+                        conversas[data].children.length != 4) {
+                      final conversa = Conversa.fromJson(
+                          conversas[data].value as Map<dynamic, dynamic>);
+                      return buildConversaItem(context, conversa);
+                    }
+                    return const SizedBox.shrink();
+                  },
+                  separatorBuilder: (_, __) => const Divider(),
+                  itemCount: conversas.length);
+            } else {
+              print("O snapshot está vazio");
+              print(snapshot.data);
+              return const Center(
+                child: Text("No user found"),
+              );
+            }
           }));
     }
-    return CircularProgressIndicator();
-    // ListView.separated(
-    //     itemBuilder: (BuildContext context, int conversa) => buildConversaItem(
-    //           conversas[conversa],
-    //         ),
-    //     padding: const EdgeInsets.only(top: 16.0),
-    //     separatorBuilder: (_, __) => const Divider(),
-    //     itemCount: conversas.length);
   }
 
-  Widget buildConversaItem(BuildContext context, DataSnapshot? data) {
+  Widget buildProfileItem(BuildContext context, Pessoa? data) {
     if (data != null) {
-      Pessoa destinatario =
-          Pessoa.fromJson(data.value as Map<dynamic, dynamic>);
+      Pessoa destinatario = data;
       print(destinatario.toString());
       if (destinatario.id == usuarioAtivoProvider.pessoa.id) {
         return const SizedBox.shrink();
@@ -263,6 +286,64 @@ class _HomePageState extends State<HomePage> {
     return CircularProgressIndicator();
   }
 
+  Widget buildConversaItem(BuildContext context, Conversa? data) {
+    if (data != null) {
+      Conversa conversa = data;
+      final String destinatarioId = conversa.participantesIds
+          .firstWhere((element) => element != usuarioAtivoProvider.pessoa.id);
+      if (destinatarioId == usuarioAtivoProvider.pessoa.id) {
+        return const SizedBox.shrink();
+      }
+
+      return FutureBuilder(
+          future: profileProvider.getProfile(id: destinatarioId),
+          builder: ((context, snapshot) {
+            if (snapshot.hasData) {
+              final destinatario = Pessoa.fromJson(
+                  snapshot.data!.value as Map<dynamic, dynamic>);
+              return ListTile(
+                  leading: IconLeading(
+                      pessoa: destinatario,
+                      radius: 30,
+                      onTap: () {
+                        clearState();
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) {
+                          return Provider(
+                              create: (context) => UsuarioAtivoProvider(
+                                  usuarioAtivoProvider.pessoa),
+                              child: Profile(pessoa: destinatario));
+                        }));
+                      }),
+                  title: _buildTitle(destinatario),
+                  trailing: _buildTrailing(null),
+                  subtitle: _buildSubTitle(null),
+                  tileColor: Colors.grey[100],
+                  selectedTileColor: Colors.blue[50],
+                  onTap: () {
+                    clearState();
+                    Navigator.push(context, MaterialPageRoute(
+                      builder: (BuildContext context) {
+                        return MultiProvider(providers: [
+                          Provider<UsuarioAtivoProvider>(
+                            create: (context) => UsuarioAtivoProvider(
+                                usuarioAtivoProvider.pessoa),
+                          ),
+                          ChangeNotifierProvider<MensagensSelecionadas>(
+                              create: (context) => MensagensSelecionadas())
+                        ], child: ConversaPage(conversa: conversa));
+                      },
+                    ));
+                  });
+            } else {
+              return const CircularProgressIndicator();
+            }
+          }));
+    }
+    print("a");
+    return CircularProgressIndicator();
+  }
+
   Widget _buildTitle(Pessoa destinatario) {
     return Text(
       destinatario.username,
@@ -272,11 +353,13 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildSubTitle(Conversa? conversa) {
-    if (conversa == null || conversa.mensagens.isEmpty) {
+    if (conversa == null ||
+        conversa.mensagens == null ||
+        conversa.mensagens!.isEmpty) {
       return Container();
     } else {
       return Text(
-        conversa.mensagens.last.content,
+        conversa.mensagens!.last.content,
         style: const TextStyle(fontSize: 14),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
@@ -285,11 +368,14 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildTrailing(Conversa? conversa) {
-    if (conversa == null || conversa.mensagens.isEmpty) {
+    if (conversa == null ||
+        conversa.mensagens == null ||
+        conversa.mensagens!.isEmpty) {
       return const Text(" ");
     } else {
       // TODO: Formatar de acordo com a preferência do usuário
-      return Text(DateFormat.jm().format(conversa.mensagens.last.dataEnvio));
+      return Text(DateFormat.jm().format(DateTime.fromMillisecondsSinceEpoch(
+          conversa.mensagens!.last.dataEnvio)));
     }
   }
 
@@ -303,7 +389,6 @@ class _HomePageState extends State<HomePage> {
       selecionadas.empty();
       filtradas.clear();
       filtrar = false;
-      contatos = false;
     });
   }
 }
