@@ -4,7 +4,7 @@ import 'package:messenger_app/controllers/conversa_controller.dart';
 import 'package:messenger_app/models/mensagem.dart';
 import 'package:messenger_app/pages/perfil_page.dart';
 import 'package:messenger_app/provider/mensagens_selecionadas_provider.dart';
-import 'package:messenger_app/provider/usuario_provider.dart';
+import 'package:messenger_app/provider/usuario_ativo_provider.dart';
 import 'package:messenger_app/repository/conversas_repository.dart';
 import 'package:messenger_app/widget/icon_leading.dart';
 import 'package:provider/provider.dart';

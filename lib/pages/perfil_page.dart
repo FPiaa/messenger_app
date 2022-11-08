@@ -2,7 +2,7 @@ import 'package:age_calculator/age_calculator.dart';
 import 'package:flutter/material.dart';
 import 'package:messenger_app/models/pessoa.dart';
 import 'package:messenger_app/provider/profile_provider.dart';
-import 'package:messenger_app/provider/usuario_provider.dart';
+import 'package:messenger_app/provider/usuario_ativo_provider.dart';
 import 'package:provider/provider.dart';
 
 enum DescriptionStatus {

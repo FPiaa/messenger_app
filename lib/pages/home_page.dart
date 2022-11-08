@@ -1,3 +1,4 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:messenger_app/controllers/conversa_controller.dart';
@@ -6,7 +7,8 @@ import 'package:messenger_app/models/pessoa.dart';
 import 'package:messenger_app/pages/perfil_page.dart';
 import 'package:messenger_app/provider/conversas_provider.dart';
 import 'package:messenger_app/provider/mensagens_selecionadas_provider.dart';
-import 'package:messenger_app/provider/usuario_provider.dart';
+import 'package:messenger_app/provider/usuario_ativo_provider.dart';
+import 'package:messenger_app/provider/usuarios_provider.dart';
 import 'package:messenger_app/repository/conversas_repository.dart';
 import 'package:messenger_app/provider/conversas_selecionadas_provider.dart';
 import 'package:messenger_app/repository/i_repository.dart';
@@ -29,6 +31,7 @@ class _HomePageState extends State<HomePage> {
   late ConversasProvider pesquisadas;
   final IRepository<Conversa> conversaRepository = ConversaRepository();
   late UsuarioAtivoProvider usuarioAtivoProvider;
+  late UsuariosProvider usuariosProvider;
 
   final textField = TextEditingController();
 
@@ -49,7 +52,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  onPressed() {
+  onFloatingButtonPressed() {
     setState(() {
       if (!contatos) {
         clearState();
@@ -70,6 +73,7 @@ class _HomePageState extends State<HomePage> {
   bool contatos = false;
   @override
   Widget build(BuildContext context) {
+    usuariosProvider = Provider.of<UsuariosProvider>(context);
     selecionadas = Provider.of<ConversasSelecionadasProvider>(context);
     usuarioAtivoProvider = Provider.of<UsuarioAtivoProvider>(context);
     //TODO: remover essa conversa do build
@@ -78,7 +82,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: buildAppBar(conversas),
       floatingActionButton: FloatingActionButton(
-        onPressed: onPressed,
+        onPressed: onFloatingButtonPressed,
         child: const Icon(Icons.person_add_alt_sharp),
       ),
       body: buildListView(),
@@ -183,68 +187,92 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget buildListView() {
-    return ListView.separated(
-        itemBuilder: (BuildContext context, int conversa) => buildConversaItem(
-              conversas[conversa],
-            ),
-        padding: const EdgeInsets.only(top: 16.0),
-        separatorBuilder: (_, __) => const Divider(),
-        itemCount: conversas.length);
+    if (contatos) {
+      return StreamBuilder<DataSnapshot>(
+          stream: usuariosProvider.getUsers(limit: 1),
+          builder: ((context, AsyncSnapshot<DataSnapshot> snapshot) {
+            if (snapshot.hasData && snapshot.data != null) {
+              final pessoas = snapshot.data!.children.toList();
+              return ListView.separated(
+                  itemBuilder: (context, data) =>
+                      buildConversaItem(context, pessoas[data]),
+                  separatorBuilder: (_, __) => Divider(),
+                  itemCount: pessoas.length);
+            } else {
+              return Center(
+                child: Text("No user found"),
+              );
+            }
+            return CircularProgressIndicator();
+          }));
+    }
+    return CircularProgressIndicator();
+    // ListView.separated(
+    //     itemBuilder: (BuildContext context, int conversa) => buildConversaItem(
+    //           conversas[conversa],
+    //         ),
+    //     padding: const EdgeInsets.only(top: 16.0),
+    //     separatorBuilder: (_, __) => const Divider(),
+    //     itemCount: conversas.length);
   }
 
-  Widget buildConversaItem(Conversa conversa) {
-    Pessoa destinatario = conversa.participantes
-        .firstWhere((element) => element != usuarioAtivoProvider.pessoa);
+  Widget buildConversaItem(BuildContext context, DataSnapshot? data) {
+    if (data != null) {
+      Pessoa destinatario =
+          Pessoa.fromJson(data.value as Map<dynamic, dynamic>);
 
-    return ListTile(
-      leading: IconLeading(
-          pessoa: destinatario,
-          radius: 30,
-          onTap: () {
-            clearState();
-            Navigator.push(context, MaterialPageRoute(builder: (context) {
-              return Provider(
-                  create: (context) =>
-                      UsuarioAtivoProvider(usuarioAtivoProvider.pessoa),
-                  child: Profile(pessoa: destinatario));
-            }));
-          }),
-      title: _buildTitle(destinatario),
-      trailing: _buildTrailing(conversa),
-      subtitle: _buildSubTitle(conversa),
-      tileColor: Colors.grey[100],
-      selectedTileColor: Colors.blue[50],
-      selected: selecionadas.conversas.contains(conversa),
-      onTap: selecionadas.conversas.isEmpty
-          ? () {
+      return ListTile(
+        leading: IconLeading(
+            pessoa: destinatario,
+            radius: 30,
+            onTap: () {
               clearState();
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (BuildContext context) {
-                return MultiProvider(providers: [
-                  Provider<UsuarioAtivoProvider>(
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return Provider(
                     create: (context) =>
                         UsuarioAtivoProvider(usuarioAtivoProvider.pessoa),
-                  ),
-                  ChangeNotifierProvider<MensagensSelecionadas>(
-                      create: (context) => MensagensSelecionadas())
-                ], child: ConversaPage(conversa: conversa));
+                    child: Profile(pessoa: destinatario));
               }));
-            }
-          : contatos
-              ? null
-              : () => {
-                    selecionadas.conversas.contains(conversa)
-                        ? selecionadas.remove(conversa)
-                        : selecionadas.save(conversa)
-                  },
-      onLongPress: contatos
-          ? null
-          : () => {
-                selecionadas.conversas.contains(conversa)
-                    ? selecionadas.remove(conversa)
-                    : selecionadas.save(conversa)
-              },
-    );
+            }),
+        title: _buildTitle(destinatario),
+        trailing: _buildTrailing(null),
+        subtitle: _buildSubTitle(null),
+        tileColor: Colors.grey[100],
+        selectedTileColor: Colors.blue[50],
+        // selected: selecionadas.conversas.contains(conversa),
+        // onTap: selecionadas.conversas.isEmpty
+        //     ? () {
+        //         clearState();
+        //         Navigator.push(context,
+        //             MaterialPageRoute(builder: (BuildContext context) {
+        //           return MultiProvider(providers: [
+        //             Provider<UsuarioAtivoProvider>(
+        //               create: (context) =>
+        //                   UsuarioAtivoProvider(usuarioAtivoProvider.pessoa),
+        //             ),
+        //             ChangeNotifierProvider<MensagensSelecionadas>(
+        //                 create: (context) => MensagensSelecionadas())
+        //           ], child: ConversaPage(conversa: conversa));
+        //         }));
+        //       }
+        //     : contatos
+        //         ? null
+        //         : () => {
+        //               selecionadas.conversas.contains(conversa)
+        //                   ? selecionadas.remove(conversa)
+        //                   : selecionadas.save(conversa)
+        //             },
+        // onLongPress: contatos
+        //     ? null
+        //     : () => {
+        //           selecionadas.conversas.contains(conversa)
+        //               ? selecionadas.remove(conversa)
+        //               : selecionadas.save(conversa)
+        //         },
+      );
+    }
+    print("a");
+    return CircularProgressIndicator();
   }
 
   Widget _buildTitle(Pessoa destinatario) {
@@ -255,8 +283,8 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildSubTitle(Conversa conversa) {
-    if (conversa.mensagens.isEmpty) {
+  Widget _buildSubTitle(Conversa? conversa) {
+    if (conversa == null || conversa.mensagens.isEmpty) {
       return Container();
     } else {
       return Text(
@@ -268,8 +296,8 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Widget _buildTrailing(Conversa conversa) {
-    if (conversa.mensagens.isEmpty) {
+  Widget _buildTrailing(Conversa? conversa) {
+    if (conversa == null || conversa.mensagens.isEmpty) {
       return const Text(" ");
     } else {
       // TODO: Formatar de acordo com a preferência do usuário

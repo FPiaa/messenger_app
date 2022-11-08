@@ -6,6 +6,7 @@ import 'package:messenger_app/firebase_options.dart';
 import 'package:messenger_app/pages/login_page.dart';
 import 'package:messenger_app/provider/auth_provider.dart';
 import 'package:messenger_app/provider/profile_provider.dart';
+import 'package:messenger_app/provider/usuarios_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -51,6 +52,10 @@ class Chat extends StatelessWidget {
               firebaseAuth: firebaseAuth,
               firebaseDatabase: firebaseDatabase,
               preferences: preferences),
+        ),
+        Provider<UsuariosProvider>(
+          create: (context) =>
+              UsuariosProvider(firebaseDatabase: firebaseDatabase),
         )
       ],
       child: MaterialApp(

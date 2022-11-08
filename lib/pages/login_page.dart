@@ -8,7 +8,7 @@ import 'package:messenger_app/pages/home_page.dart';
 import 'package:messenger_app/provider/auth_provider.dart';
 import 'package:messenger_app/provider/conversas_provider.dart';
 import 'package:messenger_app/provider/conversas_selecionadas_provider.dart';
-import 'package:messenger_app/provider/usuario_provider.dart';
+import 'package:messenger_app/provider/usuario_ativo_provider.dart';
 import 'package:messenger_app/repository/pessoa_repository.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';

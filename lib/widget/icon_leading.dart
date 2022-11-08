@@ -28,7 +28,7 @@ class IconLeading extends StatelessWidget {
           height: imageSize,
           child: ClipOval(
             clipBehavior: Clip.antiAliasWithSaveLayer,
-            child: pessoa.photo != null
+            child: pessoa.photo != null && pessoa.photo!.isNotEmpty
                 ? Image.asset(pessoa.photo!)
                 : Icon(
                     Icons.person,
