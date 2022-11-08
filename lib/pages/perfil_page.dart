@@ -5,6 +5,12 @@ import 'package:messenger_app/provider/profile_provider.dart';
 import 'package:messenger_app/provider/usuario_provider.dart';
 import 'package:provider/provider.dart';
 
+enum DescriptionStatus {
+  reading,
+  editing,
+  updating,
+}
+
 class Profile extends StatefulWidget {
   const Profile({super.key, required this.pessoa});
   final Pessoa pessoa;
@@ -18,14 +24,13 @@ class _ProfileState extends State<Profile> {
   late TextEditingController descricaoController;
   late ProfileProvider profileProvider;
   late UsuarioAtivoProvider usuarioAtivoProvider;
-
+  DescriptionStatus _descriptionStatus = DescriptionStatus.reading;
   @override
   Widget build(BuildContext context) {
     profileProvider = Provider.of<ProfileProvider>(context);
     usuarioAtivoProvider = Provider.of<UsuarioAtivoProvider>(context);
 
     double radius = widget.pessoa.photo != null ? 200 : 100;
-    descricaoController = TextEditingController(text: widget.pessoa.descricao);
     return Scaffold(
       appBar: AppBar(
         title: const Text("Perfil"),
@@ -93,41 +98,152 @@ class _ProfileState extends State<Profile> {
               ],
             ),
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: SelectableText(widget.pessoa.username,
-                style: const TextStyle(fontSize: 20)),
+          ListTile(
+            leading: const Icon(Icons.person),
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "Username",
+                  style: TextStyle(
+                      fontWeight: FontWeight.w500, color: Colors.grey),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: SelectableText(
+                    widget.pessoa.username,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w500, fontSize: 20),
+                  ),
+                )
+              ],
+            ),
           ),
-          Container(
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: SelectableText(
-                  "${AgeCalculator.age(widget.pessoa.dataNascimento).years} Anos",
-                  style: const TextStyle(fontSize: 20))),
-          Container(
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: SelectableText(widget.pessoa.email,
-                  style: const TextStyle(fontSize: 20))),
-          FractionallySizedBox(
-            widthFactor: 0.9,
-            child: Ink(
-              child: TextFormField(
+          ListTile(
+            leading: const Icon(Icons.calendar_month),
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "Idade",
+                  style: TextStyle(
+                      fontWeight: FontWeight.w500, color: Colors.grey),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: SelectableText(
+                    "${AgeCalculator.age(widget.pessoa.dataNascimento).years} Anos",
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w500, fontSize: 20),
+                  ),
+                )
+              ],
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.email),
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "Email",
+                  style: TextStyle(
+                      fontWeight: FontWeight.w500, color: Colors.grey),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: SelectableText(
+                    widget.pessoa.email,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w500, fontSize: 20),
+                  ),
+                )
+              ],
+            ),
+          ),
+          if (_descriptionStatus == DescriptionStatus.editing)
+            FractionallySizedBox(
+              widthFactor: 0.9,
+              child: Ink(
+                child: TextFormField(
                   keyboardType: TextInputType.name,
                   controller: descricaoController,
                   decoration: InputDecoration(
                     label: const Text("Descrição"),
                     border: const UnderlineInputBorder(),
                     icon: const Icon(Icons.description),
-                    suffixIcon: InkWell(
-                        customBorder: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(40)),
-                        splashColor: Colors.amber[100],
-                        splashFactory: InkRipple.splashFactory,
-                        onTap: () =>
-                            updateDescription(descricaoController.text),
-                        child: const Icon(Icons.update)),
-                  )),
+                    suffixIcon: SizedBox(
+                      width: 60,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Ink(
+                            child: InkWell(
+                              customBorder: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(40)),
+                              splashColor: Colors.amber[100],
+                              splashFactory: InkRipple.splashFactory,
+                              onTap: () =>
+                                  updateDescription(descricaoController.text),
+                              child: const Icon(Icons.check),
+                            ),
+                          ),
+                          Ink(
+                            child: InkWell(
+                              customBorder: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(40)),
+                              splashColor: Colors.amber[100],
+                              splashFactory: InkRipple.splashFactory,
+                              onTap: () => setState(() {
+                                _descriptionStatus = DescriptionStatus.reading;
+                              }),
+                              child: const Icon(Icons.cancel),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            )
+          else
+            ListTile(
+              leading: const Icon(Icons.description),
+              title: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Descrição",
+                    style: TextStyle(
+                        fontWeight: FontWeight.w500, color: Colors.grey),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: SelectableText(
+                      "${widget.pessoa.descricao}",
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w500, fontSize: 20),
+                    ),
+                  )
+                ],
+              ),
+              trailing: _descriptionStatus == DescriptionStatus.reading
+                  ? Ink(
+                      child: InkWell(
+                      customBorder: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(40)),
+                      splashColor: Colors.amber[100],
+                      splashFactory: InkRipple.splashFactory,
+                      onTap: () => setState(() {
+                        _descriptionStatus = DescriptionStatus.editing;
+                        descricaoController = TextEditingController(
+                            text: usuarioAtivoProvider.pessoa.descricao);
+                      }),
+                      child: const Icon(Icons.edit),
+                    ))
+                  : const CircularProgressIndicator(),
             ),
-          )
         ]),
       ));
     } else {
@@ -163,35 +279,105 @@ class _ProfileState extends State<Profile> {
                 ),
               ],
             ),
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: SelectableText(widget.pessoa.username,
-                  style: const TextStyle(fontSize: 20)),
-            ),
-            Container(
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                child: SelectableText(
-                    "${AgeCalculator.age(widget.pessoa.dataNascimento).years} Anos",
-                    style: const TextStyle(fontSize: 20))),
-            Container(
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                child: SelectableText(widget.pessoa.email,
-                    style: const TextStyle(fontSize: 20))),
-            widget.pessoa.descricao != null
-                ? Container(
-                    padding: const EdgeInsets.only(top: 12),
-                    child: Text(widget.pessoa.descricao!),
+            ListTile(
+              leading: const Icon(Icons.person),
+              title: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Username",
+                    style: TextStyle(
+                        fontWeight: FontWeight.w500, color: Colors.grey),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: SelectableText(
+                      widget.pessoa.username,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w500, fontSize: 20),
+                    ),
                   )
-                : const SizedBox.shrink()
+                ],
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.calendar_month),
+              title: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Idade",
+                    style: TextStyle(
+                        fontWeight: FontWeight.w500, color: Colors.grey),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: SelectableText(
+                      "${AgeCalculator.age(widget.pessoa.dataNascimento).years} Anos",
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w500, fontSize: 20),
+                    ),
+                  )
+                ],
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.person),
+              title: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Email",
+                    style: TextStyle(
+                        fontWeight: FontWeight.w500, color: Colors.grey),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: SelectableText(
+                      widget.pessoa.email,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w500, fontSize: 20),
+                    ),
+                  )
+                ],
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.description),
+              title: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Descrição",
+                    style: TextStyle(
+                        fontWeight: FontWeight.w500, color: Colors.grey),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: SelectableText(
+                      "${widget.pessoa.descricao}",
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w500, fontSize: 20),
+                    ),
+                  )
+                ],
+              ),
+            ),
           ],
         ),
       );
     }
   }
 
-  updateDescription(String descricao) {
+  updateDescription(String descricao) async {
+    setState(() {
+      _descriptionStatus = DescriptionStatus.updating;
+    });
     Pessoa pessoa = usuarioAtivoProvider.pessoa;
     pessoa.setDescricao = descricao;
-    profileProvider.updateProfile(pessoa);
+    await profileProvider.updateProfile(pessoa);
+    setState(() {
+      _descriptionStatus = DescriptionStatus.reading;
+    });
   }
 }
