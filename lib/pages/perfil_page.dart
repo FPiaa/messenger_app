@@ -1,11 +1,13 @@
 import 'package:age_calculator/age_calculator.dart';
 import 'package:flutter/material.dart';
 import 'package:messenger_app/models/pessoa.dart';
+import 'package:messenger_app/provider/profile_provider.dart';
+import 'package:messenger_app/provider/usuario_provider.dart';
+import 'package:provider/provider.dart';
 
 class Profile extends StatefulWidget {
-  const Profile({super.key, required this.pessoa, required this.isCurrentUser});
+  const Profile({super.key, required this.pessoa});
   final Pessoa pessoa;
-  final bool isCurrentUser;
 
   @override
   State<Profile> createState() => _ProfileState();
@@ -14,9 +16,14 @@ class Profile extends StatefulWidget {
 class _ProfileState extends State<Profile> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController descricaoController;
+  late ProfileProvider profileProvider;
+  late UsuarioAtivoProvider usuarioAtivoProvider;
 
   @override
   Widget build(BuildContext context) {
+    profileProvider = Provider.of<ProfileProvider>(context);
+    usuarioAtivoProvider = Provider.of<UsuarioAtivoProvider>(context);
+
     double radius = widget.pessoa.photo != null ? 200 : 100;
     descricaoController = TextEditingController(text: widget.pessoa.descricao);
     return Scaffold(
@@ -31,7 +38,7 @@ class _ProfileState extends State<Profile> {
     radius = (widget.pessoa.photo != null && widget.pessoa.photo!.isNotEmpty)
         ? radius
         : radius * 0.8;
-    if (widget.isCurrentUser) {
+    if (widget.pessoa.id.compareTo(usuarioAtivoProvider.pessoa.id) == 0) {
       return SingleChildScrollView(
           child: Form(
         key: _formKey,
@@ -115,7 +122,8 @@ class _ProfileState extends State<Profile> {
                             borderRadius: BorderRadius.circular(40)),
                         splashColor: Colors.amber[100],
                         splashFactory: InkRipple.splashFactory,
-                        onTap: () => print("atualziar descrição"),
+                        onTap: () =>
+                            updateDescription(descricaoController.text),
                         child: const Icon(Icons.update)),
                   )),
             ),
@@ -179,5 +187,11 @@ class _ProfileState extends State<Profile> {
         ),
       );
     }
+  }
+
+  updateDescription(String descricao) {
+    Pessoa pessoa = usuarioAtivoProvider.pessoa;
+    pessoa.setDescricao = descricao;
+    profileProvider.updateProfile(pessoa);
   }
 }

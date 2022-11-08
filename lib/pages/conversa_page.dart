@@ -73,10 +73,11 @@ class _ConversaPageState extends State<ConversaPage> {
                         clearState();
                         Navigator.of(context).push(MaterialPageRoute(
                             builder: (context) => Profile(
-                                pessoa: widget.conversa.participantes
-                                    .firstWhere((element) =>
-                                        element != usuarioAtivoProvider.pessoa),
-                                isCurrentUser: false)));
+                                  pessoa: widget.conversa.participantes
+                                      .firstWhere((element) =>
+                                          element !=
+                                          usuarioAtivoProvider.pessoa),
+                                )));
                       },
                       child: Text(widget.conversa.participantes
                           .firstWhere((element) =>

@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:messenger_app/models/pessoa.dart';
 
-class UsuarioAtivoProvider extends ChangeNotifier {
+class UsuarioAtivoProvider {
   late Pessoa _pessoa;
   UsuarioAtivoProvider(Pessoa pessoa) {
     _pessoa = pessoa;

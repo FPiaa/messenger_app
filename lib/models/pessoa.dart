@@ -23,4 +23,12 @@ class Pessoa {
   });
   factory Pessoa.fromJson(Map<dynamic, dynamic> json) => _$PessoaFromJson(json);
   Map<String, dynamic> toJson() => _$PessoaToJson(this);
+
+  set setDescricao(String descricao) {
+    this.descricao = descricao;
+  }
+
+  set setPhoto(String photo) {
+    this.photo = photo;
+  }
 }

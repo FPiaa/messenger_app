@@ -171,8 +171,10 @@ class _HomePageState extends State<HomePage> {
             onPressed: () {
               clearState();
               Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-                return Profile(
-                    pessoa: usuarioAtivoProvider.pessoa, isCurrentUser: true);
+                return Provider(
+                    create: ((context) =>
+                        UsuarioAtivoProvider(usuarioAtivoProvider.pessoa)),
+                    child: Profile(pessoa: usuarioAtivoProvider.pessoa));
               }));
             },
             icon: const Icon(Icons.person))
@@ -201,7 +203,10 @@ class _HomePageState extends State<HomePage> {
           onTap: () {
             clearState();
             Navigator.push(context, MaterialPageRoute(builder: (context) {
-              return Profile(pessoa: destinatario, isCurrentUser: false);
+              return Provider(
+                  create: (context) =>
+                      UsuarioAtivoProvider(usuarioAtivoProvider.pessoa),
+                  child: Profile(pessoa: destinatario));
             }));
           }),
       title: _buildTitle(destinatario),
@@ -216,7 +221,7 @@ class _HomePageState extends State<HomePage> {
               Navigator.push(context,
                   MaterialPageRoute(builder: (BuildContext context) {
                 return MultiProvider(providers: [
-                  ChangeNotifierProvider<UsuarioAtivoProvider>(
+                  Provider<UsuarioAtivoProvider>(
                     create: (context) =>
                         UsuarioAtivoProvider(usuarioAtivoProvider.pessoa),
                   ),

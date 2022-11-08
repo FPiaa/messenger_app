@@ -229,7 +229,7 @@ class _LoginPageState extends State<LoginPage> {
               create: (context) => ConversasSelecionadasProvider()),
           ChangeNotifierProvider<ConversasProvider>(
               create: (context) => ConversasProvider()),
-          ChangeNotifierProvider<UsuarioAtivoProvider>(
+          Provider<UsuarioAtivoProvider>(
               create: (context) => UsuarioAtivoProvider(pessoa))
         ],
         child: const HomePage(),
