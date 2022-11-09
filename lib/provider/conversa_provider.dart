@@ -29,22 +29,39 @@ class ConversaProvider {
         Conversa conversa =
             Conversa.fromJson(data.value as Map<dynamic, dynamic>);
         if (conversa.participantesIds.contains(pessoa.id)) {
-          final mensagensSnapshot = await firebaseDatabase
-              .ref("${DatabaseConstants.pathMessageCollection}/${conversa.id}")
-              .limitToLast(50)
-              .once(DatabaseEventType.value);
-          print("pauta pro breakpoint");
-          if (mensagensSnapshot.snapshot.children.isNotEmpty) {
-            final mensagens =
-                (mensagensSnapshot.snapshot.value as List<dynamic>)
-                    .map((e) => Mensagem.fromJson(e))
-                    .toList();
-            conversa.mensagens = mensagens;
-          }
-          conversas.add(conversa);
+          final mensagens = await getMessages(conversaId: conversa.id);
+          conversa.mensagens = mensagens;
         }
+        conversas.add(conversa);
       }
     }
     return conversas;
+  }
+
+  Future<void> sendMessage(
+      {required String conversaId, required Mensagem mensagem}) async {
+    var data = await firebaseDatabase
+        .ref("${DatabaseConstants.pathMessageCollection}/$conversaId")
+        .push()
+        .set(mensagem.toJson());
+  }
+
+  Future<List<Mensagem>> getMessages({required conversaId, int? limit}) async {
+    limit ??= 50;
+    final event = await firebaseDatabase
+        .ref("${DatabaseConstants.pathMessageCollection}/$conversaId")
+        .limitToLast(limit)
+        .once(DatabaseEventType.value);
+    List<Mensagem> mensagens = [];
+    if (event.snapshot.children.isNotEmpty) {
+      mensagens = (event.snapshot.value as Map<dynamic, dynamic>)
+          .values
+          .map((e) => Mensagem.fromJson(e))
+          .toList()
+          .reversed
+          .toList();
+    }
+
+    return mensagens;
   }
 }

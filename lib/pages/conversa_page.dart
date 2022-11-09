@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:messenger_app/controllers/conversa_controller.dart';
 import 'package:messenger_app/models/mensagem.dart';
+import 'package:messenger_app/models/pessoa.dart';
 import 'package:messenger_app/pages/perfil_page.dart';
+import 'package:messenger_app/provider/conversa_provider.dart';
 import 'package:messenger_app/provider/mensagens_selecionadas_provider.dart';
 import 'package:messenger_app/provider/usuario_ativo_provider.dart';
 import 'package:messenger_app/repository/conversas_repository.dart';
@@ -13,8 +15,10 @@ import '../models/conversa.dart';
 
 class ConversaPage extends StatefulWidget {
   final Conversa conversa;
+  final Pessoa destinatario;
 
-  const ConversaPage({super.key, required this.conversa});
+  const ConversaPage(
+      {super.key, required this.conversa, required this.destinatario});
 
   @override
   State<ConversaPage> createState() => _ConversaPageState();
@@ -28,7 +32,7 @@ class _ConversaPageState extends State<ConversaPage> {
       ConversaController(conversaRepository: ConversaRepository());
   late UsuarioAtivoProvider usuarioAtivoProvider;
   late MensagensSelecionadas mensagensSelecionadas;
-
+  late ConversaProvider conversaProvider;
   @override
   void initState() {
     super.initState();
@@ -39,6 +43,7 @@ class _ConversaPageState extends State<ConversaPage> {
   Widget build(BuildContext context) {
     usuarioAtivoProvider = Provider.of<UsuarioAtivoProvider>(context);
     mensagensSelecionadas = Provider.of<MensagensSelecionadas>(context);
+    conversaProvider = Provider.of<ConversaProvider>(context);
     ConversaController conversaController =
         ConversaController(conversaRepository: ConversaRepository());
     return Scaffold(
@@ -52,12 +57,10 @@ class _ConversaPageState extends State<ConversaPage> {
                     children: [
                       const Icon(Icons.arrow_back),
                       const SizedBox(width: 8),
-                      // IconLeading(
-                      //   pessoa: widget.conversa.participantesIds.firstWhere(
-                      //       (element) =>
-                      //           element != usuarioAtivoProvider.pessoa.id),
-                      //   onTap: () => Navigator.pop(context),
-                      // ),
+                      IconLeading(
+                        pessoa: widget.destinatario,
+                        onTap: () => Navigator.pop(context),
+                      ),
                     ],
                   ),
                 ),
@@ -76,9 +79,7 @@ class _ConversaPageState extends State<ConversaPage> {
                               Profile(pessoa: usuarioAtivoProvider.pessoa),
                         ));
                       },
-                      child: Text(widget.conversa.participantesIds.firstWhere(
-                          (element) =>
-                              element != usuarioAtivoProvider.pessoa.id)),
+                      child: Text(widget.destinatario.username),
                     ),
                   ),
                 ],
@@ -104,7 +105,7 @@ class _ConversaPageState extends State<ConversaPage> {
                 IconButton(
                   icon: const Icon(Icons.delete),
                   onPressed: mensagensSelecionadas.mensagem.any((element) =>
-                          element.remetente != usuarioAtivoProvider.pessoa)
+                          element.remetente != usuarioAtivoProvider.pessoa.id)
                       ? null
                       : () {
                           for (var mensagem in mensagensSelecionadas.mensagem) {
@@ -163,17 +164,17 @@ class _ConversaPageState extends State<ConversaPage> {
           : mensagensSelecionadas.save(mensagem),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-        color: (mensagem.remetente == usuarioAtivoProvider.pessoa
+        color: (mensagem.remetente == usuarioAtivoProvider.pessoa.id
             ? (selecionada ? Colors.green[50] : Colors.white)
             : (selecionada ? Colors.green[50] : Colors.white)),
         child: Align(
-          alignment: mensagem.remetente == usuarioAtivoProvider.pessoa
+          alignment: mensagem.remetente == usuarioAtivoProvider.pessoa.id
               ? Alignment.topRight
               : Alignment.topLeft,
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
-              color: (mensagem.remetente == usuarioAtivoProvider.pessoa
+              color: (mensagem.remetente == usuarioAtivoProvider.pessoa.id
                   ? (selecionada ? Colors.blue[50] : Colors.blue[200])
                   : (selecionada ? Colors.blue[50] : Colors.grey[100])),
             ),
@@ -201,11 +202,11 @@ class _ConversaPageState extends State<ConversaPage> {
     );
   }
 
-  onSendMessage() {
+  onSendMessage() async {
     print(conteudo.text);
-    conversaController.sendMessage(
-      widget.conversa,
-      Mensagem(
+    conversaProvider.sendMessage(
+      conversaId: widget.conversa.id,
+      mensagem: Mensagem(
           remetente: usuarioAtivoProvider.pessoa.id,
           content: conteudo.text.trim(),
           dataEnvio: DateTime.now().millisecondsSinceEpoch),

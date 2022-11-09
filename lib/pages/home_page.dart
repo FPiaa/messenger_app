@@ -263,14 +263,17 @@ class _HomePageState extends State<HomePage> {
               clearState();
               Navigator.push(context, MaterialPageRoute(
                 builder: (BuildContext context) {
-                  return MultiProvider(providers: [
-                    Provider<UsuarioAtivoProvider>(
-                      create: (context) =>
-                          UsuarioAtivoProvider(usuarioAtivoProvider.pessoa),
-                    ),
-                    ChangeNotifierProvider<MensagensSelecionadas>(
-                        create: (context) => MensagensSelecionadas())
-                  ], child: ConversaPage(conversa: conversa));
+                  return MultiProvider(
+                      providers: [
+                        Provider<UsuarioAtivoProvider>(
+                          create: (context) =>
+                              UsuarioAtivoProvider(usuarioAtivoProvider.pessoa),
+                        ),
+                        ChangeNotifierProvider<MensagensSelecionadas>(
+                            create: (context) => MensagensSelecionadas())
+                      ],
+                      child: ConversaPage(
+                          conversa: conversa, destinatario: destinatario));
                 },
               ));
             });
@@ -318,14 +321,19 @@ class _HomePageState extends State<HomePage> {
                     clearState();
                     Navigator.push(context, MaterialPageRoute(
                       builder: (BuildContext context) {
-                        return MultiProvider(providers: [
-                          Provider<UsuarioAtivoProvider>(
-                            create: (context) => UsuarioAtivoProvider(
-                                usuarioAtivoProvider.pessoa),
-                          ),
-                          ChangeNotifierProvider<MensagensSelecionadas>(
-                              create: (context) => MensagensSelecionadas())
-                        ], child: ConversaPage(conversa: conversa));
+                        return MultiProvider(
+                            providers: [
+                              Provider<UsuarioAtivoProvider>(
+                                create: (context) => UsuarioAtivoProvider(
+                                    usuarioAtivoProvider.pessoa),
+                              ),
+                              ChangeNotifierProvider<MensagensSelecionadas>(
+                                  create: (context) => MensagensSelecionadas())
+                            ],
+                            child: ConversaPage(
+                              conversa: conversa,
+                              destinatario: destinatario,
+                            ));
                       },
                     ));
                   });
@@ -353,7 +361,7 @@ class _HomePageState extends State<HomePage> {
       return Container();
     } else {
       return Text(
-        conversa.mensagens!.last.content,
+        conversa.mensagens!.first.content,
         style: const TextStyle(fontSize: 14),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
@@ -369,7 +377,7 @@ class _HomePageState extends State<HomePage> {
     } else {
       // TODO: Formatar de acordo com a preferência do usuário
       return Text(DateFormat.jm().format(DateTime.fromMillisecondsSinceEpoch(
-          conversa.mensagens!.last.dataEnvio)));
+          conversa.mensagens!.first.dataEnvio)));
     }
   }
 
