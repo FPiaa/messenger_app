@@ -49,12 +49,14 @@ class _HomePageState extends State<HomePage> {
           //totalmente ok fazer a checagem incondicional, quando a conversa é criada no BD,
           // ela vai possuir a data de horario como sendo a data de criação da conversa
           m2.horarioUltimaMensagem!.compareTo(m1.horarioUltimaMensagem!));
+
       for (Conversa c in conversas) {
         final id = c.participantesIds
             .firstWhere((element) => element != usuarioAtivoProvider.pessoa.id);
         final data = await profileProvider.getProfile(id: id);
         if (data.value != null) {
           pessoas[id] = Pessoa.fromJson(data.value as Map<dynamic, dynamic>);
+          setState(() {});
         }
       }
       if (!contatos) {
@@ -305,52 +307,53 @@ class _HomePageState extends State<HomePage> {
         return const SizedBox.shrink();
       }
       final destinatario = pessoas[destinatarioId];
-      if (destinatario == null) {
-        return const CircularProgressIndicator();
-      }
 
       return ListTile(
-        leading: IconLeading(
-            pessoa: destinatario,
-            radius: 30,
-            onTap: () {
-              clearState();
-              Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return Provider(
-                    create: (context) =>
-                        UsuarioAtivoProvider(usuarioAtivoProvider.pessoa),
-                    child: Profile(pessoa: destinatario));
-              }));
-            }),
+        leading: destinatario == null
+            ? const CircularProgressIndicator()
+            : IconLeading(
+                pessoa: destinatario,
+                radius: 30,
+                onTap: () {
+                  clearState();
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return Provider(
+                        create: (context) =>
+                            UsuarioAtivoProvider(usuarioAtivoProvider.pessoa),
+                        child: Profile(pessoa: destinatario));
+                  }));
+                }),
         title: _buildTitle(destinatario),
         trailing: _buildTrailing(conversa),
         subtitle: _buildSubTitle(conversa),
         tileColor: Colors.grey[100],
         selectedTileColor: Colors.blue[50],
         selected: selecionadas.conversas.contains(conversa),
-        onTap: () {
-          clearState();
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (BuildContext context) {
-                return MultiProvider(
-                    providers: [
-                      Provider<UsuarioAtivoProvider>(
-                        create: (context) =>
-                            UsuarioAtivoProvider(usuarioAtivoProvider.pessoa),
-                      ),
-                      ChangeNotifierProvider<MensagensSelecionadas>(
-                          create: (context) => MensagensSelecionadas())
-                    ],
-                    child: ConversaPage(
-                      conversa: conversa,
-                      destinatario: destinatario,
-                    ));
+        onTap: destinatario == null
+            ? null
+            : () {
+                clearState();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (BuildContext context) {
+                      return MultiProvider(
+                          providers: [
+                            Provider<UsuarioAtivoProvider>(
+                              create: (context) => UsuarioAtivoProvider(
+                                  usuarioAtivoProvider.pessoa),
+                            ),
+                            ChangeNotifierProvider<MensagensSelecionadas>(
+                                create: (context) => MensagensSelecionadas())
+                          ],
+                          child: ConversaPage(
+                            conversa: conversa,
+                            destinatario: destinatario,
+                          ));
+                    },
+                  ),
+                );
               },
-            ),
-          );
-        },
         onLongPress: () => selecionadas.conversas.contains(conversa)
             ? selecionadas.remove(conversa)
             : selecionadas.save(conversa),
@@ -359,7 +362,10 @@ class _HomePageState extends State<HomePage> {
     return const CircularProgressIndicator();
   }
 
-  Widget _buildTitle(Pessoa destinatario) {
+  Widget _buildTitle(Pessoa? destinatario) {
+    if (destinatario == null) {
+      return const SizedBox.shrink();
+    }
     return Text(
       destinatario.username,
       style: const TextStyle(fontSize: 20, overflow: TextOverflow.clip),
