@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -28,6 +30,7 @@ class _HomePageState extends State<HomePage> {
   late ProfileProvider profileProvider;
   late ConversaProvider conversaProvider;
 
+  late StreamSubscription<DatabaseEvent> listener;
   final textField = TextEditingController();
 
   @override
@@ -36,7 +39,7 @@ class _HomePageState extends State<HomePage> {
     profileProvider = context.read<ProfileProvider>();
     conversaProvider = context.read<ConversaProvider>();
     usuarioAtivoProvider = context.read<UsuarioAtivoProvider>();
-    conversaProvider.firebaseDatabase
+    listener = conversaProvider.firebaseDatabase
         .ref(DatabaseConstants.pathConversaCollection)
         .onValue
         .listen((event) async {
@@ -58,6 +61,12 @@ class _HomePageState extends State<HomePage> {
         setState(() {});
       }
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    listener.cancel();
   }
 
   onFloatingButtonPressed() {
@@ -166,14 +175,16 @@ class _HomePageState extends State<HomePage> {
           contatos ? const Text("Meus contatos") : const Text("Meu Aplicativo"),
       centerTitle: false,
       actions: [
-        IconButton(
-          onPressed: () {
-            setState(() {
-              filtrar = true;
-            });
-          },
-          icon: const Icon(Icons.search),
-        ),
+        contatos
+            ? const SizedBox.shrink()
+            : IconButton(
+                onPressed: () {
+                  setState(() {
+                    filtrar = true;
+                  });
+                },
+                icon: const Icon(Icons.search),
+              ),
         IconButton(
             onPressed: () {
               clearState();
@@ -192,7 +203,7 @@ class _HomePageState extends State<HomePage> {
   Widget buildListView() {
     if (contatos) {
       return StreamBuilder<DataSnapshot>(
-          stream: profileProvider.getProfiles(limit: 10),
+          stream: profileProvider.getProfiles(limit: 30),
           builder: ((context, AsyncSnapshot<DataSnapshot> snapshot) {
             if (snapshot.hasData && snapshot.data != null) {
               final pessoas = snapshot.data!.children.toList();

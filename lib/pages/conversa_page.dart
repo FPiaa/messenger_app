@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:math';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_database/ui/utils/stream_subscriber_mixin.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:messenger_app/constants/firebase_realtime_constant.dart';
@@ -32,6 +34,7 @@ class _ConversaPageState extends State<ConversaPage> {
   late UsuarioAtivoProvider usuarioAtivoProvider;
   late MensagensSelecionadas mensagensSelecionadas;
   late ConversaProvider conversaProvider;
+  late StreamSubscription<DatabaseEvent> listener;
   List<Mensagem> mensagens = [];
   @override
   void initState() {
@@ -39,7 +42,7 @@ class _ConversaPageState extends State<ConversaPage> {
     scrollController.addListener(_scrollListener);
     conversaProvider = context.read<ConversaProvider>();
     usuarioAtivoProvider = context.read<UsuarioAtivoProvider>();
-    conversaProvider.firebaseDatabase
+    listener = conversaProvider.firebaseDatabase
         .ref("${DatabaseConstants.pathMessageCollection}/${widget.conversa.id}")
         .onValue
         .listen((event) async {
@@ -47,6 +50,12 @@ class _ConversaPageState extends State<ConversaPage> {
           conversaId: widget.conversa.id, limit: 50);
       setState(() {});
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    listener.cancel();
   }
 
   @override
@@ -230,18 +239,13 @@ class _ConversaPageState extends State<ConversaPage> {
     );
   }
 
-  onSendMessage() async {
-    conversaProvider.sendMessage(
-      conversaId: widget.conversa.id,
-      mensagem: Mensagem(
-          remetente: usuarioAtivoProvider.pessoa.id,
-          content: conteudo.text.trim(),
-          dataEnvio: DateTime.now().millisecondsSinceEpoch),
-    );
-    scrollController.animateTo(0,
-        duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
-    conteudo.clear();
-    setState(() {});
+  onSendMessage(Mensagem mensagem) async {
+    await conversaProvider.sendMessage(
+        conversaId: widget.conversa.id, mensagem: mensagem);
+    if (scrollController.hasClients) {
+      scrollController.animateTo(0,
+          duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+    }
   }
 
   Widget buildInput() {
@@ -289,8 +293,18 @@ class _ConversaPageState extends State<ConversaPage> {
               margin: const EdgeInsets.symmetric(horizontal: 4),
               child: IconButton(
                 icon: const Icon(Icons.send),
-                onPressed:
-                    conteudo.text.trim().isNotEmpty ? onSendMessage : null,
+                onPressed: conteudo.text.trim().isNotEmpty
+                    ? () {
+                        Mensagem mensagem = Mensagem(
+                            remetente: usuarioAtivoProvider.pessoa.id,
+                            content: conteudo.text.trim(),
+                            dataEnvio: DateTime.now().millisecondsSinceEpoch);
+                        setState(() {
+                          conteudo.clear();
+                        });
+                        onSendMessage(mensagem);
+                      }
+                    : null,
               ),
             ),
           ],

@@ -40,6 +40,7 @@ class Chat extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    firebaseDatabase.setPersistenceEnabled(true);
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<AuthProvider>(
