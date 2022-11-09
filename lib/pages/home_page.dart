@@ -355,13 +355,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildSubTitle(Conversa? conversa) {
-    if (conversa == null ||
-        conversa.mensagens == null ||
-        conversa.mensagens!.isEmpty) {
+    if (conversa == null || conversa.conteudoUltimaMensagem == null) {
       return Container();
     } else {
       return Text(
-        conversa.mensagens!.first.content,
+        conversa.conteudoUltimaMensagem!,
         style: const TextStyle(fontSize: 14),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
@@ -370,14 +368,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildTrailing(Conversa? conversa) {
-    if (conversa == null ||
-        conversa.mensagens == null ||
-        conversa.mensagens!.isEmpty) {
+    if (conversa == null || conversa.horarioUltimaMensagem == null) {
       return const Text(" ");
     } else {
       // TODO: Formatar de acordo com a preferência do usuário
       return Text(DateFormat.jm().format(DateTime.fromMillisecondsSinceEpoch(
-          conversa.mensagens!.first.dataEnvio)));
+          conversa.horarioUltimaMensagem!)));
     }
   }
 

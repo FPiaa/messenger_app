@@ -14,10 +14,14 @@ Conversa _$ConversaFromJson(Map<dynamic, dynamic> json) => Conversa(
           ?.map((e) => Mensagem.fromJson(e as Map<String, dynamic>))
           .toList(),
       id: json['id'] as String,
+      horarioUltimaMensagem: json['lastMessageTime'] as int?,
+      conteudoUltimaMensagem: json['lastMessageContent'] as String?,
     );
 
 Map<String, dynamic> _$ConversaToJson(Conversa instance) => <String, dynamic>{
       'participantesIds': instance.participantesIds,
       'mensagens': instance.mensagens,
       'id': instance.id,
+      'lastMessageTime': instance.horarioUltimaMensagem,
+      'lastMessageContent': instance.conteudoUltimaMensagem,
     };
