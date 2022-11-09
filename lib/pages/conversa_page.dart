@@ -1,18 +1,14 @@
 import 'dart:math';
-
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:messenger_app/constants/firebase_realtime_constant.dart';
-import 'package:messenger_app/controllers/conversa_controller.dart';
 import 'package:messenger_app/models/mensagem.dart';
 import 'package:messenger_app/models/pessoa.dart';
 import 'package:messenger_app/pages/perfil_page.dart';
 import 'package:messenger_app/provider/conversa_provider.dart';
 import 'package:messenger_app/provider/mensagens_selecionadas_provider.dart';
 import 'package:messenger_app/provider/usuario_ativo_provider.dart';
-import 'package:messenger_app/repository/conversas_repository.dart';
 import 'package:messenger_app/widget/icon_leading.dart';
 import 'package:provider/provider.dart';
 
@@ -33,8 +29,6 @@ class _ConversaPageState extends State<ConversaPage> {
   final formKey = GlobalKey<FormState>();
   final conteudo = TextEditingController();
   final ScrollController scrollController = ScrollController();
-  ConversaController conversaController =
-      ConversaController(conversaRepository: ConversaRepository());
   late UsuarioAtivoProvider usuarioAtivoProvider;
   late MensagensSelecionadas mensagensSelecionadas;
   late ConversaProvider conversaProvider;
@@ -49,8 +43,6 @@ class _ConversaPageState extends State<ConversaPage> {
     usuarioAtivoProvider = Provider.of<UsuarioAtivoProvider>(context);
     mensagensSelecionadas = Provider.of<MensagensSelecionadas>(context);
     conversaProvider = Provider.of<ConversaProvider>(context);
-    ConversaController conversaController =
-        ConversaController(conversaRepository: ConversaRepository());
     return Scaffold(
       appBar: mensagensSelecionadas.mensagem.isEmpty
           ? AppBar(

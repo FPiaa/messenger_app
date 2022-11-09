@@ -1,15 +1,12 @@
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:messenger_app/constants/firebase_realtime_constant.dart';
-import 'package:messenger_app/controllers/pessoa_controller.dart';
 import 'package:messenger_app/models/pessoa.dart';
 import 'package:messenger_app/pages/cadastro_page.dart';
 import 'package:messenger_app/pages/home_page.dart';
 import 'package:messenger_app/provider/auth_provider.dart';
-import 'package:messenger_app/provider/conversas_provider.dart';
 import 'package:messenger_app/provider/conversas_selecionadas_provider.dart';
 import 'package:messenger_app/provider/usuario_ativo_provider.dart';
-import 'package:messenger_app/repository/pessoa_repository.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -234,8 +231,6 @@ class _LoginPageState extends State<LoginPage> {
         providers: [
           ChangeNotifierProvider<ConversasSelecionadasProvider>(
               create: (context) => ConversasSelecionadasProvider()),
-          ChangeNotifierProvider<ConversasProvider>(
-              create: (context) => ConversasProvider()),
           Provider<UsuarioAtivoProvider>(
               create: (context) => UsuarioAtivoProvider(pessoa))
         ],

@@ -2,12 +2,8 @@ import 'package:date_field/date_field.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:messenger_app/controllers/pessoa_controller.dart';
 import 'package:messenger_app/models/pessoa.dart';
-import 'package:messenger_app/pages/perfil_page.dart';
-import 'package:messenger_app/provider/auth_provider.dart';
 import 'package:messenger_app/provider/profile_provider.dart';
-import 'package:messenger_app/repository/pessoa_repository.dart';
 import 'package:provider/provider.dart';
 
 class CadastroPage extends StatefulWidget {
@@ -17,9 +13,9 @@ class CadastroPage extends StatefulWidget {
   State<CadastroPage> createState() => _CadastroPageState();
 }
 
+enum CadastroEstado { livre, cadastrando, falha }
+
 class _CadastroPageState extends State<CadastroPage> {
-  final PessoaController pessoaController =
-      PessoaController(pessoaRepository: PessoaRepository());
   final _formKey = GlobalKey<FormState>();
   final pwController = TextEditingController();
   final pwValidationController = TextEditingController();
@@ -28,7 +24,7 @@ class _CadastroPageState extends State<CadastroPage> {
   DateTime? selectedDate;
   bool obscureText = true;
   late ProfileProvider profileProvider;
-  late AuthProvider authProvider;
+  CadastroEstado estado = CadastroEstado.livre;
 
   onCadastrar() async {
     // Validate returns true if the form is valid, or false otherwise.
@@ -36,8 +32,8 @@ class _CadastroPageState extends State<CadastroPage> {
       final user = await profileProvider.firebaseAuth
           .fetchSignInMethodsForEmail(emailController.text);
       if (user.isNotEmpty) {
-        // TODO: mostrar mensagem de email já existe
-        print("usuario ja existe");
+        estado = CadastroEstado.falha;
+        setState(() {});
         return;
       }
       final UserCredential credential = await profileProvider.firebaseAuth
@@ -65,16 +61,16 @@ class _CadastroPageState extends State<CadastroPage> {
       emailController.clear();
       usernameController.clear();
       selectedDate = null;
+      estado = CadastroEstado.livre;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     profileProvider = Provider.of<ProfileProvider>(context);
-    authProvider = Provider.of<AuthProvider>(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Anti-Zuk"),
+        title: const Text("Meu Aplicativo"),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -96,15 +92,8 @@ class _CadastroPageState extends State<CadastroPage> {
                       prefixIcon: const Icon(Icons.person),
                     ),
                     validator: (value) {
-                      //TODO: Validar que o nome de usuário não existe no repositório
                       if (value!.length < 4) {
                         return "O nome de usuário deve conter pelo menos 4 letras.";
-                      }
-
-                      if (pessoaController
-                              .findWhere((Pessoa p) => p.username == value) !=
-                          null) {
-                        return "O nome de usuário já está em uso";
                       }
                       return null;
                     },
@@ -124,15 +113,12 @@ class _CadastroPageState extends State<CadastroPage> {
                       prefixIcon: const Icon(Icons.mail),
                     ),
                     validator: (value) {
-                      //TODO: Validar que o email não existe no repositório
                       if (!EmailValidator.validate(value!)) {
                         return "Insira um endereço de email válido.";
                       }
 
-                      if (pessoaController
-                              .findWhere((Pessoa p) => p.email == value) !=
-                          null) {
-                        return "Este email já existe";
+                      if (estado == CadastroEstado.falha) {
+                        return "Este email já está em uso";
                       }
                       return null;
                     },
@@ -225,73 +211,85 @@ class _CadastroPageState extends State<CadastroPage> {
                 Padding(
                   padding: const EdgeInsets.symmetric(
                       horizontal: 24.0, vertical: 8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Ink(
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.redAccent, width: 0),
-                          borderRadius: BorderRadius.circular(40),
-                        ),
-                        height: 50,
-                        width: 150,
-                        child: InkWell(
-                          customBorder: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(40),
-                              side: const BorderSide(
-                                  color: Colors.redAccent, width: 0)),
-                          onTap: clearState,
-                          splashColor: Colors.red[100],
-                          splashFactory: InkRipple.splashFactory,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: const [
-                              Icon(
-                                Icons.delete,
-                                color: Colors.redAccent,
+                  child: estado == CadastroEstado.cadastrando
+                      ? const CircularProgressIndicator()
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Ink(
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                    color: Colors.redAccent, width: 0),
+                                borderRadius: BorderRadius.circular(40),
                               ),
-                              Text(
-                                "Apagar",
-                                style: TextStyle(
-                                    fontSize: 16, color: Colors.redAccent),
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 40),
-                      Ink(
-                        decoration: BoxDecoration(
-                            border: Border.all(color: Colors.amber, width: 0),
-                            borderRadius: BorderRadius.circular(40)),
-                        height: 50,
-                        width: 150,
-                        child: InkWell(
-                          customBorder: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(40)),
-                          onTap: onCadastrar,
-                          splashColor: Colors.amber[100],
-                          splashFactory: InkRipple.splashFactory,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: const [
-                              Icon(
-                                Icons.check,
-                                color: Colors.amber,
+                              height: 50,
+                              width: 150,
+                              child: InkWell(
+                                customBorder: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(40),
+                                    side: const BorderSide(
+                                        color: Colors.redAccent, width: 0)),
+                                onTap: clearState,
+                                splashColor: Colors.red[100],
+                                splashFactory: InkRipple.splashFactory,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: const [
+                                    Icon(
+                                      Icons.delete,
+                                      color: Colors.redAccent,
+                                    ),
+                                    Text(
+                                      "Apagar",
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.redAccent),
+                                    )
+                                  ],
+                                ),
                               ),
-                              Text(
-                                "Cadastrar",
-                                style: TextStyle(
-                                    fontSize: 16, color: Colors.amber),
-                              )
-                            ],
-                          ),
+                            ),
+                            const SizedBox(width: 40),
+                            Ink(
+                              decoration: BoxDecoration(
+                                  border:
+                                      Border.all(color: Colors.amber, width: 0),
+                                  borderRadius: BorderRadius.circular(40)),
+                              height: 50,
+                              width: 150,
+                              child: InkWell(
+                                customBorder: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(40)),
+                                onTap: () {
+                                  setState(
+                                    () {
+                                      estado = CadastroEstado.cadastrando;
+                                    },
+                                  );
+                                  onCadastrar();
+                                },
+                                splashColor: Colors.amber[100],
+                                splashFactory: InkRipple.splashFactory,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: const [
+                                    Icon(
+                                      Icons.check,
+                                      color: Colors.amber,
+                                    ),
+                                    Text(
+                                      "Cadastrar",
+                                      style: TextStyle(
+                                          fontSize: 16, color: Colors.amber),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            )
+                          ],
                         ),
-                      )
-                    ],
-                  ),
                 ),
               ],
             )),

@@ -2,19 +2,13 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:messenger_app/constants/firebase_realtime_constant.dart';
-import 'package:messenger_app/controllers/conversa_controller.dart';
-import 'package:messenger_app/controllers/pessoa_controller.dart';
 import 'package:messenger_app/models/pessoa.dart';
 import 'package:messenger_app/pages/perfil_page.dart';
 import 'package:messenger_app/provider/conversa_provider.dart';
-import 'package:messenger_app/provider/conversas_provider.dart';
 import 'package:messenger_app/provider/mensagens_selecionadas_provider.dart';
 import 'package:messenger_app/provider/profile_provider.dart';
 import 'package:messenger_app/provider/usuario_ativo_provider.dart';
-import 'package:messenger_app/repository/conversas_repository.dart';
 import 'package:messenger_app/provider/conversas_selecionadas_provider.dart';
-import 'package:messenger_app/repository/i_repository.dart';
-import 'package:messenger_app/repository/pessoa_repository.dart';
 import 'package:provider/provider.dart';
 
 import '../models/conversa.dart';
@@ -30,8 +24,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late ConversasSelecionadasProvider selecionadas;
-  late ConversasProvider pesquisadas;
-  final IRepository<Conversa> conversaRepository = ConversaRepository();
   late UsuarioAtivoProvider usuarioAtivoProvider;
   late ProfileProvider profileProvider;
   late ConversaProvider conversaProvider;

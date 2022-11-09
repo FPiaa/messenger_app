@@ -6,9 +6,6 @@ class DatabaseConstants {
   static const String descricao = "descricao";
   static const String photo = "photo";
   static const String id = "id";
-  static const String chattingWith = "chattingWith";
-  static const String idFrom = "idFrom";
-  static const String idTo = "idTo";
   static const String dataEnvio = "dataEnvio";
   static const String lastMessageTime = "lastMessageTime";
   static const String lastMessageContent = "lastMessageContent";
