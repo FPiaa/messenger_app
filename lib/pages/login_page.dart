@@ -237,7 +237,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   navigateHomePage(Pessoa pessoa) {
-    Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) {
       return MultiProvider(
         providers: [
           ChangeNotifierProvider<ConversasSelecionadasProvider>(

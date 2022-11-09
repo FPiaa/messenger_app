@@ -34,7 +34,9 @@ class ConversaProvider {
       for (DataSnapshot data in conversasSnapshot.snapshot.children) {
         Conversa conversa =
             Conversa.fromJson(data.value as Map<dynamic, dynamic>);
-        conversas.add(conversa);
+        if (conversa.participantesIds.contains(pessoa.id)) {
+          conversas.add(conversa);
+        }
       }
     }
     return conversas;
