@@ -114,8 +114,9 @@ class _ConversaPageState extends State<ConversaPage> {
                       ? null
                       : () {
                           for (var mensagem in mensagensSelecionadas.mensagem) {
-                            conversaController.deleteMessage(
-                                widget.conversa, mensagem);
+                            conversaProvider.deleteMessage(
+                                conversaId: widget.conversa.id,
+                                mensagem: mensagem);
                           }
                           mensagensSelecionadas.clear();
                         },
@@ -168,13 +169,15 @@ class _ConversaPageState extends State<ConversaPage> {
               ),
             );
           } else {
-            return const CircularProgressIndicator();
+            return Container();
           }
         }));
   }
 
-  Widget buildMessageTile(
-      {required Mensagem mensagem, required bool selecionada}) {
+  Widget buildMessageTile({
+    required Mensagem mensagem,
+    required bool selecionada,
+  }) {
     return GestureDetector(
       onTap: mensagensSelecionadas.mensagem.isEmpty
           ? null

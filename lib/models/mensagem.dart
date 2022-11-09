@@ -21,4 +21,6 @@ class Mensagem {
   factory Mensagem.fromJson(Map<dynamic, dynamic> json) =>
       _$MensagemFromJson(json);
   Map<dynamic, dynamic> toJson() => _$MensagemToJson(this);
+
+  bool operator ==(other) => other is Mensagem && other.id == id;
 }
