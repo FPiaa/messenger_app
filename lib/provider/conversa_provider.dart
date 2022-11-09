@@ -14,7 +14,13 @@ class ConversaProvider {
     final ids = pessoas.map((e) => e.id).toList();
     Conversa conversa =
         Conversa(participantesIds: ids, mensagens: [], id: conversaId);
-
+    var data = conversa.toJson();
+    data[DatabaseConstants.lastMessageTime] =
+        DateTime.now().millisecondsSinceEpoch;
+    data[DatabaseConstants.lastMessageContent] = "";
+    await firebaseDatabase
+        .ref("${DatabaseConstants.pathConversaCollection}/$conversaId")
+        .set(data);
     return conversa;
   }
 
@@ -44,6 +50,13 @@ class ConversaProvider {
         .ref("${DatabaseConstants.pathMessageCollection}/$conversaId")
         .push()
         .set(mensagem.toJson());
+    var object = {
+      DatabaseConstants.lastMessageContent: mensagem.content,
+      DatabaseConstants.lastMessageTime: mensagem.dataEnvio
+    };
+    await firebaseDatabase
+        .ref("${DatabaseConstants.pathConversaCollection}/$conversaId")
+        .update(object);
   }
 
   Future<List<Mensagem>> getMessages({required conversaId, int? limit}) async {

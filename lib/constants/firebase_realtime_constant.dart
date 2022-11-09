@@ -10,6 +10,8 @@ class DatabaseConstants {
   static const String idFrom = "idFrom";
   static const String idTo = "idTo";
   static const String dataEnvio = "dataEnvio";
+  static const String lastMessageTime = "lastMessageTime";
+  static const String lastMessageContent = "lastMessageContent";
   static const String dataNascimento = "dataNascimento";
   static const String content = "content";
   static const String type = "type";
