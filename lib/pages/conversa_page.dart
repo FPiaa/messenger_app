@@ -1,5 +1,10 @@
+import 'dart:math';
+
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:messenger_app/constants/firebase_realtime_constant.dart';
 import 'package:messenger_app/controllers/conversa_controller.dart';
 import 'package:messenger_app/models/mensagem.dart';
 import 'package:messenger_app/models/pessoa.dart';
@@ -127,28 +132,45 @@ class _ConversaPageState extends State<ConversaPage> {
   }
 
   Widget buildMessageList() {
-    return Flexible(
-      fit: FlexFit.tight,
-      child: widget.conversa.mensagens == null
-          ? Container()
-          : ListView.builder(
-              controller: scrollController,
-              reverse: true,
-              itemBuilder: (context, index) {
-                // TODO: Fazer a mensagem mostrar a hora de envio em formato XX:XX
-                // e mostrar o nome de quem enviou em caso de grupo
-                return buildMessageTile(
-                  mensagem: widget.conversa.mensagens![index],
-                  selecionada: mensagensSelecionadas.mensagem
-                      .contains(widget.conversa.mensagens![index]),
-                );
-              },
-              itemCount: widget.conversa.mensagens!.length,
-              padding: const EdgeInsets.symmetric(vertical: 12.0),
-              shrinkWrap: true,
-              // reverse: true,
-            ),
-    );
+    return StreamBuilder(
+        stream: FirebaseDatabase.instance
+            .ref(
+                "${DatabaseConstants.pathMessageCollection}/${widget.conversa.id}")
+            .onValue,
+        builder: ((context, event) {
+          if (event.hasData) {
+            var data =
+                event.data!.snapshot.children.map((e) => e.value).toList();
+            var mensagens = data
+                .map((e) => Mensagem.fromJson((e as Map<dynamic, dynamic>)))
+                .skip(max(0, data.length - 50))
+                .toList()
+                .reversed
+                .toList();
+            return Flexible(
+              fit: FlexFit.tight,
+              child: ListView.builder(
+                controller: scrollController,
+                reverse: true,
+                itemBuilder: (context, index) {
+                  // TODO: Fazer a mensagem mostrar a hora de envio em formato XX:XX
+                  // e mostrar o nome de quem enviou em caso de grupo
+                  return buildMessageTile(
+                    mensagem: mensagens[index],
+                    selecionada: mensagensSelecionadas.mensagem
+                        .contains(mensagens[index]),
+                  );
+                },
+                itemCount: mensagens.length,
+                padding: const EdgeInsets.symmetric(vertical: 12.0),
+                shrinkWrap: true,
+                // reverse: true,
+              ),
+            );
+          } else {
+            return const CircularProgressIndicator();
+          }
+        }));
   }
 
   Widget buildMessageTile(
