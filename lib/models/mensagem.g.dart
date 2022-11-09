@@ -11,6 +11,7 @@ Mensagem _$MensagemFromJson(Map<dynamic, dynamic> json) => Mensagem(
       content: json['content'] as String,
       imageUrl: json['imageUrl'] as String?,
       dataEnvio: json['dataEnvio'] as int,
+      id: json['id'] as String?,
     );
 
 Map<String, dynamic> _$MensagemToJson(Mensagem instance) => <String, dynamic>{
@@ -18,4 +19,5 @@ Map<String, dynamic> _$MensagemToJson(Mensagem instance) => <String, dynamic>{
       'remetente': instance.remetente,
       'imageUrl': instance.imageUrl,
       'dataEnvio': instance.dataEnvio,
+      'id': instance.id,
     };

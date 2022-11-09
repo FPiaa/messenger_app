@@ -9,12 +9,14 @@ class Mensagem {
   final String remetente;
   final String? imageUrl;
   final int dataEnvio;
+  String? id;
 
   Mensagem(
       {required this.remetente,
       required this.content,
       this.imageUrl,
-      required this.dataEnvio});
+      required this.dataEnvio,
+      this.id});
 
   factory Mensagem.fromJson(Map<dynamic, dynamic> json) =>
       _$MensagemFromJson(json);

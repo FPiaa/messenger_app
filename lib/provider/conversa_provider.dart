@@ -42,10 +42,11 @@ class ConversaProvider {
 
   Future<void> sendMessage(
       {required String conversaId, required Mensagem mensagem}) async {
-    var data = await firebaseDatabase
+    var ref = firebaseDatabase
         .ref("${DatabaseConstants.pathMessageCollection}/$conversaId")
-        .push()
-        .set(mensagem.toJson());
+        .push();
+    mensagem.id = ref.key;
+    await ref.set(mensagem.toJson());
     var object = {
       DatabaseConstants.lastMessageContent: mensagem.content,
       DatabaseConstants.lastMessageTime: mensagem.dataEnvio
