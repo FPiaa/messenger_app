@@ -32,10 +32,21 @@ class _ConversaPageState extends State<ConversaPage> {
   late UsuarioAtivoProvider usuarioAtivoProvider;
   late MensagensSelecionadas mensagensSelecionadas;
   late ConversaProvider conversaProvider;
+  List<Mensagem> mensagens = [];
   @override
   void initState() {
     super.initState();
     scrollController.addListener(_scrollListener);
+    conversaProvider = context.read<ConversaProvider>();
+    usuarioAtivoProvider = context.read<UsuarioAtivoProvider>();
+    conversaProvider.firebaseDatabase
+        .ref("${DatabaseConstants.pathMessageCollection}/${widget.conversa.id}")
+        .onValue
+        .listen((event) async {
+      mensagens = await conversaProvider.getMessages(
+          conversaId: widget.conversa.id, limit: 50);
+      setState(() {});
+    });
   }
 
   @override
@@ -126,7 +137,7 @@ class _ConversaPageState extends State<ConversaPage> {
 
   Widget buildMessageList() {
     return StreamBuilder(
-        stream: FirebaseDatabase.instance
+        stream: conversaProvider.firebaseDatabase
             .ref(
                 "${DatabaseConstants.pathMessageCollection}/${widget.conversa.id}")
             .onValue,

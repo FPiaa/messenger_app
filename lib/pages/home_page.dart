@@ -36,7 +36,7 @@ class _HomePageState extends State<HomePage> {
     profileProvider = context.read<ProfileProvider>();
     conversaProvider = context.read<ConversaProvider>();
     usuarioAtivoProvider = context.read<UsuarioAtivoProvider>();
-    FirebaseDatabase.instance
+    conversaProvider.firebaseDatabase
         .ref(DatabaseConstants.pathConversaCollection)
         .onValue
         .listen((event) async {
