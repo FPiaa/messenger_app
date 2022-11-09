@@ -33,7 +33,6 @@ class AuthProvider extends ChangeNotifier {
 
   void unitialize() {
     _status = Status.uninitialized;
-    notifyListeners();
   }
 
   bool isLogged() {

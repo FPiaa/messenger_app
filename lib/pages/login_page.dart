@@ -22,10 +22,9 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-  // final PessoaController pessoaController =
-  //     PessoaController(pessoaRepository: PessoaRepository());
   late UsuarioAtivoProvider user;
   bool obscureText = true;
+  bool ignoreValidation = true;
   late AuthProvider authProvider;
 
   onLogin({required String email, required String password}) async {
@@ -89,12 +88,17 @@ class _LoginPageState extends State<LoginPage> {
                           controller: emailController,
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           validator: (value) {
+                            if (ignoreValidation) {
+                              return null;
+                            }
                             if (authProvider.status ==
                                 Status.authenticateError) {
-                              authProvider.unitialize();
                               return _loginErrorMessage;
                             }
                             if (value == null) {
+                              return null;
+                            }
+                            if (value.isEmpty) {
                               return "Por favor insira o email";
                             }
                             if (!EmailValidator.validate(value)) {
@@ -122,13 +126,20 @@ class _LoginPageState extends State<LoginPage> {
                                   AutovalidateMode.onUserInteraction,
                               obscureText: obscureText,
                               validator: (value) {
+                                if (ignoreValidation) {
+                                  ignoreValidation = false;
+                                  return null;
+                                }
                                 if (authProvider.status ==
                                     Status.authenticateError) {
                                   authProvider.unitialize();
                                   return _loginErrorMessage;
                                 }
                                 if (value == null) {
-                                  return "Por favor insira a senha";
+                                  return null;
+                                }
+                                if (value.isEmpty) {
+                                  return "Por Favor, insira a senha";
                                 }
                                 return null;
                               },
@@ -244,6 +255,7 @@ class _LoginPageState extends State<LoginPage> {
       emailController.clear();
       passwordController.clear();
       obscureText = true;
+      ignoreValidation = true;
       authProvider.unitialize();
     });
   }
