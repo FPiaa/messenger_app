@@ -1,6 +1,7 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:messenger_app/constants/firebase_realtime_constant.dart';
 import 'package:messenger_app/controllers/conversa_controller.dart';
 import 'package:messenger_app/controllers/pessoa_controller.dart';
 import 'package:messenger_app/models/pessoa.dart';
@@ -37,21 +38,21 @@ class _HomePageState extends State<HomePage> {
 
   final textField = TextEditingController();
 
-  PessoaController pessoaController =
-      PessoaController(pessoaRepository: PessoaRepository());
-  ConversaController conversaController =
-      ConversaController(conversaRepository: ConversaRepository());
-
-  List<Conversa> query(Pessoa pessoa) {
-    if (contatos) {
-      return conversas;
-    } else {
-      List<Conversa> a = conversaController
-          .findAll((Conversa c) => c.participantesIds.contains(pessoa.id))
-          .toList();
-
-      return a;
-    }
+  @override
+  void initState() {
+    super.initState();
+    profileProvider = context.read<ProfileProvider>();
+    conversaProvider = context.read<ConversaProvider>();
+    FirebaseDatabase.instance
+        .ref(DatabaseConstants.pathConversaCollection)
+        .onValue
+        .listen((event) async {
+      conversas = await conversaProvider.getConversasWith(
+          pessoa: usuarioAtivoProvider.pessoa);
+      if (!contatos) {
+        setState(() {});
+      }
+    });
   }
 
   onFloatingButtonPressed() {
@@ -59,28 +60,20 @@ class _HomePageState extends State<HomePage> {
       if (!contatos) {
         clearState();
         contatos = true;
-        conversas = conversaController
-            .getContacts(usuarioAtivoProvider.pessoa)
-            .toList();
       } else {
         contatos = false;
-        conversas = query(usuarioAtivoProvider.pessoa);
       }
     });
   }
 
-  late List<Conversa> conversas;
+  List<Conversa> conversas = [];
   List<Conversa> filtradas = [];
   bool filtrar = false;
   bool contatos = false;
   @override
   Widget build(BuildContext context) {
-    profileProvider = Provider.of<ProfileProvider>(context);
     selecionadas = Provider.of<ConversasSelecionadasProvider>(context);
     usuarioAtivoProvider = Provider.of<UsuarioAtivoProvider>(context);
-    conversaProvider = Provider.of<ConversaProvider>(context);
-    //TODO: remover essa conversa do build
-    conversas = query(usuarioAtivoProvider.pessoa);
 
     return Scaffold(
       appBar: buildAppBar(conversas),
@@ -146,7 +139,7 @@ class _HomePageState extends State<HomePage> {
           IconButton(
             onPressed: () {
               for (Conversa conversa in selecionadas.conversas) {
-                conversaController.delete(conversa);
+                //TODO : deletar conversa
               }
               selecionadas.clear();
               setState(() {});
@@ -210,25 +203,14 @@ class _HomePageState extends State<HomePage> {
             }
           }));
     } else {
-      return FutureBuilder<List<Conversa>>(
-          future: conversaProvider.getConversasWith(
-              pessoa: usuarioAtivoProvider.pessoa),
-          builder: ((context, AsyncSnapshot<List<Conversa>> snapshot) {
-            if (snapshot.hasData && snapshot.data != null) {
-              final List<Conversa> conversas = snapshot.data!;
-              return ListView.separated(
-                  itemBuilder: (context, data) =>
-                      buildConversaItem(context, conversas[data]),
-                  separatorBuilder: (_, __) => const Divider(),
-                  itemCount: conversas.length);
-            } else {
-              print("O snapshot está vazio");
-              print(snapshot.data);
-              return const Center(
-                child: Text("No user found"),
-              );
-            }
-          }));
+      if (conversas.isEmpty) {
+        return Container();
+      }
+      return ListView.separated(
+          itemBuilder: (context, data) =>
+              buildConversaItem(context, conversas[data]),
+          separatorBuilder: (_, __) => const Divider(),
+          itemCount: conversas.length);
     }
   }
 
