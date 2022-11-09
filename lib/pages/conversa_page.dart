@@ -161,7 +161,7 @@ class _ConversaPageState extends State<ConversaPage> {
               ),
             );
           } else {
-            return Container();
+            return Flexible(fit: FlexFit.tight, child: Container());
           }
         }));
   }
@@ -220,7 +220,6 @@ class _ConversaPageState extends State<ConversaPage> {
   }
 
   onSendMessage() async {
-    print(conteudo.text);
     conversaProvider.sendMessage(
       conversaId: widget.conversa.id,
       mensagem: Mensagem(
