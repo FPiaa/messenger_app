@@ -261,7 +261,7 @@ class _HomePageState extends State<HomePage> {
           tileColor: Colors.grey[100],
           selectedTileColor: Colors.blue[50],
           onTap: () {
-            createConversa(destinatario).then((conversa) {
+            getOrCreateConversa(destinatario).then((conversa) {
               clearState();
               Navigator.push(context, MaterialPageRoute(
                 builder: (BuildContext context) {
@@ -379,9 +379,14 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<Conversa> createConversa(Pessoa p) {
-    return conversaProvider.createConversa(
-        [usuarioAtivoProvider.pessoa, p]).then((value) => value);
+  Future<Conversa> getOrCreateConversa(Pessoa p) {
+    if (pessoas[p.id] != null) {
+      return Future(() => conversas
+          .firstWhere((element) => element.participantesIds.contains(p.id)));
+    } else {
+      return conversaProvider.createConversa(
+          [usuarioAtivoProvider.pessoa, p]).then((value) => value);
+    }
   }
 
   clearState() {
@@ -389,6 +394,7 @@ class _HomePageState extends State<HomePage> {
       selecionadas.empty();
       filtradas.clear();
       filtrar = false;
+      contatos = false;
     });
   }
 }
