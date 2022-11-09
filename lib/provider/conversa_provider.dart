@@ -100,4 +100,13 @@ class ConversaProvider {
 
     return mensagens;
   }
+
+  void deleteConversa({required Conversa conversa}) {
+    firebaseDatabase
+        .ref("${DatabaseConstants.pathConversaCollection}/${conversa.id}")
+        .set(null);
+    firebaseDatabase
+        .ref("${DatabaseConstants.pathMessageCollection}/${conversa.id}")
+        .set(null);
+  }
 }

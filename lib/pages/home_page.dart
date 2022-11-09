@@ -41,6 +41,10 @@ class _HomePageState extends State<HomePage> {
         .listen((event) async {
       conversas = await conversaProvider.getConversasWith(
           pessoa: usuarioAtivoProvider.pessoa);
+      conversas.sort((Conversa m1, Conversa m2) =>
+          //totalmente ok fazer a checagem incondicional, quando a conversa é criada no BD,
+          // ela vai possuir a data de horario como sendo a data de criação da conversa
+          m2.horarioUltimaMensagem!.compareTo(m1.horarioUltimaMensagem!));
       if (!contatos) {
         setState(() {});
       }
@@ -131,10 +135,9 @@ class _HomePageState extends State<HomePage> {
           IconButton(
             onPressed: () {
               for (Conversa conversa in selecionadas.conversas) {
-                //TODO : deletar conversa
+                conversaProvider.deleteConversa(conversa: conversa);
               }
               selecionadas.clear();
-              setState(() {});
             },
             icon: const Icon(Icons.delete),
           ),
@@ -273,27 +276,30 @@ class _HomePageState extends State<HomePage> {
               final destinatario = Pessoa.fromJson(
                   snapshot.data!.value as Map<dynamic, dynamic>);
               return ListTile(
-                  leading: IconLeading(
-                      pessoa: destinatario,
-                      radius: 30,
-                      onTap: () {
-                        clearState();
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) {
-                          return Provider(
-                              create: (context) => UsuarioAtivoProvider(
-                                  usuarioAtivoProvider.pessoa),
-                              child: Profile(pessoa: destinatario));
-                        }));
-                      }),
-                  title: _buildTitle(destinatario),
-                  trailing: _buildTrailing(conversa),
-                  subtitle: _buildSubTitle(conversa),
-                  tileColor: Colors.grey[100],
-                  selectedTileColor: Colors.blue[50],
-                  onTap: () {
-                    clearState();
-                    Navigator.push(context, MaterialPageRoute(
+                leading: IconLeading(
+                    pessoa: destinatario,
+                    radius: 30,
+                    onTap: () {
+                      clearState();
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                        return Provider(
+                            create: (context) => UsuarioAtivoProvider(
+                                usuarioAtivoProvider.pessoa),
+                            child: Profile(pessoa: destinatario));
+                      }));
+                    }),
+                title: _buildTitle(destinatario),
+                trailing: _buildTrailing(conversa),
+                subtitle: _buildSubTitle(conversa),
+                tileColor: Colors.grey[100],
+                selectedTileColor: Colors.blue[50],
+                selected: selecionadas.conversas.contains(conversa),
+                onTap: () {
+                  clearState();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
                       builder: (BuildContext context) {
                         return MultiProvider(
                             providers: [
@@ -309,8 +315,13 @@ class _HomePageState extends State<HomePage> {
                               destinatario: destinatario,
                             ));
                       },
-                    ));
-                  });
+                    ),
+                  );
+                },
+                onLongPress: () => selecionadas.conversas.contains(conversa)
+                    ? selecionadas.remove(conversa)
+                    : selecionadas.save(conversa),
+              );
             } else {
               return const CircularProgressIndicator();
             }
