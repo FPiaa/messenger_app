@@ -35,6 +35,7 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     profileProvider = context.read<ProfileProvider>();
     conversaProvider = context.read<ConversaProvider>();
+    usuarioAtivoProvider = context.read<UsuarioAtivoProvider>();
     FirebaseDatabase.instance
         .ref(DatabaseConstants.pathConversaCollection)
         .onValue
@@ -45,6 +46,14 @@ class _HomePageState extends State<HomePage> {
           //totalmente ok fazer a checagem incondicional, quando a conversa é criada no BD,
           // ela vai possuir a data de horario como sendo a data de criação da conversa
           m2.horarioUltimaMensagem!.compareTo(m1.horarioUltimaMensagem!));
+      for (Conversa c in conversas) {
+        final id = c.participantesIds
+            .firstWhere((element) => element != usuarioAtivoProvider.pessoa.id);
+        final data = await profileProvider.getProfile(id: id);
+        if (data.value != null) {
+          pessoas[id] = Pessoa.fromJson(data.value as Map<dynamic, dynamic>);
+        }
+      }
       if (!contatos) {
         setState(() {});
       }
@@ -64,12 +73,12 @@ class _HomePageState extends State<HomePage> {
 
   List<Conversa> conversas = [];
   List<Conversa> filtradas = [];
+  Map<String, Pessoa> pessoas = {};
   bool filtrar = false;
   bool contatos = false;
   @override
   Widget build(BuildContext context) {
     selecionadas = Provider.of<ConversasSelecionadasProvider>(context);
-    usuarioAtivoProvider = Provider.of<UsuarioAtivoProvider>(context);
 
     return Scaffold(
       appBar: buildAppBar(conversas),
@@ -101,7 +110,15 @@ class _HomePageState extends State<HomePage> {
                 if (value.isEmpty) {
                   filtradas = [];
                 } else {
-                  filtradas = [];
+                  filtradas = conversas.where((element) {
+                    final destinatarioId = element.participantesIds.firstWhere(
+                        (element) => element != usuarioAtivoProvider.pessoa.id);
+                    final pessoa = pessoas[destinatarioId];
+                    if (pessoa == null) {
+                      return false;
+                    }
+                    return pessoa.username.contains(value);
+                  }).toList();
                 }
               });
             }),
@@ -201,11 +218,19 @@ class _HomePageState extends State<HomePage> {
       if (conversas.isEmpty) {
         return Container();
       }
-      return ListView.separated(
-          itemBuilder: (context, data) =>
-              buildConversaItem(context, conversas[data]),
-          separatorBuilder: (_, __) => const Divider(),
-          itemCount: conversas.length);
+      if (filtrar) {
+        return ListView.separated(
+            itemBuilder: (context, data) =>
+                buildConversaItem(context, filtradas[data]),
+            separatorBuilder: (_, __) => const Divider(),
+            itemCount: filtradas.length);
+      } else {
+        return ListView.separated(
+            itemBuilder: (context, data) =>
+                buildConversaItem(context, conversas[data]),
+            separatorBuilder: (_, __) => const Divider(),
+            itemCount: conversas.length);
+      }
     }
   }
 
@@ -268,67 +293,59 @@ class _HomePageState extends State<HomePage> {
       if (destinatarioId == usuarioAtivoProvider.pessoa.id) {
         return const SizedBox.shrink();
       }
+      final destinatario = pessoas[destinatarioId];
+      if (destinatario == null) {
+        return const CircularProgressIndicator();
+      }
 
-      return FutureBuilder(
-          future: profileProvider.getProfile(id: destinatarioId),
-          builder: ((context, snapshot) {
-            if (snapshot.hasData) {
-              final destinatario = Pessoa.fromJson(
-                  snapshot.data!.value as Map<dynamic, dynamic>);
-              return ListTile(
-                leading: IconLeading(
-                    pessoa: destinatario,
-                    radius: 30,
-                    onTap: () {
-                      clearState();
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) {
-                        return Provider(
-                            create: (context) => UsuarioAtivoProvider(
-                                usuarioAtivoProvider.pessoa),
-                            child: Profile(pessoa: destinatario));
-                      }));
-                    }),
-                title: _buildTitle(destinatario),
-                trailing: _buildTrailing(conversa),
-                subtitle: _buildSubTitle(conversa),
-                tileColor: Colors.grey[100],
-                selectedTileColor: Colors.blue[50],
-                selected: selecionadas.conversas.contains(conversa),
-                onTap: () {
-                  clearState();
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (BuildContext context) {
-                        return MultiProvider(
-                            providers: [
-                              Provider<UsuarioAtivoProvider>(
-                                create: (context) => UsuarioAtivoProvider(
-                                    usuarioAtivoProvider.pessoa),
-                              ),
-                              ChangeNotifierProvider<MensagensSelecionadas>(
-                                  create: (context) => MensagensSelecionadas())
-                            ],
-                            child: ConversaPage(
-                              conversa: conversa,
-                              destinatario: destinatario,
-                            ));
-                      },
-                    ),
-                  );
-                },
-                onLongPress: () => selecionadas.conversas.contains(conversa)
-                    ? selecionadas.remove(conversa)
-                    : selecionadas.save(conversa),
-              );
-            } else {
-              return const CircularProgressIndicator();
-            }
-          }));
+      return ListTile(
+        leading: IconLeading(
+            pessoa: destinatario,
+            radius: 30,
+            onTap: () {
+              clearState();
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return Provider(
+                    create: (context) =>
+                        UsuarioAtivoProvider(usuarioAtivoProvider.pessoa),
+                    child: Profile(pessoa: destinatario));
+              }));
+            }),
+        title: _buildTitle(destinatario),
+        trailing: _buildTrailing(conversa),
+        subtitle: _buildSubTitle(conversa),
+        tileColor: Colors.grey[100],
+        selectedTileColor: Colors.blue[50],
+        selected: selecionadas.conversas.contains(conversa),
+        onTap: () {
+          clearState();
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (BuildContext context) {
+                return MultiProvider(
+                    providers: [
+                      Provider<UsuarioAtivoProvider>(
+                        create: (context) =>
+                            UsuarioAtivoProvider(usuarioAtivoProvider.pessoa),
+                      ),
+                      ChangeNotifierProvider<MensagensSelecionadas>(
+                          create: (context) => MensagensSelecionadas())
+                    ],
+                    child: ConversaPage(
+                      conversa: conversa,
+                      destinatario: destinatario,
+                    ));
+              },
+            ),
+          );
+        },
+        onLongPress: () => selecionadas.conversas.contains(conversa)
+            ? selecionadas.remove(conversa)
+            : selecionadas.save(conversa),
+      );
     }
-    print("a");
-    return CircularProgressIndicator();
+    return const CircularProgressIndicator();
   }
 
   Widget _buildTitle(Pessoa destinatario) {

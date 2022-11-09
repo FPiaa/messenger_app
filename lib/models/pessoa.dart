@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:crypto/crypto.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:uuid/uuid.dart';
 
@@ -31,4 +34,11 @@ class Pessoa {
   set setPhoto(String photo) {
     this.photo = photo;
   }
+
+  @override
+  bool operator ==(other) => other is Pessoa && other.id == id;
+
+  @override
+  // TODO: implement hashCode
+  int get hashCode => sha1.convert(const Utf8Codec().encode(id)).hashCode;
 }
