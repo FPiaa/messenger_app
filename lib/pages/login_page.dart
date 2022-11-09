@@ -49,6 +49,8 @@ class _LoginPageState extends State<LoginPage> {
             descricao: preferences.get(DatabaseConstants.descricao) as String,
             photo: preferences.get(DatabaseConstants.photo) as String);
         navigateHomePage(p);
+      } else {
+        setState(() {});
       }
     }
   }
@@ -88,6 +90,7 @@ class _LoginPageState extends State<LoginPage> {
                         widthFactor: 0.9,
                         child: TextFormField(
                           controller: emailController,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
                           validator: (value) {
                             if (authProvider.status ==
                                 Status.authenticateError) {
@@ -118,6 +121,8 @@ class _LoginPageState extends State<LoginPage> {
                           child: TextFormField(
                               keyboardType: TextInputType.visiblePassword,
                               controller: passwordController,
+                              autovalidateMode:
+                                  AutovalidateMode.onUserInteraction,
                               obscureText: obscureText,
                               validator: (value) {
                                 if (authProvider.status ==
@@ -151,38 +156,40 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       Padding(
                         padding: const EdgeInsets.only(top: 36.0),
-                        child: Ink(
-                          height: 50,
-                          width: 200,
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(40),
-                              border:
-                                  Border.all(color: Colors.amber, width: 1)),
-                          child: InkWell(
-                            splashColor: Colors.amber[100],
-                            splashFactory: InkRipple.splashFactory,
-                            customBorder: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(40)),
-                            onTap: () => onLogin(
-                                email: emailController.text,
-                                password: passwordController.text),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
-                                Icon(
-                                  Icons.check,
-                                  color: Colors.amber,
+                        child: authProvider.status == Status.authenticating
+                            ? const CircularProgressIndicator()
+                            : Ink(
+                                height: 50,
+                                width: 200,
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(40),
+                                    border: Border.all(
+                                        color: Colors.amber, width: 1)),
+                                child: InkWell(
+                                  splashColor: Colors.amber[100],
+                                  splashFactory: InkRipple.splashFactory,
+                                  customBorder: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(40)),
+                                  onTap: () => onLogin(
+                                      email: emailController.text,
+                                      password: passwordController.text),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: const [
+                                      Icon(
+                                        Icons.check,
+                                        color: Colors.amber,
+                                      ),
+                                      SizedBox(width: 8),
+                                      Text(
+                                        "Login",
+                                        style: TextStyle(
+                                            fontSize: 18, color: Colors.amber),
+                                      )
+                                    ],
+                                  ),
                                 ),
-                                SizedBox(width: 8),
-                                Text(
-                                  "Login",
-                                  style: TextStyle(
-                                      fontSize: 18, color: Colors.amber),
-                                )
-                              ],
-                            ),
-                          ),
-                        ),
+                              ),
                       ),
                     ],
                   ),
