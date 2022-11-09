@@ -190,6 +190,7 @@ class _ConversaPageState extends State<ConversaPage> {
     required Mensagem mensagem,
     required bool selecionada,
   }) {
+    double width = MediaQuery.of(context).size.width;
     return GestureDetector(
       onTap: mensagensSelecionadas.mensagem.isEmpty
           ? null
@@ -216,22 +217,26 @@ class _ConversaPageState extends State<ConversaPage> {
                   : (selecionada ? Colors.blue[50] : Colors.grey[100])),
             ),
             padding: const EdgeInsets.all(12.0),
-            child: Column(
-              children: [
-                SelectableText(
-                  mensagem.content,
-                ),
-                // TODO: alinahr o horário a direita sem mudar o tamanho da widget
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0, bottom: 4.0),
-                  child: Text(
-                    DateFormat.jm().format(DateTime.fromMillisecondsSinceEpoch(
-                        mensagem.dataEnvio)),
-                    style: const TextStyle(fontSize: 10),
-                    textAlign: TextAlign.end,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minWidth: 50, maxWidth: width * 0.7),
+              child: Column(
+                children: [
+                  SelectableText(
+                    mensagem.content,
                   ),
-                ),
-              ],
+                  // TODO: alinahr o horário a direita sem mudar o tamanho da widget
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0, bottom: 4.0),
+                    child: Text(
+                      DateFormat.jm().format(
+                          DateTime.fromMillisecondsSinceEpoch(
+                              mensagem.dataEnvio)),
+                      style: const TextStyle(fontSize: 10),
+                      textAlign: TextAlign.end,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -253,7 +258,7 @@ class _ConversaPageState extends State<ConversaPage> {
       padding: const EdgeInsets.all(8.0),
       child: SizedBox(
         width: double.infinity,
-        height: 50,
+        height: 64,
         child: Row(
           children: [
             Container(
@@ -269,22 +274,28 @@ class _ConversaPageState extends State<ConversaPage> {
             ),
             Form(
               child: Flexible(
-                child: TextFormField(
-                  controller: conteudo,
-                  textInputAction: TextInputAction.send,
-                  textCapitalization: TextCapitalization.sentences,
-                  keyboardType: TextInputType.text,
-                  onChanged: (_) {
-                    var text = conteudo.text.trim();
-                    if (text.length == 1 || text.isEmpty) setState(() {});
-                  },
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(40),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxHeight: 200),
+                  child: SingleChildScrollView(
+                    child: TextField(
+                      maxLines: null,
+                      controller: conteudo,
+                      textInputAction: TextInputAction.send,
+                      textCapitalization: TextCapitalization.sentences,
+                      keyboardType: TextInputType.text,
+                      onChanged: (_) {
+                        var text = conteudo.text.trim();
+                        if (text.length == 1 || text.isEmpty) setState(() {});
+                      },
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(40),
+                          ),
+                        ),
+                        hintText: "Mensagem",
                       ),
                     ),
-                    hintText: "Mensagem",
                   ),
                 ),
               ),
