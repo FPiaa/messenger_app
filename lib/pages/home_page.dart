@@ -210,22 +210,15 @@ class _HomePageState extends State<HomePage> {
             }
           }));
     } else {
-      return StreamBuilder<DataSnapshot>(
-          stream: conversaProvider.getConversasWith(
+      return FutureBuilder<List<Conversa>>(
+          future: conversaProvider.getConversasWith(
               pessoa: usuarioAtivoProvider.pessoa),
-          builder: ((context, AsyncSnapshot<DataSnapshot> snapshot) {
+          builder: ((context, AsyncSnapshot<List<Conversa>> snapshot) {
             if (snapshot.hasData && snapshot.data != null) {
-              final conversas = snapshot.data!.children.toList();
+              final List<Conversa> conversas = snapshot.data!;
               return ListView.separated(
-                  itemBuilder: (context, data) {
-                    if (conversas[data].value != null &&
-                        conversas[data].children.length <= 3) {
-                      final conversa = Conversa.fromJson(
-                          conversas[data].value as Map<dynamic, dynamic>);
-                      return buildConversaItem(context, conversa);
-                    }
-                    return const SizedBox.shrink();
-                  },
+                  itemBuilder: (context, data) =>
+                      buildConversaItem(context, conversas[data]),
                   separatorBuilder: (_, __) => const Divider(),
                   itemCount: conversas.length);
             } else {
@@ -317,8 +310,8 @@ class _HomePageState extends State<HomePage> {
                         }));
                       }),
                   title: _buildTitle(destinatario),
-                  trailing: _buildTrailing(null),
-                  subtitle: _buildSubTitle(null),
+                  trailing: _buildTrailing(conversa),
+                  subtitle: _buildSubTitle(conversa),
                   tileColor: Colors.grey[100],
                   selectedTileColor: Colors.blue[50],
                   onTap: () {

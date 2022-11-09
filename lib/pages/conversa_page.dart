@@ -206,8 +206,9 @@ class _ConversaPageState extends State<ConversaPage> {
     conversaController.sendMessage(
       widget.conversa,
       Mensagem(
-          remetente: usuarioAtivoProvider.pessoa,
-          content: conteudo.text.trim()),
+          remetente: usuarioAtivoProvider.pessoa.id,
+          content: conteudo.text.trim(),
+          dataEnvio: DateTime.now().millisecondsSinceEpoch),
     );
     scrollController.animateTo(0,
         duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);

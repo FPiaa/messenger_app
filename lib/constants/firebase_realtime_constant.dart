@@ -1,6 +1,7 @@
 class DatabaseConstants {
   static const String pathUserCollection = "users";
   static const String pathConversaCollection = "chats";
+  static const String pathMessageCollection = "messages";
   static const String username = "username";
   static const String descricao = "descricao";
   static const String photo = "photo";

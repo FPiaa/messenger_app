@@ -6,17 +6,15 @@ part "mensagem.g.dart";
 @JsonSerializable()
 class Mensagem {
   final String content;
-  final Pessoa remetente;
+  final String remetente;
   final String? imageUrl;
-  late final int dataEnvio;
+  final int dataEnvio;
 
-  Mensagem({
-    required this.remetente,
-    required this.content,
-    this.imageUrl,
-  }) {
-    dataEnvio = DateTime.now().millisecondsSinceEpoch;
-  }
+  Mensagem(
+      {required this.remetente,
+      required this.content,
+      this.imageUrl,
+      required this.dataEnvio});
 
   factory Mensagem.fromJson(Map<dynamic, dynamic> json) =>
       _$MensagemFromJson(json);
