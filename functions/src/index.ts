@@ -48,6 +48,17 @@ export const sanitizeMessages = functions.database.ref("messages/{conversaId}/{m
         });
     }
     return null;
+});
+
+export const sanitizeLastMessage = functions.database.ref("chats/{conversaId}").onWrite(async conversa => {
+    const conv = conversa.after.val();
+    if (conv) {
+        functions.logger.log(conv.lastMessageContent);
+        const lastMessage = moderateMessage(conv.lastMessageContent);
+        return conversa.after.ref.update({ lastMessageContent: lastMessage });
+    }
+
+    return null;
 })
 
 

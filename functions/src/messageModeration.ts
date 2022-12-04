@@ -19,14 +19,19 @@ function removeBadWords(message: String): String {
     return badWordsFilter.clean(message);
 }
 type fn = (data: String) => void;
-export function moderateMessage(message: String, logger: fn): String {
+export function moderateMessage(message: String, logger?: fn): String {
     let moderated: String = message;
+
     if (isShouting(message)) {
-        logger("O usuário está gritando...");
+        if (logger) {
+            logger("O usuário está gritando...");
+        }
         moderated = stopShouting(message);
     }
     if (containBadWords(message)) {
-        logger("O usuário tem boca suja...");
+        if (logger) {
+            logger("O usuário tem boca suja...");
+        }
         moderated = removeBadWords(moderated);
     }
 
