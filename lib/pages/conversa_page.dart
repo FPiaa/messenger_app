@@ -8,6 +8,7 @@ import 'package:messenger_app/models/pessoa.dart';
 import 'package:messenger_app/pages/perfil_page.dart';
 import 'package:messenger_app/provider/conversa_provider.dart';
 import 'package:messenger_app/provider/mensagens_selecionadas_provider.dart';
+import 'package:messenger_app/provider/profile_provider.dart';
 import 'package:messenger_app/provider/usuario_ativo_provider.dart';
 import 'package:messenger_app/widget/mensagems/image_message.dart';
 import 'package:messenger_app/widget/mensagems/input.dart';
@@ -35,9 +36,12 @@ class _ConversaPageState extends State<ConversaPage> {
   late UsuarioAtivoProvider usuarioAtivoProvider;
   late MensagensSelecionadas mensagensSelecionadas;
   late ConversaProvider conversaProvider;
-  late StreamSubscription<DatabaseEvent> listener;
+  late ProfileProvider profileProvider;
+  late StreamSubscription<DatabaseEvent> listenForMessages;
+  late StreamSubscription<DatabaseEvent> listenForUserChange;
   List<Mensagem> mensagens = [];
   bool sendingImage = false;
+  late Pessoa destinatario;
 
   @override
   void initState() {
@@ -45,7 +49,10 @@ class _ConversaPageState extends State<ConversaPage> {
     scrollController.addListener(_scrollListener);
     conversaProvider = context.read<ConversaProvider>();
     usuarioAtivoProvider = context.read<UsuarioAtivoProvider>();
-    listener = conversaProvider.firebaseDatabase
+    profileProvider = context.read<ProfileProvider>();
+    destinatario = widget.destinatario;
+
+    listenForMessages = conversaProvider.firebaseDatabase
         .ref("${DatabaseConstants.pathMessageCollection}/${widget.conversa.id}")
         .onValue
         .listen((event) async {
@@ -53,12 +60,22 @@ class _ConversaPageState extends State<ConversaPage> {
           conversaId: widget.conversa.id, limit: 50);
       setState(() {});
     });
+
+    listenForUserChange = conversaProvider.firebaseDatabase
+        .ref("${DatabaseConstants.pathUserCollection}/${destinatario.id}")
+        .onValue
+        .listen((event) async {
+      final response = await profileProvider.getProfile(id: destinatario.id);
+      destinatario = Pessoa.fromJson(response.value as Map<dynamic, dynamic>);
+      setState(() {});
+    });
   }
 
   @override
   void dispose() {
     super.dispose();
-    listener.cancel();
+    listenForMessages.cancel();
+    listenForUserChange.cancel();
   }
 
   @override
@@ -78,7 +95,7 @@ class _ConversaPageState extends State<ConversaPage> {
                       const Icon(Icons.arrow_back),
                       const SizedBox(width: 8),
                       IconLeading(
-                        pessoa: widget.destinatario,
+                        pessoa: destinatario,
                         onTap: () => Navigator.pop(context),
                       ),
                     ],
@@ -98,11 +115,11 @@ class _ConversaPageState extends State<ConversaPage> {
                           builder: (context) => Provider(
                             create: (context) => UsuarioAtivoProvider(
                                 usuarioAtivoProvider.pessoa),
-                            child: Profile(pessoa: widget.destinatario),
+                            child: Profile(pessoa: destinatario),
                           ),
                         ));
                       },
-                      child: Text(widget.destinatario.username),
+                      child: Text(destinatario.username),
                     ),
                   ),
                 ],
