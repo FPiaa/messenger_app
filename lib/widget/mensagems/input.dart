@@ -87,7 +87,7 @@ class _InputState extends State<Input> {
   Widget build(BuildContext context) {
     conversaProvider = Provider.of<ConversaProvider>(context);
     usuarioAtivoProvider = context.read<UsuarioAtivoProvider>();
-
+    bool writing = conteudo.text.trim().isNotEmpty;
     return Container(
       color: Colors.white,
       padding: const EdgeInsets.all(8.0),
@@ -96,17 +96,6 @@ class _InputState extends State<Input> {
         height: 64,
         child: Row(
           children: [
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 4),
-              child: IconButton(
-                icon: const Icon(Icons.image),
-                onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text("Ainda não tem acesso a câmera e arquivos"),
-                  ),
-                ),
-              ),
-            ),
             Form(
               child: Flexible(
                 child: ConstrainedBox(
@@ -135,11 +124,51 @@ class _InputState extends State<Input> {
                 ),
               ),
             ),
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 4),
-              child: conteudo.text.trim().isNotEmpty
-                  ? IconButton(
+            if (!writing)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 2),
+                child: CircleAvatar(
+                  child: IconButton(
+                    icon: const Icon(Icons.image),
+                    onPressed: () => getFromImagePicker(),
+                  ),
+                ),
+              ),
+            if (!writing)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 2),
+                child: CircleAvatar(
+                  child: IconButton(
+                    icon: const Icon(Icons.camera_alt),
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => CameraCamera(
+                            onFile: (file) => showCameraPreview(file),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            if (!writing)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 2),
+                child: CircleAvatar(
+                  child: IconButton(
+                      icon: const Icon(Icons.mic),
+                      onPressed: () => {} //getFromImagePicker(),
+                      ),
+                ),
+              ),
+            if (writing)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: CircleAvatar(
+                  child: IconButton(
                       icon: const Icon(Icons.send),
+                      color: Colors.black,
                       onPressed: () {
                         Mensagem mensagem = createMensagem(
                           conteudo: conteudo.text.trim(),
@@ -149,20 +178,9 @@ class _InputState extends State<Input> {
                           conteudo.clear();
                         });
                         onSendMessage(mensagem);
-                      })
-                  : IconButton(
-                      icon: const Icon(Icons.camera_alt),
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => CameraCamera(
-                              onFile: (file) => showCameraPreview(file),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-            ),
+                      }),
+                ),
+              )
           ],
         ),
       ),
