@@ -17,6 +17,10 @@ class MensagensSelecionadas extends ChangeNotifier {
     notifyListeners();
   }
 
+  bool contains(Mensagem m) {
+    return _mensagem.contains(m);
+  }
+
   clear() {
     _mensagem.clear();
     notifyListeners();

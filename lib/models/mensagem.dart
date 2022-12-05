@@ -3,11 +3,17 @@ import 'package:messenger_app/models/pessoa.dart';
 
 part "mensagem.g.dart";
 
+class MessageType {
+  static const text = 0;
+  static const image = 1;
+}
+
 @JsonSerializable()
 class Mensagem {
-  final String content;
+  final String? content;
   final String remetente;
   final String? imageUrl;
+  final int type;
   final int dataEnvio;
   String? id;
 
@@ -16,6 +22,7 @@ class Mensagem {
       required this.content,
       this.imageUrl,
       required this.dataEnvio,
+      required this.type,
       this.id});
 
   factory Mensagem.fromJson(Map<dynamic, dynamic> json) =>

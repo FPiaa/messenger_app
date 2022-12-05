@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:messenger_app/firebase_options.dart';
@@ -26,13 +27,9 @@ void main() async {
     print("${Firebase.apps.length}");
   }
   if (kDebugMode) {
-    try {
-      await FirebaseAuth.instance.useAuthEmulator("localhost", 9099);
-      FirebaseDatabase.instance.useDatabaseEmulator("localhost", 9000);
-    } catch (e) {
-      // ignore: avoid_print
-      print(e);
-    }
+    await FirebaseAuth.instance.useAuthEmulator("localhost", 9099);
+    FirebaseDatabase.instance.useDatabaseEmulator("10.0.2.2", 9000);
+    FirebaseStorage.instance.useStorageEmulator("localhost", 9199);
   }
 
   final SharedPreferences preferences = await SharedPreferences.getInstance();
@@ -47,10 +44,11 @@ class Chat extends StatelessWidget {
   final SharedPreferences preferences;
   final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
   final FirebaseDatabase firebaseDatabase = FirebaseDatabase.instance;
+  final FirebaseStorage firebaseStorage = FirebaseStorage.instance;
 
   @override
   Widget build(BuildContext context) {
-    firebaseDatabase.setPersistenceEnabled(true);
+    // firebaseDatabase.setPersistenceEnabled(true);
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<AuthProvider>(
@@ -71,8 +69,10 @@ class Chat extends StatelessWidget {
               preferences: preferences),
         ),
         Provider<ConversaProvider>(
-          create: (context) =>
-              ConversaProvider(firebaseDatabase: firebaseDatabase),
+          create: (context) => ConversaProvider(
+            firebaseDatabase: firebaseDatabase,
+            firebaseStorage: firebaseStorage,
+          ),
         )
       ],
       child: MaterialApp(

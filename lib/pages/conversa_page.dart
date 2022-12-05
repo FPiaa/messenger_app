@@ -1,9 +1,10 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:firebase_database/ui/utils/stream_subscriber_mixin.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:messenger_app/constants/firebase_realtime_constant.dart';
 import 'package:messenger_app/models/mensagem.dart';
 import 'package:messenger_app/models/pessoa.dart';
@@ -11,6 +12,9 @@ import 'package:messenger_app/pages/perfil_page.dart';
 import 'package:messenger_app/provider/conversa_provider.dart';
 import 'package:messenger_app/provider/mensagens_selecionadas_provider.dart';
 import 'package:messenger_app/provider/usuario_ativo_provider.dart';
+import 'package:messenger_app/widget/conversa/image_message.dart';
+import 'package:messenger_app/widget/conversa/input.dart';
+import 'package:messenger_app/widget/conversa/message_tile.dart';
 import 'package:messenger_app/widget/icon_leading.dart';
 import 'package:provider/provider.dart';
 
@@ -36,6 +40,8 @@ class _ConversaPageState extends State<ConversaPage> {
   late ConversaProvider conversaProvider;
   late StreamSubscription<DatabaseEvent> listener;
   List<Mensagem> mensagens = [];
+  bool sendingImage = false;
+
   @override
   void initState() {
     super.initState();
@@ -139,7 +145,13 @@ class _ConversaPageState extends State<ConversaPage> {
               ],
             ),
       body: SafeArea(
-        child: Column(children: [buildMessageList(), buildInput()]),
+        child: Column(children: [
+          buildMessageList(),
+          Input(
+            conversa: widget.conversa,
+            scrollController: scrollController,
+          )
+        ]),
       ),
     );
   }
@@ -191,137 +203,13 @@ class _ConversaPageState extends State<ConversaPage> {
     required bool selecionada,
   }) {
     double width = MediaQuery.of(context).size.width;
-    return GestureDetector(
-      onTap: mensagensSelecionadas.mensagem.isEmpty
-          ? null
-          : () => mensagensSelecionadas.mensagem.contains(mensagem)
-              ? mensagensSelecionadas.remove(mensagem)
-              : mensagensSelecionadas.save(mensagem),
-      onLongPress: () => mensagensSelecionadas.mensagem.contains(mensagem)
-          ? mensagensSelecionadas.remove(mensagem)
-          : mensagensSelecionadas.save(mensagem),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-        color: (mensagem.remetente == usuarioAtivoProvider.pessoa.id
-            ? (selecionada ? Colors.green[50] : Colors.white)
-            : (selecionada ? Colors.green[50] : Colors.white)),
-        child: Align(
-          alignment: mensagem.remetente == usuarioAtivoProvider.pessoa.id
-              ? Alignment.topRight
-              : Alignment.topLeft,
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              color: (mensagem.remetente == usuarioAtivoProvider.pessoa.id
-                  ? (selecionada ? Colors.blue[50] : Colors.blue[200])
-                  : (selecionada ? Colors.blue[50] : Colors.grey[100])),
-            ),
-            padding: const EdgeInsets.all(12.0),
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minWidth: 50, maxWidth: width * 0.7),
-              child: Column(
-                children: [
-                  SelectableText(
-                    mensagem.content,
-                  ),
-                  // TODO: alinahr o horário a direita sem mudar o tamanho da widget
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0, bottom: 4.0),
-                    child: Text(
-                      DateFormat.jm().format(
-                          DateTime.fromMillisecondsSinceEpoch(
-                              mensagem.dataEnvio)),
-                      style: const TextStyle(fontSize: 10),
-                      textAlign: TextAlign.end,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  onSendMessage(Mensagem mensagem) async {
-    await conversaProvider.sendMessage(
-        conversaId: widget.conversa.id, mensagem: mensagem);
-    if (scrollController.hasClients) {
-      scrollController.animateTo(0,
-          duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+    if (mensagem.type == MessageType.text) {
+      return MessageTile(mensagem: mensagem);
+    } else if (mensagem.type == MessageType.image) {
+      return ImageMessage(mensagem: mensagem);
+    } else {
+      return const SizedBox.shrink();
     }
-  }
-
-  Widget buildInput() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: SizedBox(
-        width: double.infinity,
-        height: 64,
-        child: Row(
-          children: [
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 4),
-              child: IconButton(
-                icon: const Icon(Icons.image),
-                onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text("Ainda não tem acesso a câmera e arquivos"),
-                  ),
-                ),
-              ),
-            ),
-            Form(
-              child: Flexible(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxHeight: 200),
-                  child: SingleChildScrollView(
-                    child: TextField(
-                      maxLines: null,
-                      controller: conteudo,
-                      textInputAction: TextInputAction.send,
-                      textCapitalization: TextCapitalization.sentences,
-                      keyboardType: TextInputType.text,
-                      onChanged: (_) {
-                        var text = conteudo.text.trim();
-                        if (text.length == 1 || text.isEmpty) setState(() {});
-                      },
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(40),
-                          ),
-                        ),
-                        hintText: "Mensagem",
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 4),
-              child: IconButton(
-                icon: const Icon(Icons.send),
-                onPressed: conteudo.text.trim().isNotEmpty
-                    ? () {
-                        Mensagem mensagem = Mensagem(
-                            remetente: usuarioAtivoProvider.pessoa.id,
-                            content: conteudo.text.trim(),
-                            dataEnvio: DateTime.now().millisecondsSinceEpoch);
-                        setState(() {
-                          conteudo.clear();
-                        });
-                        onSendMessage(mensagem);
-                      }
-                    : null,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
   _scrollListener() {

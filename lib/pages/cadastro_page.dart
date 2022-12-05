@@ -29,8 +29,18 @@ class _CadastroPageState extends State<CadastroPage> {
   onCadastrar() async {
     // Validate returns true if the form is valid, or false otherwise.
     if (_formKey.currentState!.validate()) {
-      final user = await profileProvider.firebaseAuth
-          .fetchSignInMethodsForEmail(emailController.text);
+      List<String> user;
+      try {
+        user = await profileProvider.firebaseAuth
+            .fetchSignInMethodsForEmail(emailController.text);
+      } catch (e) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(e.toString())));
+        setState(() {
+          estado = CadastroEstado.livre;
+        });
+        return;
+      }
       if (user.isNotEmpty) {
         estado = CadastroEstado.falha;
         setState(() {});
