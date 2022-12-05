@@ -1,10 +1,7 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:math';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:messenger_app/constants/firebase_realtime_constant.dart';
 import 'package:messenger_app/models/mensagem.dart';
 import 'package:messenger_app/models/pessoa.dart';
@@ -12,9 +9,9 @@ import 'package:messenger_app/pages/perfil_page.dart';
 import 'package:messenger_app/provider/conversa_provider.dart';
 import 'package:messenger_app/provider/mensagens_selecionadas_provider.dart';
 import 'package:messenger_app/provider/usuario_ativo_provider.dart';
-import 'package:messenger_app/widget/conversa/image_message.dart';
-import 'package:messenger_app/widget/conversa/input.dart';
-import 'package:messenger_app/widget/conversa/message_tile.dart';
+import 'package:messenger_app/widget/mensagems/image_message.dart';
+import 'package:messenger_app/widget/mensagems/input.dart';
+import 'package:messenger_app/widget/mensagems/message_tile.dart';
 import 'package:messenger_app/widget/icon_leading.dart';
 import 'package:provider/provider.dart';
 
@@ -98,8 +95,11 @@ class _ConversaPageState extends State<ConversaPage> {
                       onTap: () {
                         clearState();
                         Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) =>
-                              Profile(pessoa: usuarioAtivoProvider.pessoa),
+                          builder: (context) => Provider(
+                            create: (context) => UsuarioAtivoProvider(
+                                usuarioAtivoProvider.pessoa),
+                            child: Profile(pessoa: widget.destinatario),
+                          ),
                         ));
                       },
                       child: Text(widget.destinatario.username),
@@ -180,11 +180,13 @@ class _ConversaPageState extends State<ConversaPage> {
                 itemBuilder: (context, index) {
                   // TODO: Fazer a mensagem mostrar a hora de envio em formato XX:XX
                   // e mostrar o nome de quem enviou em caso de grupo
-                  return buildMessageTile(
-                    mensagem: mensagens[index],
-                    selecionada: mensagensSelecionadas.mensagem
-                        .contains(mensagens[index]),
-                  );
+                  if (mensagens[index].type == MessageType.text) {
+                    return MessageTile(mensagem: mensagens[index]);
+                  } else if (mensagens[index].type == MessageType.image) {
+                    return ImageMessage(mensagem: mensagens[index]);
+                  } else {
+                    return const SizedBox.shrink();
+                  }
                 },
                 itemCount: mensagens.length,
                 padding: const EdgeInsets.symmetric(vertical: 12.0),
@@ -196,20 +198,6 @@ class _ConversaPageState extends State<ConversaPage> {
             return Flexible(fit: FlexFit.tight, child: Container());
           }
         }));
-  }
-
-  Widget buildMessageTile({
-    required Mensagem mensagem,
-    required bool selecionada,
-  }) {
-    double width = MediaQuery.of(context).size.width;
-    if (mensagem.type == MessageType.text) {
-      return MessageTile(mensagem: mensagem);
-    } else if (mensagem.type == MessageType.image) {
-      return ImageMessage(mensagem: mensagem);
-    } else {
-      return const SizedBox.shrink();
-    }
   }
 
   _scrollListener() {

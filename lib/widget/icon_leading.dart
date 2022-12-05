@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:messenger_app/models/pessoa.dart';
 
@@ -29,7 +30,15 @@ class IconLeading extends StatelessWidget {
           child: ClipOval(
             clipBehavior: Clip.antiAliasWithSaveLayer,
             child: pessoa.photo != null && pessoa.photo!.isNotEmpty
-                ? Image.asset(pessoa.photo!)
+                ? CachedNetworkImage(
+                    imageUrl: pessoa.photo!,
+                    progressIndicatorBuilder:
+                        (context, url, downloadProgress) =>
+                            CircularProgressIndicator(
+                                value: downloadProgress.progress),
+                    errorWidget: (context, url, error) =>
+                        const Icon(Icons.error),
+                  )
                 : Icon(
                     Icons.person,
                     size: imageSize,
