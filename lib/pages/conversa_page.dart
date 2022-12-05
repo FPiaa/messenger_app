@@ -197,13 +197,7 @@ class _ConversaPageState extends State<ConversaPage> {
                 itemBuilder: (context, index) {
                   // TODO: Fazer a mensagem mostrar a hora de envio em formato XX:XX
                   // e mostrar o nome de quem enviou em caso de grupo
-                  if (mensagens[index].type == MessageType.text) {
-                    return MessageTile(mensagem: mensagens[index]);
-                  } else if (mensagens[index].type == MessageType.image) {
-                    return ImageMessage(mensagem: mensagens[index]);
-                  } else {
-                    return const SizedBox.shrink();
-                  }
+                  return MessageTile(mensagem: mensagens[index]);
                 },
                 itemCount: mensagens.length,
                 padding: const EdgeInsets.symmetric(vertical: 12.0),

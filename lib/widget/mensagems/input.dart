@@ -1,10 +1,12 @@
 import 'dart:io';
 
+import 'package:camera_camera/camera_camera.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:messenger_app/models/conversa.dart';
 import 'package:messenger_app/models/mensagem.dart';
+import 'package:messenger_app/pages/preview_page.dart';
 import 'package:messenger_app/provider/conversa_provider.dart';
 import 'package:messenger_app/provider/usuario_ativo_provider.dart';
 import 'package:provider/provider.dart';
@@ -26,11 +28,11 @@ class _InputState extends State<Input> {
 
   TextEditingController conteudo = TextEditingController();
 
-  Future getImage() async {
+  Future getFromImagePicker() async {
     ImagePicker picker = ImagePicker();
     XFile? xfile = await picker.pickImage(source: ImageSource.gallery);
     if (xfile != null) {
-      File image = File(xfile.path);
+      final File image = File(xfile.path);
       setState(() {
         uploadImage(image);
         sendingImage = true;
@@ -67,12 +69,27 @@ class _InputState extends State<Input> {
     }
   }
 
+  showCameraPreview(File file) async {
+    File? image = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PreviewImagePage(file: file),
+      ),
+    );
+
+    if (image != null) {
+      uploadImage(image);
+      Navigator.pop(context);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     conversaProvider = Provider.of<ConversaProvider>(context);
     usuarioAtivoProvider = context.read<UsuarioAtivoProvider>();
 
-    return Padding(
+    return Container(
+      color: Colors.white,
       padding: const EdgeInsets.all(8.0),
       child: SizedBox(
         width: double.infinity,
@@ -120,10 +137,10 @@ class _InputState extends State<Input> {
             ),
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 4),
-              child: IconButton(
-                icon: const Icon(Icons.send),
-                onPressed: conteudo.text.trim().isNotEmpty
-                    ? () {
+              child: conteudo.text.trim().isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.send),
+                      onPressed: () {
                         Mensagem mensagem = createMensagem(
                           conteudo: conteudo.text.trim(),
                           type: MessageType.text,
@@ -132,9 +149,19 @@ class _InputState extends State<Input> {
                           conteudo.clear();
                         });
                         onSendMessage(mensagem);
-                      }
-                    : null,
-              ),
+                      })
+                  : IconButton(
+                      icon: const Icon(Icons.camera_alt),
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => CameraCamera(
+                              onFile: (file) => showCameraPreview(file),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
             ),
           ],
         ),
