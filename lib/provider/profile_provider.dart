@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:messenger_app/constants/firebase_realtime_constant.dart';
 import 'package:messenger_app/models/pessoa.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -7,12 +10,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ProfileProvider {
   final FirebaseAuth firebaseAuth;
   final FirebaseDatabase firebaseDatabase;
+  final FirebaseStorage firebaseStorage;
   final SharedPreferences preferences;
 
   ProfileProvider({
     required this.firebaseAuth,
     required this.firebaseDatabase,
     required this.preferences,
+    required this.firebaseStorage,
   });
 
   String? getPrefs(String key) {
@@ -34,6 +39,13 @@ class ProfileProvider {
     await firebaseDatabase
         .ref("${DatabaseConstants.pathUserCollection}/$id")
         .set(pessoa.toJson());
+  }
+
+  UploadTask uploadImage({required File image, required String name}) {
+    return firebaseStorage
+        .ref(DatabaseConstants.pathUserImage)
+        .child(name)
+        .putFile(image);
   }
 
   Future<void> createProfile({

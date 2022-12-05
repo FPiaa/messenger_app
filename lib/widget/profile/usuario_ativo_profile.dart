@@ -1,9 +1,14 @@
+import 'dart:async';
+
 import 'package:age_calculator/age_calculator.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:messenger_app/constants/firebase_realtime_constant.dart';
 import 'package:messenger_app/models/pessoa.dart';
 import 'package:messenger_app/pages/perfil_page.dart';
 import 'package:messenger_app/provider/profile_provider.dart';
+import 'package:messenger_app/widget/profile/dropdown.dart';
 import 'package:provider/provider.dart';
 
 class ActiveUserProfile extends StatefulWidget {
@@ -17,6 +22,32 @@ class ActiveUserProfile extends StatefulWidget {
 class _ActiveUserProfileState extends State<ActiveUserProfile> {
   late TextEditingController descricaoController;
   late ProfileProvider profileProvider;
+  late StreamSubscription<DatabaseEvent> listener;
+  late Pessoa pessoa;
+
+  @override
+  void initState() {
+    super.initState();
+    profileProvider = context.read<ProfileProvider>();
+    pessoa = widget.pessoa;
+    listener = profileProvider.firebaseDatabase
+        .ref("${DatabaseConstants.pathUserCollection}/${widget.pessoa.id}")
+        .onValue
+        .listen((event) {
+      if (event.snapshot.value != null) {
+        pessoa = Pessoa.fromJson(event.snapshot.value as Map<dynamic, dynamic>);
+        setState(() {});
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    listener.cancel();
+  }
+
   final _formKey = GlobalKey<FormState>();
   DescriptionStatus _descriptionStatus = DescriptionStatus.reading;
 
@@ -38,47 +69,27 @@ class _ActiveUserProfileState extends State<ActiveUserProfile> {
                 width: radius,
                 child: Stack(
                   children: [
-                    CircleAvatar(
-                      radius: radius / 2,
-                      backgroundColor: Colors.transparent,
-                      child: ClipOval(
-                        clipBehavior: Clip.antiAliasWithSaveLayer,
-                        child: widget.pessoa.photo != null &&
-                                widget.pessoa.photo!.isNotEmpty
-                            ? CachedNetworkImage(
-                                imageUrl: widget.pessoa.photo!,
-                                progressIndicatorBuilder:
-                                    (context, url, downloadProgress) =>
-                                        CircularProgressIndicator(
-                                            value: downloadProgress.progress),
-                                errorWidget: (context, url, error) =>
-                                    const Icon(Icons.error),
-                              )
-                            : const Icon(
-                                Icons.person,
-                                size: 100,
-                                color: Colors.grey,
-                              ),
-                      ),
-                    ),
-                    Align(
-                      alignment: Alignment.bottomRight,
-                      child: Ink(
-                        width: 36,
-                        height: 36,
-                        child: InkWell(
-                          splashColor: Colors.amber[100],
-                          splashFactory: InkRipple.splashFactory,
-                          customBorder: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(40)),
-                          onTap: () => print("Atualizar foto"),
-                          child: const Icon(
-                            Icons.add_photo_alternate,
-                            size: 40,
+                    pessoa.photo != null && pessoa.photo!.isNotEmpty
+                        ? CachedNetworkImage(
+                            imageUrl: pessoa.photo!,
+                            fit: BoxFit.contain,
+                            progressIndicatorBuilder:
+                                (context, url, downloadProgress) =>
+                                    CircularProgressIndicator(
+                                        value: downloadProgress.progress),
+                            errorWidget: (context, url, error) =>
+                                const Icon(Icons.error),
+                          )
+                        : const Icon(
+                            Icons.person,
+                            size: 100,
+                            color: Colors.grey,
                           ),
-                        ),
-                      ),
-                    )
+                    Align(
+                        alignment: Alignment.bottomRight,
+                        child: ImageChoices(
+                          pessoa: pessoa,
+                        ))
                   ],
                 ),
               )
@@ -98,7 +109,7 @@ class _ActiveUserProfileState extends State<ActiveUserProfile> {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4),
                 child: SelectableText(
-                  widget.pessoa.username,
+                  pessoa.username,
                   style: const TextStyle(
                       fontWeight: FontWeight.w500, fontSize: 20),
                 ),
@@ -119,7 +130,7 @@ class _ActiveUserProfileState extends State<ActiveUserProfile> {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4),
                 child: SelectableText(
-                  "${AgeCalculator.age(widget.pessoa.dataNascimento).years} Anos",
+                  "${AgeCalculator.age(pessoa.dataNascimento).years} Anos",
                   style: const TextStyle(
                       fontWeight: FontWeight.w500, fontSize: 20),
                 ),
@@ -140,7 +151,7 @@ class _ActiveUserProfileState extends State<ActiveUserProfile> {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4),
                 child: SelectableText(
-                  widget.pessoa.email,
+                  pessoa.email,
                   style: const TextStyle(
                       fontWeight: FontWeight.w500, fontSize: 20),
                 ),
@@ -208,7 +219,7 @@ class _ActiveUserProfileState extends State<ActiveUserProfile> {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4),
                   child: SelectableText(
-                    "${widget.pessoa.descricao}",
+                    "${pessoa.descricao}",
                     style: const TextStyle(
                         fontWeight: FontWeight.w500, fontSize: 20),
                   ),
@@ -225,7 +236,7 @@ class _ActiveUserProfileState extends State<ActiveUserProfile> {
                     onTap: () => setState(() {
                       _descriptionStatus = DescriptionStatus.editing;
                       descricaoController =
-                          TextEditingController(text: widget.pessoa.descricao);
+                          TextEditingController(text: pessoa.descricao);
                     }),
                     child: const Icon(Icons.edit),
                   ))
@@ -239,7 +250,6 @@ class _ActiveUserProfileState extends State<ActiveUserProfile> {
     setState(() {
       _descriptionStatus = DescriptionStatus.updating;
     });
-    Pessoa pessoa = widget.pessoa;
     pessoa.setDescricao = descricao;
     await profileProvider.updateProfile(pessoa);
     setState(() {

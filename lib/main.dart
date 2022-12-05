@@ -60,13 +60,8 @@ class Chat extends StatelessWidget {
           create: (context) => ProfileProvider(
               firebaseAuth: firebaseAuth,
               firebaseDatabase: firebaseDatabase,
-              preferences: preferences),
-        ),
-        Provider<ProfileProvider>(
-          create: (context) => ProfileProvider(
-              firebaseDatabase: firebaseDatabase,
-              firebaseAuth: firebaseAuth,
-              preferences: preferences),
+              preferences: preferences,
+              firebaseStorage: firebaseStorage),
         ),
         Provider<ConversaProvider>(
           create: (context) => ConversaProvider(
