@@ -2,20 +2,18 @@ import 'dart:async';
 
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:messenger_app/constants/firebase_realtime_constant.dart';
 import 'package:messenger_app/models/pessoa.dart';
 import 'package:messenger_app/pages/perfil_page.dart';
 import 'package:messenger_app/provider/conversa_provider.dart';
-import 'package:messenger_app/provider/mensagens_selecionadas_provider.dart';
 import 'package:messenger_app/provider/profile_provider.dart';
 import 'package:messenger_app/provider/usuario_ativo_provider.dart';
 import 'package:messenger_app/provider/conversas_selecionadas_provider.dart';
+import 'package:messenger_app/widget/homepage/conversa_item.dart';
+import 'package:messenger_app/widget/homepage/profile_item.dart';
 import 'package:provider/provider.dart';
 
 import '../models/conversa.dart';
-import '../widget/icon_leading.dart';
-import 'conversa_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -235,19 +233,23 @@ class _HomePageState extends State<HomePage> {
           stream: profileProvider.getProfiles(limit: 30),
           builder: ((context, AsyncSnapshot<DataSnapshot> snapshot) {
             if (snapshot.hasData && snapshot.data != null) {
-              final pessoas = snapshot.data!.children.toList();
+              final pessoasA = snapshot.data!.children.toList();
               return ListView.separated(
                   itemBuilder: (context, data) {
-                    if (pessoas[data].value != null &&
-                        pessoas[data].children.length == 4) {
+                    if (pessoasA[data].value != null &&
+                        pessoasA[data].children.length == 4) {
                       final pessoa = Pessoa.fromJson(
-                          pessoas[data].value as Map<dynamic, dynamic>);
-                      return buildProfileItem(context, pessoa);
+                          pessoasA[data].value as Map<dynamic, dynamic>);
+                      return ProfileItem(
+                        conversas: conversas,
+                        pessoas: pessoas,
+                        destinatario: pessoa,
+                      );
                     }
                     return const SizedBox.shrink();
                   },
                   separatorBuilder: (_, __) => const Divider(),
-                  itemCount: pessoas.length);
+                  itemCount: pessoasA.length);
             } else {
               return const Center(
                 child: Text("No user found"),
@@ -261,175 +263,18 @@ class _HomePageState extends State<HomePage> {
       if (filtrar) {
         return ListView.separated(
             itemBuilder: (context, data) =>
-                buildConversaItem(context, filtradas[data]),
+                ConversaItem(conversa: filtradas[data], pessoas: pessoas),
             separatorBuilder: (_, __) => const Divider(),
             itemCount: filtradas.length);
       } else {
         return ListView.separated(
-            itemBuilder: (context, data) =>
-                buildConversaItem(context, conversas[data]),
+            itemBuilder: (context, data) => ConversaItem(
+                  conversa: conversas[data],
+                  pessoas: pessoas,
+                ),
             separatorBuilder: (_, __) => const Divider(),
             itemCount: conversas.length);
       }
-    }
-  }
-
-  Widget buildProfileItem(BuildContext context, Pessoa? data) {
-    if (data != null) {
-      Pessoa destinatario = data;
-      print(destinatario.toString());
-      if (destinatario.id == usuarioAtivoProvider.pessoa.id) {
-        return const SizedBox.shrink();
-      }
-
-      return ListTile(
-          leading: IconLeading(
-              pessoa: destinatario,
-              radius: 30,
-              onTap: () {
-                clearState();
-                Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  return Provider(
-                      create: (context) =>
-                          UsuarioAtivoProvider(usuarioAtivoProvider.pessoa),
-                      child: Profile(pessoa: destinatario));
-                }));
-              }),
-          title: _buildTitle(destinatario),
-          trailing: _buildTrailing(null),
-          subtitle: _buildSubTitle(null),
-          tileColor: Colors.grey[100],
-          selectedTileColor: Colors.blue[50],
-          onTap: () {
-            getOrCreateConversa(destinatario).then((conversa) {
-              clearState();
-              Navigator.push(context, MaterialPageRoute(
-                builder: (BuildContext context) {
-                  return MultiProvider(
-                      providers: [
-                        Provider<UsuarioAtivoProvider>(
-                          create: (context) =>
-                              UsuarioAtivoProvider(usuarioAtivoProvider.pessoa),
-                        ),
-                        ChangeNotifierProvider<MensagensSelecionadas>(
-                            create: (context) => MensagensSelecionadas())
-                      ],
-                      child: ConversaPage(
-                          conversa: conversa, destinatario: destinatario));
-                },
-              ));
-            });
-          });
-    }
-    print("a");
-    return CircularProgressIndicator();
-  }
-
-  Widget buildConversaItem(BuildContext context, Conversa? data) {
-    if (data != null) {
-      Conversa conversa = data;
-      final String destinatarioId = conversa.participantesIds
-          .firstWhere((element) => element != usuarioAtivoProvider.pessoa.id);
-      if (destinatarioId == usuarioAtivoProvider.pessoa.id) {
-        return const SizedBox.shrink();
-      }
-      final destinatario = pessoas[destinatarioId];
-
-      return ListTile(
-        leading: destinatario == null
-            ? const CircularProgressIndicator()
-            : IconLeading(
-                pessoa: destinatario,
-                radius: 30,
-                onTap: () {
-                  clearState();
-                  Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return Provider(
-                        create: (context) =>
-                            UsuarioAtivoProvider(usuarioAtivoProvider.pessoa),
-                        child: Profile(pessoa: destinatario));
-                  }));
-                }),
-        title: _buildTitle(destinatario),
-        trailing: _buildTrailing(conversa),
-        subtitle: _buildSubTitle(conversa),
-        tileColor: Colors.grey[100],
-        selectedTileColor: Colors.blue[50],
-        selected: selecionadas.conversas.contains(conversa),
-        onTap: destinatario == null
-            ? null
-            : () {
-                clearState();
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (BuildContext context) {
-                      return MultiProvider(
-                          providers: [
-                            Provider<UsuarioAtivoProvider>(
-                              create: (context) => UsuarioAtivoProvider(
-                                  usuarioAtivoProvider.pessoa),
-                            ),
-                            ChangeNotifierProvider<MensagensSelecionadas>(
-                                create: (context) => MensagensSelecionadas())
-                          ],
-                          child: ConversaPage(
-                            conversa: conversa,
-                            destinatario: destinatario,
-                          ));
-                    },
-                  ),
-                );
-              },
-        onLongPress: () => selecionadas.conversas.contains(conversa)
-            ? selecionadas.remove(conversa)
-            : selecionadas.save(conversa),
-      );
-    }
-    return const CircularProgressIndicator();
-  }
-
-  Widget _buildTitle(Pessoa? destinatario) {
-    if (destinatario == null) {
-      return const SizedBox.shrink();
-    }
-    return Text(
-      destinatario.username,
-      style: const TextStyle(fontSize: 20, overflow: TextOverflow.clip),
-      overflow: TextOverflow.ellipsis,
-    );
-  }
-
-  Widget _buildSubTitle(Conversa? conversa) {
-    if (conversa == null || conversa.conteudoUltimaMensagem == null) {
-      return Container();
-    } else {
-      return Text(
-        conversa.conteudoUltimaMensagem!,
-        style: const TextStyle(fontSize: 14),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      );
-    }
-  }
-
-  Widget _buildTrailing(Conversa? conversa) {
-    if (conversa == null || conversa.horarioUltimaMensagem == null) {
-      return const Text(" ");
-    } else {
-      // TODO: Formatar de acordo com a preferência do usuário
-      return Text(DateFormat.jm().format(DateTime.fromMillisecondsSinceEpoch(
-          conversa.horarioUltimaMensagem!)));
-    }
-  }
-
-  Future<Conversa> getOrCreateConversa(Pessoa p) {
-    if (pessoas[p.id] != null) {
-      return Future(() => conversas
-          .firstWhere((element) => element.participantesIds.contains(p.id)));
-    } else {
-      return conversaProvider.createConversa(
-          [usuarioAtivoProvider.pessoa, p]).then((value) => value);
     }
   }
 

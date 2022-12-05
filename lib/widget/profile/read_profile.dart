@@ -19,31 +19,26 @@ class ReadOnlyProfile extends StatelessWidget {
             children: [
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 24),
-                child: CircleAvatar(
-                  radius: radius / 2,
-                  backgroundColor: Colors.transparent,
-                  // foregroundImage: NetworkImage('https://via.placeholder.com/150'),
-                  child: SizedBox(
-                    width: radius,
-                    height: radius,
-                    child: ClipOval(
-                      clipBehavior: Clip.antiAliasWithSaveLayer,
-                      child: pessoa.photo != null && pessoa.photo!.isNotEmpty
-                          ? CachedNetworkImage(
-                              imageUrl: pessoa.photo!,
-                              progressIndicatorBuilder:
-                                  (context, url, downloadProgress) =>
-                                      CircularProgressIndicator(
-                                          value: downloadProgress.progress),
-                              errorWidget: (context, url, error) =>
-                                  const Icon(Icons.error),
-                            )
-                          : const Icon(
-                              Icons.person,
-                              size: 100,
-                              color: Colors.grey,
-                            ),
-                    ),
+                child: SizedBox(
+                  width: radius,
+                  height: radius,
+                  child: ClipOval(
+                    clipBehavior: Clip.antiAliasWithSaveLayer,
+                    child: pessoa.photo != null && pessoa.photo!.isNotEmpty
+                        ? CachedNetworkImage(
+                            imageUrl: pessoa.photo!,
+                            progressIndicatorBuilder:
+                                (context, url, downloadProgress) =>
+                                    CircularProgressIndicator(
+                                        value: downloadProgress.progress),
+                            errorWidget: (context, url, error) =>
+                                const Icon(Icons.error),
+                          )
+                        : const Icon(
+                            Icons.person,
+                            size: 100,
+                            color: Colors.grey,
+                          ),
                   ),
                 ),
               ),

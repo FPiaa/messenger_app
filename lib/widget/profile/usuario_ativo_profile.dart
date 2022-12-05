@@ -29,6 +29,12 @@ class _ActiveUserProfileState extends State<ActiveUserProfile> {
   void initState() {
     super.initState();
     profileProvider = context.read<ProfileProvider>();
+    if (widget.pessoa.descricao == null) {
+      descricaoController = TextEditingController(text: "");
+    } else {
+      descricaoController =
+          TextEditingController(text: widget.pessoa.descricao);
+    }
     pessoa = widget.pessoa;
     listener = profileProvider.firebaseDatabase
         .ref("${DatabaseConstants.pathUserCollection}/${widget.pessoa.id}")
@@ -53,7 +59,7 @@ class _ActiveUserProfileState extends State<ActiveUserProfile> {
 
   @override
   Widget build(BuildContext context) {
-    double radius = widget.pessoa.photo != null ? 200 : 100;
+    double radius = widget.pessoa.photo != null ? 200 : 200;
     profileProvider = Provider.of<ProfileProvider>(context);
     return SingleChildScrollView(
         child: Form(
@@ -61,39 +67,37 @@ class _ActiveUserProfileState extends State<ActiveUserProfile> {
       child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 24.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox(
-                height: radius,
-                width: radius,
-                child: Stack(
-                  children: [
-                    pessoa.photo != null && pessoa.photo!.isNotEmpty
-                        ? CachedNetworkImage(
-                            imageUrl: pessoa.photo!,
-                            fit: BoxFit.contain,
-                            progressIndicatorBuilder:
-                                (context, url, downloadProgress) =>
-                                    CircularProgressIndicator(
-                                        value: downloadProgress.progress),
-                            errorWidget: (context, url, error) =>
-                                const Icon(Icons.error),
-                          )
-                        : const Icon(
-                            Icons.person,
-                            size: 100,
-                            color: Colors.grey,
-                          ),
-                    Align(
-                        alignment: Alignment.bottomRight,
-                        child: ImageChoices(
-                          pessoa: pessoa,
-                        ))
-                  ],
-                ),
-              )
-            ],
+          child: SizedBox(
+            height: radius,
+            width: radius,
+            child: Stack(
+              alignment: AlignmentDirectional.center,
+              children: [
+                pessoa.photo != null && pessoa.photo!.isNotEmpty
+                    ? ClipOval(
+                        child: CachedNetworkImage(
+                          imageUrl: pessoa.photo!,
+                          fit: BoxFit.contain,
+                          progressIndicatorBuilder:
+                              (context, url, downloadProgress) =>
+                                  CircularProgressIndicator(
+                                      value: downloadProgress.progress),
+                          errorWidget: (context, url, error) =>
+                              const Icon(Icons.error),
+                        ),
+                      )
+                    : const Icon(
+                        Icons.person,
+                        size: 100,
+                        color: Colors.grey,
+                      ),
+                Align(
+                    alignment: Alignment.bottomRight,
+                    child: ImageChoices(
+                      pessoa: pessoa,
+                    ))
+              ],
+            ),
           ),
         ),
         ListTile(
@@ -219,7 +223,7 @@ class _ActiveUserProfileState extends State<ActiveUserProfile> {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4),
                   child: SelectableText(
-                    "${pessoa.descricao}",
+                    pessoa.descricao == null ? "" : "${pessoa.descricao}",
                     style: const TextStyle(
                         fontWeight: FontWeight.w500, fontSize: 20),
                   ),
