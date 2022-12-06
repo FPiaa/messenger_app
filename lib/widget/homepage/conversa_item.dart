@@ -30,17 +30,32 @@ class _ConversaItemState extends State<ConversaItem> {
   late StreamSubscription<DatabaseEvent> listenForUserChanges;
   late UsuarioAtivoProvider usuarioAtivoProvider;
   late ProfileProvider profileProvider;
+  late Pessoa? destinatario;
   @override
   void initState() {
     super.initState();
     profileProvider = context.read<ProfileProvider>();
     usuarioAtivoProvider = context.read<UsuarioAtivoProvider>();
+    if (widget.conversa != null) {
+      final destinatarioId = widget.conversa!.participantesIds
+          .firstWhere((element) => element != usuarioAtivoProvider.pessoa.id);
+      destinatario = widget.pessoas[destinatarioId];
+    } else {
+      destinatario = null;
+    }
     listenForUserChanges = profileProvider.firebaseDatabase
-        .ref(
-            "${DatabaseConstants.pathUserCollection}/${usuarioAtivoProvider.pessoa.id}")
+        .ref("${DatabaseConstants.pathUserCollection}/${destinatario!.id}")
         .onValue
         .listen((event) {
-      setState(() {});
+      setState(() {
+        if (widget.conversa != null) {
+          Pessoa pessoa =
+              Pessoa.fromJson(event.snapshot.value as Map<dynamic, dynamic>);
+          destinatario = pessoa;
+        } else {
+          destinatario = null;
+        }
+      });
     });
   }
 
@@ -59,18 +74,11 @@ class _ConversaItemState extends State<ConversaItem> {
 
     if (widget.conversa != null) {
       Conversa conversa = widget.conversa!;
-      final String destinatarioId = conversa.participantesIds
-          .firstWhere((element) => element != usuarioAtivoProvider.pessoa.id);
-      if (destinatarioId == usuarioAtivoProvider.pessoa.id) {
-        return const SizedBox.shrink();
-      }
-      final destinatario = widget.pessoas[destinatarioId];
-
       return ListTile(
         leading: destinatario == null
             ? const CircularProgressIndicator()
             : IconLeading(
-                pessoa: destinatario,
+                pessoa: destinatario!,
                 radius: 30,
                 onTap: () {
                   Navigator.push(
@@ -81,7 +89,7 @@ class _ConversaItemState extends State<ConversaItem> {
                             return Provider(
                                 create: (context) => UsuarioAtivoProvider(
                                     usuarioAtivoProvider.pessoa),
-                                child: Profile(pessoa: destinatario));
+                                child: Profile(pessoa: destinatario!));
                           }));
                 }),
         title: ConversaTitle(destinatario: destinatario),
@@ -114,7 +122,7 @@ class _ConversaItemState extends State<ConversaItem> {
                               ],
                               child: ConversaPage(
                                 conversa: conversa,
-                                destinatario: destinatario,
+                                destinatario: destinatario!,
                               ));
                         },
                       ),
