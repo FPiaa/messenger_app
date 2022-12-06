@@ -12,66 +12,69 @@ import 'package:messenger_app/widget/homepage/trailing.dart';
 import 'package:messenger_app/widget/icon_leading.dart';
 import 'package:provider/provider.dart';
 
-class ProfileItem extends StatelessWidget {
+class ProfileItem extends StatefulWidget {
   final Pessoa? destinatario;
   final List<Conversa> conversas;
   final Map<String, Pessoa> pessoas;
+  final Function callback;
   const ProfileItem(
       {super.key,
       this.destinatario,
       required this.conversas,
-      required this.pessoas});
+      required this.pessoas,
+      required this.callback});
 
+  @override
+  State<ProfileItem> createState() => _ProfileItemState();
+}
+
+class _ProfileItemState extends State<ProfileItem> {
   @override
   Widget build(BuildContext context) {
     UsuarioAtivoProvider usuarioAtivoProvider =
         Provider.of<UsuarioAtivoProvider>(context);
-    if (destinatario != null) {
-      if (destinatario!.id == usuarioAtivoProvider.pessoa.id) {
+    if (widget.destinatario != null) {
+      if (widget.destinatario!.id == usuarioAtivoProvider.pessoa.id) {
         return const SizedBox.shrink();
       }
 
       return ListTile(
           leading: IconLeading(
-              pessoa: destinatario!,
+              pessoa: widget.destinatario!,
               radius: 30,
               onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        maintainState: false,
-                        builder: (context) {
-                          return Provider(
-                              create: (context) => UsuarioAtivoProvider(
-                                  usuarioAtivoProvider.pessoa),
-                              child: Profile(pessoa: destinatario!));
-                        }));
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  widget.callback();
+                  return Provider(
+                      create: (context) =>
+                          UsuarioAtivoProvider(usuarioAtivoProvider.pessoa),
+                      child: Profile(pessoa: widget.destinatario!));
+                }));
               }),
-          title: ConversaTitle(destinatario: destinatario),
+          title: ConversaTitle(destinatario: widget.destinatario),
           trailing: const ConversaTrailing(conversa: null),
           subtitle: const ConversaSubTitle(conversa: null),
           tileColor: Colors.grey[100],
           selectedTileColor: Colors.blue[50],
           onTap: () {
-            getOrCreateConversa(context, destinatario!).then((conversa) {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    maintainState: false,
-                    builder: (BuildContext context) {
-                      return MultiProvider(
-                          providers: [
-                            Provider<UsuarioAtivoProvider>(
-                              create: (context) => UsuarioAtivoProvider(
-                                  usuarioAtivoProvider.pessoa),
-                            ),
-                            ChangeNotifierProvider<MensagensSelecionadas>(
-                                create: (context) => MensagensSelecionadas())
-                          ],
-                          child: ConversaPage(
-                              conversa: conversa, destinatario: destinatario!));
-                    },
-                  ));
+            getOrCreateConversa(context, widget.destinatario!).then((conversa) {
+              Navigator.push(context, MaterialPageRoute(
+                builder: (BuildContext context) {
+                  widget.callback();
+                  return MultiProvider(
+                      providers: [
+                        Provider<UsuarioAtivoProvider>(
+                          create: (context) =>
+                              UsuarioAtivoProvider(usuarioAtivoProvider.pessoa),
+                        ),
+                        ChangeNotifierProvider<MensagensSelecionadas>(
+                            create: (context) => MensagensSelecionadas())
+                      ],
+                      child: ConversaPage(
+                          conversa: conversa,
+                          destinatario: widget.destinatario!));
+                },
+              ));
             });
           });
     }
@@ -83,8 +86,9 @@ class ProfileItem extends StatelessWidget {
         Provider.of<ConversaProvider>(context, listen: false);
     UsuarioAtivoProvider usuarioAtivoProvider =
         Provider.of<UsuarioAtivoProvider>(context, listen: false);
-    if (pessoas[p.id] != null) {
-      return Future(() => conversas
+
+    if (widget.pessoas[p.id] != null) {
+      return Future(() => widget.conversas
           .firstWhere((element) => element.participantesIds.contains(p.id)));
     } else {
       return conversaProvider.createConversa(

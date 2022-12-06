@@ -27,6 +27,11 @@ class _HomePageState extends State<HomePage> {
   late UsuarioAtivoProvider usuarioAtivoProvider;
   late ProfileProvider profileProvider;
   late ConversaProvider conversaProvider;
+  List<Conversa> conversas = [];
+  List<Conversa> filtradas = [];
+  Map<String, Pessoa> pessoas = {};
+  bool filtrar = false;
+  bool contatos = false;
 
   late StreamSubscription<DatabaseEvent> listenForConversas;
   late StreamSubscription<DatabaseEvent> listenForUserUpdateInfo;
@@ -49,13 +54,13 @@ class _HomePageState extends State<HomePage> {
           // ela vai possuir a data de horario como sendo a data de criação da conversa
           m2.horarioUltimaMensagem!.compareTo(m1.horarioUltimaMensagem!));
 
+      pessoas.clear();
       for (Conversa c in conversas) {
         final id = c.participantesIds
             .firstWhere((element) => element != usuarioAtivoProvider.pessoa.id);
         final data = await profileProvider.getProfile(id: id);
         if (data.value != null) {
           pessoas[id] = Pessoa.fromJson(data.value as Map<dynamic, dynamic>);
-          setState(() {});
         }
       }
       if (!contatos) {
@@ -107,11 +112,6 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  List<Conversa> conversas = [];
-  List<Conversa> filtradas = [];
-  Map<String, Pessoa> pessoas = {};
-  bool filtrar = false;
-  bool contatos = false;
   @override
   Widget build(BuildContext context) {
     selecionadas = Provider.of<ConversasSelecionadasProvider>(context);
@@ -153,7 +153,7 @@ class _HomePageState extends State<HomePage> {
                     if (pessoa == null) {
                       return false;
                     }
-                    return pessoa.username.contains(value);
+                    return element.participantesIds.contains(pessoa.id);
                   }).toList();
                 }
               });
@@ -236,14 +236,14 @@ class _HomePageState extends State<HomePage> {
               final pessoasA = snapshot.data!.children.toList();
               return ListView.separated(
                   itemBuilder: (context, data) {
-                    if (pessoasA[data].value != null &&
-                        pessoasA[data].children.length == 4) {
+                    if (pessoasA[data].value != null) {
                       final pessoa = Pessoa.fromJson(
                           pessoasA[data].value as Map<dynamic, dynamic>);
                       return ProfileItem(
                         conversas: conversas,
-                        pessoas: pessoas,
                         destinatario: pessoa,
+                        callback: clearState,
+                        pessoas: pessoas,
                       );
                     }
                     return const SizedBox.shrink();
@@ -279,11 +279,20 @@ class _HomePageState extends State<HomePage> {
   }
 
   clearState() {
-    setState(() {
-      selecionadas.empty();
-      filtradas.clear();
-      filtrar = false;
-      contatos = false;
-    });
+    selecionadas.empty();
+    filtradas.clear();
+    pessoas.clear();
+    filtrar = false;
+    contatos = false;
+  }
+
+  Future<Conversa> getOrCreateConversa(BuildContext context, Pessoa p) {
+    if (pessoas[p.id] != null) {
+      return Future(() => conversas
+          .firstWhere((element) => element.participantesIds.contains(p.id)));
+    } else {
+      return conversaProvider.createConversa(
+          [usuarioAtivoProvider.pessoa, p]).then((value) => value);
+    }
   }
 }
