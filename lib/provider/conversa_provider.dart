@@ -62,11 +62,16 @@ class ConversaProvider {
         .ref("${DatabaseConstants.pathMessageCollection}/$conversaId")
         .push();
     mensagem.id = ref.key;
+
     await ref.set(mensagem.toJson());
     var object = {
       DatabaseConstants.lastMessageContent: mensagem.content,
-      DatabaseConstants.lastMessageTime: mensagem.dataEnvio
+      DatabaseConstants.lastMessageTime: mensagem.dataEnvio,
     };
+
+    if (mensagem.type == MessageType.image) {
+      object[DatabaseConstants.lastMessageContent] = "Enviou uma imagem";
+    }
     await firebaseDatabase
         .ref("${DatabaseConstants.pathConversaCollection}/$conversaId")
         .update(object);

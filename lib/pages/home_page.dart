@@ -10,6 +10,7 @@ import 'package:messenger_app/provider/profile_provider.dart';
 import 'package:messenger_app/provider/usuario_ativo_provider.dart';
 import 'package:messenger_app/provider/conversas_selecionadas_provider.dart';
 import 'package:messenger_app/widget/homepage/conversa_item.dart';
+import 'package:messenger_app/widget/homepage/list_items.dart';
 import 'package:messenger_app/widget/homepage/profile_item.dart';
 import 'package:provider/provider.dart';
 
@@ -95,7 +96,13 @@ class _HomePageState extends State<HomePage> {
         onPressed: onFloatingButtonPressed,
         child: const Icon(Icons.person_add_alt_sharp),
       ),
-      body: buildListView(),
+      body: ListItems(
+          clearState: clearState,
+          contatos: contatos,
+          conversas: conversas,
+          filtradas: filtradas,
+          filtrar: filtrar,
+          pessoas: pessoas),
     );
   }
 
@@ -200,72 +207,11 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget buildListView() {
-    if (contatos) {
-      return StreamBuilder<DataSnapshot>(
-          stream: profileProvider.getProfiles(limit: 30),
-          builder: ((context, AsyncSnapshot<DataSnapshot> snapshot) {
-            if (snapshot.hasData && snapshot.data != null) {
-              final pessoasA = snapshot.data!.children.toList();
-              return ListView.separated(
-                  itemBuilder: (context, data) {
-                    if (pessoasA[data].value != null) {
-                      final pessoa = Pessoa.fromJson(
-                          pessoasA[data].value as Map<dynamic, dynamic>);
-                      return ProfileItem(
-                        conversas: conversas,
-                        destinatario: pessoa,
-                        callback: clearState,
-                        pessoas: pessoas,
-                      );
-                    }
-                    return const SizedBox.shrink();
-                  },
-                  separatorBuilder: (_, __) => const Divider(),
-                  itemCount: pessoasA.length);
-            } else {
-              return const Center(
-                child: Text("No user found"),
-              );
-            }
-          }));
-    } else {
-      if (conversas.isEmpty) {
-        return Container();
-      }
-      if (filtrar) {
-        return ListView.separated(
-            itemBuilder: (context, data) =>
-                ConversaItem(conversa: filtradas[data], pessoas: pessoas),
-            separatorBuilder: (_, __) => const Divider(),
-            itemCount: filtradas.length);
-      } else {
-        return ListView.separated(
-            itemBuilder: (context, data) => ConversaItem(
-                  conversa: conversas[data],
-                  pessoas: pessoas,
-                ),
-            separatorBuilder: (_, __) => const Divider(),
-            itemCount: conversas.length);
-      }
-    }
-  }
-
   clearState() {
     selecionadas.empty();
     filtradas.clear();
     pessoas.clear();
     filtrar = false;
     contatos = false;
-  }
-
-  Future<Conversa> getOrCreateConversa(BuildContext context, Pessoa p) {
-    if (pessoas[p.id] != null) {
-      return Future(() => conversas
-          .firstWhere((element) => element.participantesIds.contains(p.id)));
-    } else {
-      return conversaProvider.createConversa(
-          [usuarioAtivoProvider.pessoa, p]).then((value) => value);
-    }
   }
 }
