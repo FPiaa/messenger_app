@@ -34,7 +34,6 @@ class _HomePageState extends State<HomePage> {
   bool contatos = false;
 
   late StreamSubscription<DatabaseEvent> listenForConversas;
-  late StreamSubscription<DatabaseEvent> listenForUserUpdateInfo;
   final textField = TextEditingController();
 
   @override
@@ -67,38 +66,12 @@ class _HomePageState extends State<HomePage> {
         setState(() {});
       }
     });
-    listenForUserUpdateInfo = conversaProvider.firebaseDatabase
-        .ref(DatabaseConstants.pathUserCollection)
-        .onValue
-        .listen((event) async {
-      conversas = await conversaProvider.getConversasWith(
-          pessoa: usuarioAtivoProvider.pessoa);
-      conversas.sort((Conversa m1, Conversa m2) =>
-          //totalmente ok fazer a checagem incondicional, quando a conversa é criada no BD,
-          // ela vai possuir a data de horario como sendo a data de criação da conversa
-          m2.horarioUltimaMensagem!.compareTo(m1.horarioUltimaMensagem!));
-
-      for (Conversa c in conversas) {
-        final id = c.participantesIds
-            .firstWhere((element) => element != usuarioAtivoProvider.pessoa.id);
-        final data = await profileProvider.getProfile(id: id);
-        if (data.value != null) {
-          pessoas[id] = Pessoa.fromJson(data.value as Map<dynamic, dynamic>);
-          setState(() {});
-        }
-      }
-      if (!contatos) {
-        setState(() {});
-      }
-      setState(() {});
-    });
   }
 
   @override
   void dispose() {
     super.dispose();
     listenForConversas.cancel();
-    listenForUserUpdateInfo.cancel();
   }
 
   onFloatingButtonPressed() {

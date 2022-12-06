@@ -1,10 +1,15 @@
+import 'dart:async';
+
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:messenger_app/constants/firebase_realtime_constant.dart';
 import 'package:messenger_app/models/conversa.dart';
 import 'package:messenger_app/models/pessoa.dart';
 import 'package:messenger_app/pages/conversa_page.dart';
 import 'package:messenger_app/pages/perfil_page.dart';
 import 'package:messenger_app/provider/conversas_selecionadas_provider.dart';
 import 'package:messenger_app/provider/mensagens_selecionadas_provider.dart';
+import 'package:messenger_app/provider/profile_provider.dart';
 import 'package:messenger_app/provider/usuario_ativo_provider.dart';
 import 'package:messenger_app/widget/homepage/subtitle.dart';
 import 'package:messenger_app/widget/homepage/title.dart';
@@ -22,6 +27,23 @@ class ConversaItem extends StatefulWidget {
 }
 
 class _ConversaItemState extends State<ConversaItem> {
+  late StreamSubscription<DatabaseEvent> listenForUserChanges;
+  late UsuarioAtivoProvider usuarioAtivoProvider;
+  late ProfileProvider profileProvider;
+  @override
+  void initState() {
+    super.initState();
+    profileProvider = context.read<ProfileProvider>();
+    usuarioAtivoProvider = context.read<UsuarioAtivoProvider>();
+    listenForUserChanges = profileProvider.firebaseDatabase
+        .ref(
+            "${DatabaseConstants.pathUserCollection}/${usuarioAtivoProvider.pessoa.id}")
+        .onValue
+        .listen((event) {
+      setState(() {});
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     UsuarioAtivoProvider usuarioAtivoProvider =
