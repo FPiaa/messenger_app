@@ -59,7 +59,6 @@ class AuthProvider extends ChangeNotifier {
     } catch (e) {
       // Todas as exceções vão gerar a mesma mensagem de erro para o usuário
       // "Usuário ou senha inválidos"
-      print(e);
       _status = Status.authenticateError;
       notifyListeners();
       return false;

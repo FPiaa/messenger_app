@@ -45,6 +45,12 @@ class _ConversaItemState extends State<ConversaItem> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    listenForUserChanges.cancel();
+  }
+
+  @override
   Widget build(BuildContext context) {
     UsuarioAtivoProvider usuarioAtivoProvider =
         Provider.of<UsuarioAtivoProvider>(context);

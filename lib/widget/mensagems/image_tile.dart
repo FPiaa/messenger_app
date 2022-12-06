@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:messenger_app/models/mensagem.dart';
-import 'package:messenger_app/models/pessoa.dart';
 
 class ImageTile extends StatelessWidget {
   final Mensagem mensagem;

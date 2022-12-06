@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:messenger_app/models/pessoa.dart';
 
 class UsuarioAtivoProvider {

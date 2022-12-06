@@ -42,10 +42,8 @@ class _HomePageAppBarState extends State<HomePageAppBar> {
   late final Map<String, Pessoa> pessoas;
   @override
   Widget build(BuildContext context) {
-    bool filtrar = widget.filtrar;
     bool contatos = widget.contatos;
     List<Conversa> conversas = widget.conversas;
-    List<Conversa> filtradas = widget.filtradas;
     Map<String, Pessoa> pessoas = widget.pessoas;
 
     selecionadas = Provider.of<ConversasSelecionadasProvider>(context);

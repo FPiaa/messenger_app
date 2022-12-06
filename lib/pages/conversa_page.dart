@@ -10,7 +10,6 @@ import 'package:messenger_app/provider/conversa_provider.dart';
 import 'package:messenger_app/provider/mensagens_selecionadas_provider.dart';
 import 'package:messenger_app/provider/profile_provider.dart';
 import 'package:messenger_app/provider/usuario_ativo_provider.dart';
-import 'package:messenger_app/widget/mensagems/image_message.dart';
 import 'package:messenger_app/widget/mensagems/input.dart';
 import 'package:messenger_app/widget/mensagems/message_tile.dart';
 import 'package:messenger_app/widget/icon_leading.dart';
@@ -195,8 +194,6 @@ class _ConversaPageState extends State<ConversaPage> {
                 controller: scrollController,
                 reverse: true,
                 itemBuilder: (context, index) {
-                  // TODO: Fazer a mensagem mostrar a hora de envio em formato XX:XX
-                  // e mostrar o nome de quem enviou em caso de grupo
                   return MessageTile(mensagem: mensagens[index]);
                 },
                 itemCount: mensagens.length,

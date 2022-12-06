@@ -51,7 +51,6 @@ class ProfileProvider {
   Future<void> createProfile({
     required Pessoa pessoa,
   }) async {
-    print("criando prefilA");
     await firebaseDatabase
         .ref("${DatabaseConstants.pathUserCollection}/${pessoa.id}")
         .set(pessoa.toJson());

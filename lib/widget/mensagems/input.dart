@@ -47,12 +47,10 @@ class _InputState extends State<Input> {
     try {
       TaskSnapshot task = await upload;
       final String imageUrl = await task.ref.getDownloadURL();
-      setState(() {
-        sendingImage = false;
-        final Mensagem m =
-            createMensagem(imageUrl: imageUrl, type: MessageType.image);
-        onSendMessage(m);
-      });
+      sendingImage = false;
+      final Mensagem m =
+          createMensagem(imageUrl: imageUrl, type: MessageType.image);
+      onSendMessage(m);
     } on FirebaseException catch (e) {
       setState(() {
         sendingImage = false;
@@ -69,7 +67,7 @@ class _InputState extends State<Input> {
     }
   }
 
-  showCameraPreview(File file) async {
+  showCameraPreview(BuildContext context, File file) async {
     File? image = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -144,22 +142,12 @@ class _InputState extends State<Input> {
                       Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (context) => CameraCamera(
-                            onFile: (file) => showCameraPreview(file),
+                            onFile: (file) => showCameraPreview(context, file),
                           ),
                         ),
                       );
                     },
                   ),
-                ),
-              ),
-            if (!writing)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 2),
-                child: CircleAvatar(
-                  child: IconButton(
-                      icon: const Icon(Icons.mic),
-                      onPressed: () => {} //getFromImagePicker(),
-                      ),
                 ),
               ),
             if (writing)

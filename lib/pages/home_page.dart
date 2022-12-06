@@ -9,9 +9,7 @@ import 'package:messenger_app/provider/conversa_provider.dart';
 import 'package:messenger_app/provider/profile_provider.dart';
 import 'package:messenger_app/provider/usuario_ativo_provider.dart';
 import 'package:messenger_app/provider/conversas_selecionadas_provider.dart';
-import 'package:messenger_app/widget/homepage/conversa_item.dart';
 import 'package:messenger_app/widget/homepage/list_items.dart';
-import 'package:messenger_app/widget/homepage/profile_item.dart';
 import 'package:provider/provider.dart';
 
 import '../models/conversa.dart';

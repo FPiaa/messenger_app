@@ -22,10 +22,8 @@ void main() async {
   try {
     await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform);
-  } catch (e) {
-    print("$e");
-    print("${Firebase.apps.length}");
-  }
+    // ignore: empty_catches
+  } catch (e) {}
   if (kDebugMode) {
     await FirebaseAuth.instance.useAuthEmulator("localhost", 9099);
     FirebaseDatabase.instance.useDatabaseEmulator("10.0.2.2", 9000);

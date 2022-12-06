@@ -1,5 +1,4 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:messenger_app/models/pessoa.dart';
 
 part "mensagem.g.dart";
 

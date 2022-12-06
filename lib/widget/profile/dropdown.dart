@@ -19,6 +19,7 @@ class ImageChoices extends StatefulWidget {
 
 class _ImageChoicesState extends State<ImageChoices> {
   late ProfileProvider profileProvider;
+  File? imagem;
 
   Future getFromImagePicker() async {
     ImagePicker picker = ImagePicker();
@@ -32,7 +33,6 @@ class _ImageChoicesState extends State<ImageChoices> {
   }
 
   uploadImage(File image) async {
-    final String fileName = DateTime.now().microsecondsSinceEpoch.toString();
     UploadTask upload =
         profileProvider.uploadImage(image: image, name: widget.pessoa.id);
     try {
@@ -49,7 +49,7 @@ class _ImageChoicesState extends State<ImageChoices> {
     }
   }
 
-  showCameraPreview(File file) async {
+  showCameraPreview(BuildContext context, File file) async {
     File? image = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -71,7 +71,7 @@ class _ImageChoicesState extends State<ImageChoices> {
             Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (context) => CameraCamera(
-                  onFile: (file) => showCameraPreview(file),
+                  onFile: (file) => showCameraPreview(context, file),
                 ),
               ),
             );
