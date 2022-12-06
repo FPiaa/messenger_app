@@ -206,10 +206,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   clearState() {
-    selecionadas.empty();
-    filtradas.clear();
-    pessoas.clear();
-    filtrar = false;
-    contatos = false;
+    setState(() {
+      selecionadas.empty();
+      filtradas.clear();
+      filtrar = false;
+      contatos = false;
+    });
   }
 }

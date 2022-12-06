@@ -45,6 +45,7 @@ class _ProfileItemState extends State<ProfileItem> {
               onTap: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) {
                   widget.callback();
+
                   return Provider(
                       create: (context) =>
                           UsuarioAtivoProvider(usuarioAtivoProvider.pessoa),
@@ -58,9 +59,9 @@ class _ProfileItemState extends State<ProfileItem> {
           selectedTileColor: Colors.blue[50],
           onTap: () {
             getOrCreateConversa(context, widget.destinatario!).then((conversa) {
+              widget.callback();
               Navigator.push(context, MaterialPageRoute(
                 builder: (BuildContext context) {
-                  widget.callback();
                   return MultiProvider(
                       providers: [
                         Provider<UsuarioAtivoProvider>(

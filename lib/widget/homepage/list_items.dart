@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:messenger_app/models/conversa.dart';
 import 'package:messenger_app/models/pessoa.dart';
 import 'package:messenger_app/provider/profile_provider.dart';
+import 'package:messenger_app/provider/usuario_ativo_provider.dart';
 import 'package:messenger_app/widget/homepage/conversa_item.dart';
 import 'package:messenger_app/widget/homepage/profile_item.dart';
 import 'package:provider/provider.dart';
@@ -26,6 +27,8 @@ class ListItems extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     ProfileProvider profileProvider = Provider.of<ProfileProvider>(context);
+    UsuarioAtivoProvider usuarioAtivoProvider =
+        Provider.of<UsuarioAtivoProvider>(context);
     if (contatos) {
       return StreamBuilder<DataSnapshot>(
           stream: profileProvider.getProfiles(limit: 30),
@@ -60,8 +63,12 @@ class ListItems extends StatelessWidget {
       }
       if (filtrar) {
         return ListView.separated(
-            itemBuilder: (context, data) =>
-                ConversaItem(conversa: filtradas[data], pessoas: pessoas),
+            itemBuilder: (context, data) => ConversaItem(
+                  conversa: filtradas[data],
+                  pessoas: pessoas,
+                  destinatarioId: filtradas[data]
+                      .destinatarioId(usuarioAtivoProvider.pessoa.id),
+                ),
             separatorBuilder: (_, __) => const Divider(),
             itemCount: filtradas.length);
       } else {
@@ -69,6 +76,8 @@ class ListItems extends StatelessWidget {
             itemBuilder: (context, data) => ConversaItem(
                   conversa: conversas[data],
                   pessoas: pessoas,
+                  destinatarioId: conversas[data]
+                      .destinatarioId(usuarioAtivoProvider.pessoa.id),
                 ),
             separatorBuilder: (_, __) => const Divider(),
             itemCount: conversas.length);

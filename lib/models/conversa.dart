@@ -30,6 +30,10 @@ class Conversa {
     }
   }
 
+  String destinatarioId(String usuarioAtivo) {
+    return participantesIds.firstWhere((element) => element != usuarioAtivo);
+  }
+
   factory Conversa.fromJson(Map<dynamic, dynamic> json) =>
       _$ConversaFromJson(json);
   Map<dynamic, dynamic> toJson() => _$ConversaToJson(this);

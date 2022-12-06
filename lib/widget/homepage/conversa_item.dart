@@ -19,8 +19,13 @@ import 'package:provider/provider.dart';
 
 class ConversaItem extends StatefulWidget {
   final Conversa? conversa;
+  final String destinatarioId;
   final Map<String, Pessoa> pessoas;
-  const ConversaItem({super.key, this.conversa, required this.pessoas});
+  const ConversaItem(
+      {super.key,
+      this.conversa,
+      required this.pessoas,
+      required this.destinatarioId});
 
   @override
   State<ConversaItem> createState() => _ConversaItemState();
@@ -44,7 +49,7 @@ class _ConversaItemState extends State<ConversaItem> {
       destinatario = null;
     }
     listenForUserChanges = profileProvider.firebaseDatabase
-        .ref("${DatabaseConstants.pathUserCollection}/${destinatario!.id}")
+        .ref("${DatabaseConstants.pathUserCollection}/${widget.destinatarioId}")
         .onValue
         .listen((event) {
       setState(() {
